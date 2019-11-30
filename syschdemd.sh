@@ -26,7 +26,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ ! -e "/run/current-system" ]; then
-    ln -sfn "$(${sw}/readlink -f "$systemPath")" /run/current-system
+    ${sw}/ln -sfn "$(${sw}/readlink -f "$systemPath")" /run/current-system
 fi
 
 if [ ! -e "/run/systemd.pid" ]; then
