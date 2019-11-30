@@ -31,7 +31,7 @@ let
      ln -s ${pkgs.stdenv.shell} ./bin/sh
 
      # WSL also requires a /bin/mount, otherwise the host fs isn't accessible
-     ln -s ${pkgs.utillinux}/bin/mount ./bin/mount
+     ln -s /nix/var/nix/profiles/system/bin/mount ./bin/mount
 
      # Set system profile
      system=${config.system.build.toplevel}
