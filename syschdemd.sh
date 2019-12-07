@@ -7,23 +7,9 @@ systemPath=`${sw}/readlink -f /nix/var/nix/profiles/system`
 
 # Needs root to work
 if [[ $EUID -ne 0 ]]; then
-    exec @wrapperDir@/sudo "$0" -u "$UID" "$@"
+    echo "[ERROR] Requires root! :( Make sure the WSL default user is set to root"
+    exit 1
 fi
-
-targetUid=$UID
-
-while [ "$#" -gt 0 ]; do
-    i="$1"; shift 1
-    case "$i" in
-        -u)
-            targetUid=$1; shift 1
-            ;;
-        *)
-            echo "$0: unknown option \`$i'"
-            exit 1
-            ;;
-    esac
-done
 
 if [ ! -e "/run/current-system" ]; then
     ${sw}/ln -sfn "$(${sw}/readlink -f "$systemPath")" /run/current-system
@@ -36,8 +22,5 @@ if [ ! -e "/run/systemd.pid" ]; then
     /run/current-system/sw/bin/pgrep -xf systemd > /run/systemd.pid
 fi
 
-if [ $UID -ne $targetUid ]; then
-    exec @wrapperDir@/su -s @shell@ $(/run/current-system/sw/bin/id -un $targetUid)
-else
-    exec @shell@
-fi
+userShell=$($sw/getent passwd @defaultUser@ | $sw/cut -d: -f7)
+exec $sw/nsenter -t $(< /run/systemd.pid) -p -m --wd="$PWD" -- @wrapperDir@/su -s $userShell @defaultUser@

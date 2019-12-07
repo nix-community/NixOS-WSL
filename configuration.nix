@@ -3,7 +3,8 @@
 with lib;
 
 let
-  syschdemd = import ./syschdemd.nix { inherit lib pkgs config; };
+  defaultUser = "andy";
+  syschdemd = import ./syschdemd.nix { inherit lib pkgs config defaultUser; };
 in
 {
   imports = [
@@ -18,10 +19,14 @@ in
 
   networking.dhcpcd.enable = false;
 
-  users.users.andy = {
+  users.users.${defaultUser} = {
     isNormalUser = true;
+  };
+
+  users.users.root = {
     shell = "${syschdemd}/bin/syschdemd";
-    extraGroups = [ "wheel" ];
+    # Otherwise WSL fails to login as root with "initgroups failed 5"
+    extraGroups = [ "root" ];
   };
 
   # Described as "it should not be overwritten" in NixOS documentation,

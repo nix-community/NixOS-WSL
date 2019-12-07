@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, defaultUser, ... }:
 
 let
   nixpkgs = import <nixpkgs> {};
@@ -14,6 +14,7 @@ pkgs.substituteAll {
   buildInputs = [ daemonize ];
 
   inherit daemonize;
+  inherit defaultUser;
   inherit (config.security) wrapperDir;
   fsPackagesPath = lib.makeBinPath config.system.fsPackages;
 }
