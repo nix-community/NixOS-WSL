@@ -23,4 +23,4 @@ if [ ! -e "/run/systemd.pid" ]; then
 fi
 
 userShell=$($sw/getent passwd @defaultUser@ | $sw/cut -d: -f7)
-exec $sw/nsenter -t $(< /run/systemd.pid) -p -m --wd="$PWD" -- @wrapperDir@/su -s $userShell @defaultUser@
+exec $sw/nsenter -t $(< /run/systemd.pid) -p -m --wd="$PWD" -- @wrapperDir@/su -s $userShell @defaultUser@ "$@"
