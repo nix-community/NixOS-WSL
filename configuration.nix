@@ -21,6 +21,7 @@ in
 
   users.users.${defaultUser} = {
     isNormalUser = true;
+    extraGroups = [ "wheel" ];
   };
 
   users.users.root = {
