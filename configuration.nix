@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, modulesPath, ... }:
 
 with lib;
 
@@ -8,7 +8,7 @@ let
 in
 {
   imports = [
-    <nixpkgs/nixos/modules/profiles/minimal.nix>
+    "${modulesPath}/profiles/minimal.nix"
   ];
 
   # WSL is closer to a container than anything else
