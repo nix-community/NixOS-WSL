@@ -75,6 +75,13 @@ The resulting mini rootfs can then be found under
 ``./result-2/tarball/nixos-system-x86_64-linux.tar.gz``.
 
 
+License
+=======
+
+Apache License, Version 2.0. See ``LICENSE`` or
+http://www.apache.org/licenses/LICENSE-2.0.html for details.
+
+
 Further links
 =============
 
