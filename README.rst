@@ -3,34 +3,51 @@ NixOS on WSL
 ============
 
 A minimal root filesystem for running NixOS on WSL. It can be used with
-DistroLauncher_ as ``install.tar.gz``.
+DistroLauncher_ as ``install.tar.gz`` or as input to ``wsl --import --version
+2``.
+
 
 Quick start
 ===========
 
-Run these steps from within an existing Linux installation (such as Ubuntu on WSL):
+First, you need to build the rootfs tarball. That can be done in some existing
+Nix installation. If you don't have one, `you can install Nix in an existing
+Linux installation such as Ubuntu on WSL
+<https://nixos.org/download.html#nix-quick-install>`_. Alernatively, you can
+also use the `nixos/nix Docker container <https://hub.docker.com/r/nixos/nix>`_.
 
-- Install Nix: https://nixos.org/download.html#nix-quick-install
+Run the following commands in your Nix-enabled system:
+
 - ``git clone https://github.com/Trundle/NixOS-WSL``
 - ``cd NixOS-WSL``
 - ``$EDITOR configuration.nix`` and change the ``defaultUser`` variable to whatever you want
 - ``nix-build -A system -A config.system.build.tarball ./nixos.nix``
+
+After that, the rootfs tarball can be found under
+``result-2/tarball/nixos-system-x86_64-linux.tar.gz``. Copy the file to your
+Windows installation. If you used another WSL distribution to build the tarball,
+that can be done with the following commands:
+
 - ``mkdir "/mnt/c/Users/[Windows username]/NixOS"``
 - ``cp result-2/tarball/nixos-system-x86_64-linux.tar.gz "/mnt/c/Users/[Windows username]/NixOS/"``
 
-Open up Windows PowerShell and run:
+Open up a Command Prompt or PowerShell and run:
 
 - ``wsl --import NixOS .\NixOS\ .\NixOS\nixos-system-x86_64-linux.tar.gz --version 2``
-- ``wsl -s NixOS``
-- ``wsl``
+- ``wsl -d NixOS``
 
-You will be dropped into a very primitive `sh` shell, from here you need to run this once:
+You will be dropped into a very primitive ``sh`` shell, from here you need to
+run this once::
 
-- ``/nix/var/nix/profiles/system/activate``
+  /nix/var/nix/profiles/system/activate
 
-You should be able to safely ignore warnings about locales.
+A few warnings about locales will pop up. You can safely ignore them.
 
-Exit and restart WSL and you should be greeted with a much fancier bash prompt.
+Exit and restart WSL and you should be greeted with a much fancier bash prompt
+inside your fresh NixOS.
+
+If you want to make NixOS your default distribution, you can do so via ``wsl -s
+NixOS``.
 
 
 systemd support
