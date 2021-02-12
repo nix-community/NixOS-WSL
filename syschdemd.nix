@@ -1,5 +1,8 @@
 { lib, pkgs, config, defaultUser, ... }:
 
+let
+  inherit (pkgs) daemonize;
+in
 pkgs.substituteAll {
   name = "syschdemd";
   src = ./syschdemd.sh;
