@@ -30,11 +30,6 @@ in
     extraGroups = [ "root" ];
   };
 
-  # Described as "it should not be overwritten" in NixOS documentation,
-  # but it's on /run per default and WSL mounts /run as a tmpfs, hence
-  # hiding the wrappers.
-  security.wrapperDir = "/wrappers";
-
   security.sudo.wheelNeedsPassword = false;
 
   # Disable systemd units that don't make sense on WSL

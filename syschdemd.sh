@@ -12,7 +12,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if [ ! -e "/run/current-system" ]; then
-    ${sw}/ln -sfn "$(${sw}/readlink -f "$systemPath")" /run/current-system
+    /nix/var/nix/profiles/system/activate
 fi
 
 if [ ! -e "/run/systemd.pid" ]; then
