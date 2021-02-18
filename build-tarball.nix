@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 with lib;
 
@@ -55,7 +55,7 @@ let
      cp ${./syschdemd.sh} ./etc/nixos/syschdemd.sh
    '';
 in
-{  system.build.tarball = pkgs.callPackage <nixpkgs/nixos/lib/make-system-tarball.nix> {
+{  system.build.tarball = pkgs.callPackage "${inputs.nixpkgs}/nixos/lib/make-system-tarball.nix" {
     # No contents, structure will be added by prepare script
     contents = [];
 
