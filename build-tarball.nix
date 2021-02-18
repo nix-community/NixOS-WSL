@@ -47,6 +47,12 @@ let
 
      # It's now a NixOS!
      touch ./etc/NIXOS
+
+     # Copy the system configuration
+     mkdir -p ./etc/nixos
+     cp ${./configuration.nix} ./etc/nixos/configuration.nix
+     cp ${./syschdemd.nix} ./etc/nixos/syschdemd.nix
+     cp ${./syschdemd.sh} ./etc/nixos/syschdemd.sh
    '';
 in
 {  system.build.tarball = pkgs.callPackage <nixpkgs/nixos/lib/make-system-tarball.nix> {
