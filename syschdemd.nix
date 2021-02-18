@@ -1,8 +1,5 @@
 { lib, pkgs, config, defaultUser, ... }:
 
-let
-  inherit (pkgs) daemonize;
-in
 pkgs.substituteAll {
   name = "syschdemd";
   src = ./syschdemd.sh;
@@ -11,6 +8,7 @@ pkgs.substituteAll {
 
   buildInputs = with pkgs; [ daemonize ];
 
+  inherit (pkgs) daemonize;
   inherit defaultUser;
   inherit (config.security) wrapperDir;
   fsPackagesPath = lib.makeBinPath config.system.fsPackages;
