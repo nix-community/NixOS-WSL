@@ -15,7 +15,7 @@
           (import ./configuration.nix)
           (import ./build-tarball.nix)
         ];
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit (inputs) nixpkgs; };
       };
     };
   };
