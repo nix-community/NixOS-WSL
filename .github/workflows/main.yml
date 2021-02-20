@@ -20,6 +20,10 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      - name: Run checks
+        run: |
+          nix flake check
+
       - name: Build tarball
         run: |
           nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
