@@ -10,33 +10,23 @@ DistroLauncher_ as ``install.tar.gz`` or as input to ``wsl --import --version
 Quick start
 ===========
 
-First, you need to build the rootfs tarball. That can be done in some existing
-Nix installation. If you don't have one, `you can install Nix in an existing
-Linux installation such as Ubuntu on WSL
-<https://nixos.org/download.html#nix-quick-install>`_. Alernatively, you can
-also use the `nixos/nix Docker container <https://hub.docker.com/r/nixos/nix>`_.
+First, `download the latest release's system tarball
+<https://github.com/Trundle/NixOS-WSL/releases/latest/download/nixos-system-x86_64-linux.tar.gz>`_.
 
-Run the following commands in your Nix-enabled system:
+Then open up a Terminal, PowerShell or Command Prompt and run::
 
-- ``git clone https://github.com/Trundle/NixOS-WSL``
-- ``cd NixOS-WSL``
-- ``$EDITOR configuration.nix`` and change the ``defaultUser`` variable to whatever you want
-- ``nix-build -A system -A config.system.build.tarball ./nixos.nix``
+   wsl --import NixOS .\NixOS\ nixos-system-x86_64-linux.tar.gz --version 2
 
-After that, the rootfs tarball can be found under
-``result-2/tarball/nixos-system-x86_64-linux.tar.gz``. Copy the file to your
-Windows installation. If you used another WSL distribution to build the tarball,
-that can be done with the following commands:
+This sets up a new WSL distribution ``NixOS`` that is installed under
+``.\NixOS``. ``nixos-system-x86_64-linux.tar.gz`` is the path to the file you
+downloaded earlier. You might need to change this path or change to the download
+directory first.
 
-- ``mkdir "/mnt/c/Users/[Windows username]/NixOS"``
-- ``cp result-2/tarball/nixos-system-x86_64-linux.tar.gz "/mnt/c/Users/[Windows username]/NixOS/"``
+You can now run NixOS::
 
-Open up a Command Prompt or PowerShell and run:
+   wsl -d NixOS
 
-- ``wsl --import NixOS .\NixOS\ .\NixOS\nixos-system-x86_64-linux.tar.gz --version 2``
-- ``wsl -d NixOS``
-
-You will be dropped into a very primitive ``sh`` shell, from here you need to
+You will be dropped into a very primitive ``sh`` shell. From here you need to
 run this once::
 
   /nix/var/nix/profiles/system/activate
@@ -64,12 +54,25 @@ combination is resolved in two ways:
   wrapper (see above) enters the systemd namespace before dropping to the shell.
 
 
-How to build
-============
+Build your own system tarball
+=============================
 
-::
+This requires access to a system that already has Nix installed. Please refer to
+the `Nix installation guide <https://nixos.org/guides/install-nix.html>`_ if
+that's not the case.
 
-   $ nix-build -A system -A config.system.build.tarball ./nixos.nix
+If you have a flakes-enabled Nix, you can use the following command to buld your
+own tarball instead of relying on a prebuilt one::
+
+   nix build github:Trundle/NixOS-WSL#nixosConfigurations.mysystem.config.system.build.tarball
+
+Or, if you want to build with local changes, run inside your checkout::
+
+   nix build .#nixosConfigurations.mysystem.config.system.build.tarball
+
+Without a flakes-enabled Nix, you can build a tarball using::
+
+   nix-build -A system -A config.system.build.tarball ./nixos.nix
 
 The resulting mini rootfs can then be found under
 ``./result-2/tarball/nixos-system-x86_64-linux.tar.gz``.
