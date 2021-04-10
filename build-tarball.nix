@@ -27,7 +27,7 @@ let
     mkdir -m 1777 ./tmp
 
     # WSL requires a /bin/sh - only temporary, NixOS's activate will overwrite
-    ln -s ${pkgs.stdenv.shell} ./bin/sh
+    ln -s ${config.users.users.root.shell} ./bin/sh
 
     # WSL also requires a /bin/mount, otherwise the host fs isn't accessible
     ln -s /nix/var/nix/profiles/system/sw/bin/mount ./bin/mount
@@ -61,7 +61,6 @@ in
 
     storeContents = pkgs2storeContents [
       config.system.build.toplevel
-      pkgs.stdenv
       channelSources
       preparer
     ];
