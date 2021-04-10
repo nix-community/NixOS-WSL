@@ -61,7 +61,6 @@ in
 
     storeContents = pkgs2storeContents [
       config.system.build.toplevel
-      pkgs.stdenv
       channelSources
       preparer
     ];
