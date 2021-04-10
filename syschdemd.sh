@@ -12,7 +12,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if [ ! -e "/run/current-system" ]; then
-    /nix/var/nix/profiles/system/activate
+    LANG="C.UTF-8" /nix/var/nix/profiles/system/activate
 fi
 
 if [ ! -e "/run/systemd.pid" ]; then
