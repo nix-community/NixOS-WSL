@@ -38,6 +38,6 @@ if [[ $# -gt 0 ]]; then
     shift
     cmd="$@"
 else
-    cmd="$userShell"
+    cmd="$userShell --login"
 fi
 exec $sw/nsenter -t $(< /run/systemd.pid) -p -m -- $sw/machinectl -q --uid=@defaultUser@ shell .host /bin/sh -c "cd \"$PWD\"; exec $cmd"
