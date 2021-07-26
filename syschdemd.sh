@@ -40,4 +40,17 @@ if [[ $# -gt 0 ]]; then
 else
     cmd="$userShell"
 fi
-exec $sw/nsenter -t $(< /run/systemd.pid) -p -m -- $sw/machinectl -q --uid=@defaultUser@ shell .host /bin/sh -c "cd \"$PWD\"; exec $cmd"
+
+# store external environment but filter variables specific to current (root) user.
+# systemd-run below will restore the current environment using this file.
+env | $sw/grep -vE "^(HOME|LOGNAME|SHELL|USER)=" > /run/env.vars
+
+exec $sw/nsenter -t $(< /run/systemd.pid) -p -m -- $sw/systemd-run \
+    --uid=@defaultUser@ \
+    --quiet \
+    --collect \
+    --wait \
+    --pty \
+    --working-directory="$PWD" \
+    --property EnvironmentFile=/run/env.vars \
+    /bin/sh -c "exec $cmd"
