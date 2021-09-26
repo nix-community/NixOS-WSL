@@ -61,7 +61,7 @@ This requires access to a system that already has Nix installed. Please refer to
 the `Nix installation guide <https://nixos.org/guides/install-nix.html>`_ if
 that's not the case.
 
-If you have a flakes-enabled Nix, you can use the following command to buld your
+If you have a flakes-enabled Nix, you can use the following command to build your
 own tarball instead of relying on a prebuilt one::
 
    nix build github:Trundle/NixOS-WSL#nixosConfigurations.mysystem.config.system.build.tarball
