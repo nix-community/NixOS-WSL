@@ -48,17 +48,6 @@ in
   # Don't allow emergency mode, because we don't have a console.
   systemd.enableEmergencyMode = false;
 
-
-  # WSLg support
-  environment.variables = {
-    DISPLAY = ":0";
-    WAYLAND_DISPLAY = "wayland-0";
-
-    PULSE_SERVER = "${automountPath}/wslg/PulseServer";
-    XDG_RUNTIME_DIR = "${automountPath}/wslg/runtime-dir";
-    WSL_INTEROP = "/run/WSL/1_interop";
-  };
-
   environment.etc."wsl.conf".text = ''
     [automount]
     enabled=true
@@ -67,11 +56,11 @@ in
     options=metadata,uid=1000,gid=100
   '';
 
-  system.activationScripts.copy-launchers.text = ''
-    for x in applications icons; do
-      echo "Copying /usr/share/$x"
-      rm -rf /usr/share/$x
-      cp -r $systemConfig/sw/share/$x/. /usr/share/$x
-    done
-  '';
+  system.activationScripts = {
+    copy-launchers = stringAfter [] ''
+      for x in applications icons; do
+        echo "Copying /usr/share/$x"
+        ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+      done
+    '';
 }
