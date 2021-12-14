@@ -47,7 +47,7 @@ exportCmd="$(export -p | $sw/grep -vE ' (HOME|LOGNAME|SHELL|USER)='); export WSL
 if [ -z "${INSIDE_NAMESPACE:-}" ]; then
     exec $sw/nsenter -t $(</run/systemd.pid) -p -m -- $sw/machinectl -q \
         --uid=@defaultUser@ shell .host /bin/sh -c \
-        "cd \"$PWD\"; $exportCmd; exec $cmd"
+        "cd \"$PWD\"; $exportCmd; source /etc/set-environment; exec $cmd"
 else
     exec $cmd
 fi
