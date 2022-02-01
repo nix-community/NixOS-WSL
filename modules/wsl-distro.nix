@@ -86,6 +86,7 @@ with builtins; with lib;
         stringAfter [ ] ''
           for x in applications icons; do
             echo "Copying /usr/share/$x"
+            mkdir -p /usr/share/$x
             ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
           done
         ''
