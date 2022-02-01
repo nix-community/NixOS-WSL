@@ -15,6 +15,7 @@
     {
       nixosModules = {
         build-tarball = import ./modules/build-tarball.nix;
+        wsl-distro = import ./modules/wsl-distro.nix;
       };
 
       nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {

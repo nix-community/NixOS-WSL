@@ -46,13 +46,18 @@ let
     # It's now a NixOS!
     touch ./etc/NIXOS
 
+    # Write wsl.conf so that it is present when NixOS is started for the first time
+    cp ${config.environment.etc."wsl.conf".source} ./etc/wsl.conf
+
     # Copy the system configuration
     mkdir -p ./etc/nixos
     cp -R ${../.}/. ./etc/nixos/
   '';
 
 in
-{
+mkIf config.wsl.enable {
+  # These options make no sense without the wsl-distro module anyway
+
   system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
     # No contents, structure will be added by prepare script
     contents = [ ];
@@ -71,4 +76,5 @@ in
     compressCommand = "gzip";
     compressionExtension = ".gz";
   };
+
 }
