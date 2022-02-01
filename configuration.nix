@@ -29,7 +29,12 @@ in
     extraGroups = [ "root" ];
   };
 
-  security.sudo.wheelNeedsPassword = false;
+  security.sudo = {
+    extraConfig = ''
+      Defaults env_keep+=INSIDE_NAMESPACE
+    '';
+    wheelNeedsPassword = false;
+  };
 
   # Disable systemd units that don't make sense on WSL
   systemd.services."serial-getty@ttyS0".enable = false;

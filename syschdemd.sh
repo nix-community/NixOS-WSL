@@ -3,7 +3,7 @@
 set -e
 
 sw="/nix/var/nix/profiles/system/sw/bin"
-systemPath=`${sw}/readlink -f /nix/var/nix/profiles/system`
+systemPath=$(${sw}/readlink -f /nix/var/nix/profiles/system)
 
 # Needs root to work
 if [[ $EUID -ne 0 ]]; then
@@ -19,16 +19,16 @@ if [ ! -e "/run/systemd.pid" ]; then
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
         LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive \
         @daemonize@/bin/daemonize /run/current-system/sw/bin/unshare -fp --mount-proc systemd
-    /run/current-system/sw/bin/pgrep -xf systemd > /run/systemd.pid
+    /run/current-system/sw/bin/pgrep -xf systemd >/run/systemd.pid
 
     # Wait for systemd to start
     status=1
     while [[ $status -gt 0 ]]; do
         $sw/sleep 1
         status=0
-        $sw/nsenter -t $(< /run/systemd.pid) -p -m -- \
-                    $sw/systemctl is-system-running -q --wait 2>/dev/null \
-            || status=$?
+        $sw/nsenter -t $(</run/systemd.pid) -p -m -- \
+            $sw/systemctl is-system-running -q --wait 2>/dev/null ||
+            status=$?
     done
 fi
 
@@ -40,4 +40,8 @@ if [[ $# -gt 0 ]]; then
 else
     cmd="$userShell"
 fi
-exec $sw/nsenter -t $(< /run/systemd.pid) -p -m -- $sw/machinectl -q --uid=@defaultUser@ shell .host /bin/sh -c "cd \"$PWD\"; exec $cmd"
+if [ -z "${INSIDE_NAMESPACE:-}" ]; then
+    exec $sw/nsenter -t $(< /run/systemd.pid) -p -m -- $sw/machinectl -q --uid=@defaultUser@ shell .host /bin/sh -c "export INSIDE_NAMESPACE=true; cd \"$PWD\"; exec $cmd"
+else
+    exec $cmd
+fi
