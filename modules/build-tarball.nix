@@ -1,6 +1,5 @@
-{ config, pkgs, lib, nixpkgs ? <nixpkgs>, ... }:
-
-with lib;
+{ config, pkgs, lib, ... }:
+with builtins; with lib;
 let
   pkgs2storeContents = l: map (x: { object = x; symlink = "none"; }) l;
 
@@ -15,9 +14,9 @@ let
       if [ ! -e $out/nixos/nixpkgs ]; then
         ln -s . $out/nixos/nixpkgs
       fi
-      echo -n ${config.system.nixos.revision} > $out/nixos/.git-revision
-      echo -n ${config.system.nixos.versionSuffix} > $out/nixos/.version-suffix
-      echo ${config.system.nixos.versionSuffix} | sed -e s/pre// > $out/nixos/svn-revision
+      echo -n ${toString config.system.nixos.revision} > $out/nixos/.git-revision
+      echo -n ${toString config.system.nixos.versionSuffix} > $out/nixos/.version-suffix
+      echo ${toString config.system.nixos.versionSuffix} | sed -e s/pre// > $out/nixos/svn-revision
     '';
 
   preparer = pkgs.writeShellScriptBin "wsl-prepare" ''
@@ -49,15 +48,16 @@ let
 
     # Copy the system configuration
     mkdir -p ./etc/nixos
-    cp ${./configuration.nix} ./etc/nixos/configuration.nix
-    cp ${./syschdemd.nix} ./etc/nixos/syschdemd.nix
-    cp ${./syschdemd.sh} ./etc/nixos/syschdemd.sh
+    cp -R ${../.}/. ./etc/nixos/
   '';
+
 in
 {
   system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
     # No contents, structure will be added by prepare script
     contents = [ ];
+
+    fileName = "nixos-wsl-${config.system.nixos.release}-${pkgs.hostPlatform.system}";
 
     storeContents = pkgs2storeContents [
       config.system.build.toplevel

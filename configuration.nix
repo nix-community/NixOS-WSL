@@ -5,10 +5,13 @@ let
   defaultUser = "nixos";
   automountPath = "/mnt";
   syschdemd = import ./syschdemd.nix { inherit lib pkgs config defaultUser; };
+  nixos-wsl = import ./default.nix;
 in
 {
-  imports = [
+  imports = with nixos-wsl.nixosModules; [
     "${modulesPath}/profiles/minimal.nix"
+
+    build-tarball
   ];
 
   # WSL is closer to a container than anything else
@@ -68,4 +71,5 @@ in
         ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
       done
     '';
+  };
 }

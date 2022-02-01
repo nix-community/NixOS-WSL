@@ -1,19 +1,30 @@
 {
   description = "NixOS WSL";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-20.09";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs = {
+    nixpkgs.url = "nixpkgs/nixos-20.09";
+    flake-utils.url = "github:numtide/flake-utils";
+
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
+  };
 
   outputs = { self, nixpkgs, flake-utils, ... }:
     {
+      nixosModules = {
+        build-tarball = import ./modules/build-tarball.nix;
+      };
+
       nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          (import ./configuration.nix)
-          (import ./build-tarball.nix)
+          ./configuration.nix
         ];
         specialArgs = { inherit nixpkgs; };
       };
+
     } //
     flake-utils.lib.eachDefaultSystem (system:
       let
