@@ -31,7 +31,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: install.tar.gz
-          path: result/tarball/*.tar.gz
+          path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -61,5 +61,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} #
           asset_name: install.tar.gz
-          asset_path: result/tarball/*.tar.gz
+          asset_path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
           asset_content_type: application/gzip

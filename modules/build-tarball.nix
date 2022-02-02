@@ -62,7 +62,7 @@ mkIf config.wsl.enable {
     # No contents, structure will be added by prepare script
     contents = [ ];
 
-    fileName = "nixos-wsl-${config.system.nixos.release}-${pkgs.hostPlatform.system}";
+    fileName = "nixos-wsl-${pkgs.hostPlatform.system}";
 
     storeContents = pkgs2storeContents [
       config.system.build.toplevel

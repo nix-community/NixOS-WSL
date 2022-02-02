@@ -23,7 +23,6 @@
         modules = [
           ./configuration.nix
         ];
-        specialArgs = { inherit nixpkgs; };
       };
 
     } //
