@@ -50,8 +50,11 @@ let
     cp ${config.environment.etc."wsl.conf".source} ./etc/wsl.conf
 
     # Copy the system configuration
-    mkdir -p ./etc/nixos
-    cp -R ${../.}/. ./etc/nixos/
+    mkdir -p ./etc/nixos/nixos-wsl
+    cp -R ${lib.cleanSource ../.}/. ./etc/nixos/nixos-wsl
+    mv ./etc/nixos/nixos-wsl/configuration.nix ./etc/nixos/configuration.nix
+    # Patch the import path to avoid havin a flake.nix in /etc/nixos
+    sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
   '';
 
 in

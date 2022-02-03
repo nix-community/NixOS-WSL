@@ -48,6 +48,7 @@ with builtins; with lib;
 
       # WSL is closer to a container than anything else
       boot.isContainer = true;
+      environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
 
       environment = {
         # Include Windows %PATH% in Linux $PATH.

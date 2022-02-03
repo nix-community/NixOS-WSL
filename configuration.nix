@@ -2,18 +2,14 @@
 
 with lib;
 let
-  defaultUser = "nixos";
-  automountPath = "/mnt";
   syschdemd = import ./syschdemd.nix { inherit lib pkgs config defaultUser; };
   nixos-wsl = import ./default.nix;
 in
 {
-  imports = with nixos-wsl.nixosModules; [
+  imports = [
     "${modulesPath}/profiles/minimal.nix"
 
-    build-tarball
-    docker-desktop
-    wsl-distro
+    nixos-wsl.nixosModules.wsl
   ];
 
   wsl = {
@@ -26,7 +22,8 @@ in
     # docker.enable = true;
   };
 
-  # Enable nix-flakes by default
+  # Enable nix flakes
+  nix.package = pkgs.nixFlakes;
   nix.extraOptions = ''
     experimental-features = nix-command flakes
   '';

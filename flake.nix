@@ -13,10 +13,13 @@
 
   outputs = { self, nixpkgs, flake-utils, ... }:
     {
-      nixosModules = {
-        build-tarball = import ./modules/build-tarball.nix;
-        wsl-distro = import ./modules/wsl-distro.nix;
-        docker-desktop = import ./modules/docker-desktop.nix;
+      nixosModules.wsl = {
+        imports = [
+          ./modules/build-tarball.nix
+          ./modules/wsl-distro.nix
+          ./modules/docker-desktop.nix
+          ./modules/installer.nix
+        ];
       };
 
       nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
