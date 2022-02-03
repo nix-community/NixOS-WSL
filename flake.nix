@@ -16,6 +16,7 @@
       nixosModules = {
         build-tarball = import ./modules/build-tarball.nix;
         wsl-distro = import ./modules/wsl-distro.nix;
+        docker-desktop = import ./modules/docker-desktop.nix;
       };
 
       nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {

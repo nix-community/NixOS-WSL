@@ -12,6 +12,7 @@ in
     "${modulesPath}/profiles/minimal.nix"
 
     build-tarball
+    docker-desktop
     wsl-distro
   ];
 
@@ -20,6 +21,9 @@ in
     automountPath = "/mnt";
     defaultUser = "nixos";
     startMenuLaunchers = true;
+
+    # Enable integration with Docker Desktop (needs to be installed)
+    # docker.enable = true;
   };
 
   # Enable nix-flakes by default
