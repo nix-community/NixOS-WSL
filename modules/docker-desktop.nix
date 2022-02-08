@@ -22,6 +22,10 @@ with builtins; with lib; {
           ${config.wsl.automountPath}/wsl/docker-desktop/docker-desktop-proxy -docker-desktop-root ${config.wsl.automountPath}/wsl/docker-desktop
         '';
         wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Restart = "on-failure";
+          RestartSec = "30s";
+        };
       };
 
       users.groups.docker.members = [
