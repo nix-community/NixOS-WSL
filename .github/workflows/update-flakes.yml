@@ -16,7 +16,7 @@ jobs:
         uses: cachix/install-nix-action@v16
 
       - name: Update flakes
-        run: nix flake update --commit-lock-file
+        run: nix flake update
 
       - name: Create Pull Request
         id: cpr
