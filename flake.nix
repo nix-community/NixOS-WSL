@@ -1,7 +1,7 @@
 {
   description = "NixOS WSL";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-20.09";
+  inputs.nixpkgs.url = "nixpkgs/nixos-21.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils, ... }:
