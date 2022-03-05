@@ -2,6 +2,8 @@
 
 with lib;
 let
+  cfg = config.wsl.tarball;
+
   pkgs2storeContents = l: map (x: { object = x; symlink = "none"; }) l;
 
   nixpkgs = lib.cleanSource pkgs.path;
@@ -38,37 +40,65 @@ let
     rm ./nix-path-registration
     ./$system/sw/bin/nix-env --store `pwd` -p ./nix/var/nix/profiles/system --set $system
 
+    ${if cfg.setChannel then setChannel else ""}
+
+    # It's now a NixOS!
+    touch ./etc/NIXOS
+
+    ${if cfg.copyConfig then copyConfig else ""}
+  '';
+
+  setChannel = ''
     # Set channel
     mkdir -p ./nix/var/nix/profiles/per-user/root
     ./$system/sw/bin/nix-env --store `pwd` -p ./nix/var/nix/profiles/per-user/root/channels --set ${channelSources}
     mkdir -m 0700 -p ./root/.nix-defexpr
     ln -s /nix/var/nix/profiles/per-user/root/channels ./root/.nix-defexpr/channels
+  '';
 
-    # It's now a NixOS!
-    touch ./etc/NIXOS
-
+  copyConfig = ''
     # Copy the system configuration
     mkdir -p ./etc/nixos
     cp ${./configuration.nix} ./etc/nixos/configuration.nix
+    cp ${./module.nix} ./etc/nixos/module.nix
     cp ${./syschdemd.nix} ./etc/nixos/syschdemd.nix
     cp ${./syschdemd.sh} ./etc/nixos/syschdemd.sh
   '';
 in
 {
-  system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
-    # No contents, structure will be added by prepare script
-    contents = [ ];
+  options.wsl.tarball = {
+    enable = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to allow building a tarball which can be imported into wsl.";
+    };
+    setChannel = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to set the channels within the tarball.";
+    };
+    copyConfig = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to copy the system configuration into the tarball.";
+    };
+  };
+  config = mkIf cfg.enable {
+    system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
+      # No contents, structure will be added by prepare script
+      contents = [ ];
 
-    storeContents = pkgs2storeContents [
-      config.system.build.toplevel
-      channelSources
-      preparer
-    ];
+      storeContents = pkgs2storeContents [
+        config.system.build.toplevel
+        channelSources
+        preparer
+      ];
 
-    extraCommands = "${preparer}/bin/wsl-prepare";
+      extraCommands = "${preparer}/bin/wsl-prepare";
 
-    # Use gzip
-    compressCommand = "gzip";
-    compressionExtension = ".gz";
+      # Use gzip
+      compressCommand = "gzip";
+      compressionExtension = ".gz";
+    };
   };
 }
