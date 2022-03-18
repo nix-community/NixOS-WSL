@@ -5,44 +5,41 @@ with builtins; with lib; {
     let
       mkTarball = pkgs.callPackage "${lib.cleanSource pkgs.path}/nixos/lib/make-system-tarball.nix";
 
-      busybox-static = pkgs.busybox.override { enableStatic = true; };
-
       pkgs2storeContents = map (x: { object = x; symlink = "none"; });
 
-      installerDependencies = mkTarball {
-        fileName = "store";
-        compressCommand = "cat";
-        compressionExtension = "";
-        contents = [ ];
-        storeContents = with pkgs; pkgs2storeContents [
-          pv
-        ];
-      };
+      rootfs = let tarball = config.system.build.tarball; in "${tarball}/tarball/${tarball.fileName}.tar${tarball.extension}";
 
       installer = pkgs.writeScript "installer.sh" ''
-        #!/bin/sh
+        #!${pkgs.busybox}/bin/sh
+        BASEPATH=$PATH
+        export PATH=$BASEPATH:${pkgs.busybox}/bin # Add busybox to path
+
         set -e
         cd /
 
-        echo "Unpacking installer..."
-        tar xf /store.tar
-
         echo "Unpacking root file system..."
-        ${pkgs.pv}/bin/pv /rootfs.tar.gz | tar xz
-
-        echo "Cleaning up installer files..."
-        rm /rootfs.tar.gz /store.tar /installer.sh
+        ${pkgs.pv}/bin/pv ${rootfs} | tar xz
 
         echo "Activating nix configuration..."
         /nix/var/nix/profiles/system/activate
+        PATH=$BASEPATH:/run/current-system/sw/bin # Use packages from target system
+
+        echo "Cleaning up installer files..."
+        nix-collect-garbage
+        rm /nix-path-registration
+
+        echo "Optimizing store..."
+        nix-store --optimize
+
 
         echo "Starting systemd..."
-        exec ${config.users.users.root.shell}
+        # Don't package the shell here, it's contained in the rootfs
+        exec ${builtins.unsafeDiscardStringContext config.users.users.root.shell} "$@"
       '';
 
       # Set installer.sh as the root shell
       passwd = pkgs.writeText "passwd" ''
-        root:x:0:0:System administrator:/root:/installer.sh
+        root:x:0:0:System administrator:/root:${installer}
       '';
     in
     {
@@ -51,35 +48,16 @@ with builtins; with lib; {
         fileName = "nixos-wsl-installer";
         compressCommand = "gzip";
         compressionExtension = ".gz";
+        extraArgs = "--hard-dereference";
 
-        contents = [
-          {
-            source = let tarball = config.system.build.tarball; in "${tarball}/tarball/${tarball.fileName}.tar${tarball.extension}";
-            target = "/rootfs.tar.gz";
-          }
-          { source = "${installerDependencies}/tarball/store.tar"; target = "/store.tar"; }
-          { source = "${busybox-static}/bin/busybox"; target = "/bin/busybox"; }
-          { source = config.environment.etc."wsl.conf".source; target = "/etc/wsl.conf"; }
-          { source = passwd; target = "/etc/passwd"; }
-          { source = installer; target = "/installer.sh"; }
+        storeContents = with pkgs; pkgs2storeContents [
+          installer
         ];
 
-        extraCommands =
-          let
-            # WSL's --import does not like hardlinks, create symlinks instead
-            createBusyboxLinks = concatStringsSep "\n" (
-              mapAttrsToList
-                (applet: type: "ln -s /bin/busybox ./bin/${applet}")
-                (filterAttrs
-                  (applet: type: applet != "busybox") # don't overwrite the original busybox
-                  (readDir "${busybox-static}/bin")
-                )
-            );
-          in
-          pkgs.writeShellScript "busybox-setup" ''
-            set -e
-            ${createBusyboxLinks}
-          '';
+        contents = [
+          { source = config.environment.etc."wsl.conf".source; target = "/etc/wsl.conf"; }
+          { source = passwd; target = "/etc/passwd"; }
+        ];
       };
 
     }
