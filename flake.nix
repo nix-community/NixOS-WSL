@@ -30,22 +30,24 @@
       };
 
     } //
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        checks.check-format = pkgs.runCommand "check-format"
-          {
-            buildInputs = with pkgs; [ nixpkgs-fmt ];
-          } ''
-          nixpkgs-fmt --check ${./.}
-          mkdir $out # success
-        '';
+    flake-utils.lib.eachSystem
+      (with flake-utils.lib.system; [ "x86_64-linux" "aarch64-linux" ])
+      (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+        in
+        {
+          checks.check-format = pkgs.runCommand "check-format"
+            {
+              buildInputs = with pkgs; [ nixpkgs-fmt ];
+            } ''
+            nixpkgs-fmt --check ${./.}
+            mkdir $out # success
+          '';
 
-        devShell = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [ nixpkgs-fmt ];
-        };
-      }
-    );
+          devShell = pkgs.mkShell {
+            nativeBuildInputs = with pkgs; [ nixpkgs-fmt ];
+          };
+        }
+      );
 }
