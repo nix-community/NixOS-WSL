@@ -28,10 +28,21 @@ jobs:
         run: |
           nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload tarball
+        uses: actions/upload-artifact@v2
         with:
-          name: install.tar.gz
-          path: result/tarball/nixos-system-x86_64-linux.tar.gz
+          name: rootfs
+          path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
+
+      - name: Build installer
+        run: |
+          nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer
+          path: result/tarball/nixos-wsl-installer.tar.gz
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -43,7 +54,11 @@ jobs:
 
       - uses: actions/download-artifact@v2
         with:
-          name: install.tar.gz
+          name: rootfs
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: installer
 
       - name: Create Release
         id: create_release
@@ -59,7 +74,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} #
-          asset_name: nixos-system-x86_64-linux.tar.gz
-          asset_path: nixos-system-x86_64-linux.tar.gz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: nixos-wsl-x86_64-linux.tar.gz
+          asset_path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload installer as release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: nixos-wsl-installer.tar.gz
+          asset_path: result/tarball/nixos-wsl-installer.tar.gz
           asset_content_type: application/gzip

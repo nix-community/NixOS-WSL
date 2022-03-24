@@ -15,10 +15,10 @@ First, `download the latest release's system tarball
 
 Then open up a Terminal, PowerShell or Command Prompt and run::
 
-   wsl --import NixOS .\NixOS\ nixos-system-x86_64-linux.tar.gz --version 2
+   wsl --import NixOS .\NixOS\ nixos-wsl-x86_64-linux.tar.gz --version 2
 
 This sets up a new WSL distribution ``NixOS`` that is installed under
-``.\NixOS``. ``nixos-system-x86_64-linux.tar.gz`` is the path to the file you
+``.\NixOS``. ``nixos-wsl-x86_64-linux.tar.gz`` is the path to the file you
 downloaded earlier. You might need to change this path or change to the download
 directory first.
 
@@ -72,10 +72,10 @@ Or, if you want to build with local changes, run inside your checkout::
 
 Without a flakes-enabled Nix, you can build a tarball using::
 
-   nix-build -A system -A config.system.build.tarball ./nixos.nix
+   nix-build -A nixosConfigurations.mysystem.config.system.build.tarball
 
 The resulting mini rootfs can then be found under
-``./result-2/tarball/nixos-system-x86_64-linux.tar.gz``.
+``./result/tarball/nixos-wsl-x86_64-linux.tar.gz``.
 
 
 License
