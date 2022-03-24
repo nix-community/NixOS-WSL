@@ -1,6 +1,6 @@
 name: 'Build NixOS WSL tarball'
 
-on: [push, pull_request]
+on: [push, pull_request, release]
 
 jobs:
   build:
@@ -60,31 +60,11 @@ jobs:
         with:
           name: installer
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Attach to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            nixos-wsl-x86_64-linux.tar.gz
+            nixos-wsl-installer.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          draft: true
-          tag_name: ${{ github.ref }}
-
-      - name: Upload tarball as release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: nixos-wsl-x86_64-linux.tar.gz
-          asset_path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Upload installer as release asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_name: nixos-wsl-installer.tar.gz
-          asset_path: result/tarball/nixos-wsl-installer.tar.gz
-          asset_content_type: application/gzip

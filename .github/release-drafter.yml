@@ -1,0 +1,15 @@
+change-template: "* $TITLE (#$NUMBER) @$AUTHOR"
+categories:
+  - title: '🚀 Features'
+    labels:
+      - enhancement
+  - title: "🛠️ Bugfixes"
+    labels:
+      - bug
+  - title: "📖 Documentation"
+    labels:
+      - documentation
+template: |
+    ## Changelog
+
+    $CHANGES
