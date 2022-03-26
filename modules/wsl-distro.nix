@@ -28,6 +28,20 @@ with builtins; with lib;
         type = attrsOf (attrsOf coercedToStr);
         description = "Entries that are added to /etc/wsl.conf";
       };
+
+      interop = {
+        register = mkOption {
+          type = bool;
+          default = true;
+          description = "Explicitly register the binfmt_misc handler for Windows executables";
+        };
+
+        includePath = mkOption {
+          type = bool;
+          default = true;
+          description = "Include Windows PATH in WSL PATH";
+        };
+      };
     };
 
   config =
@@ -47,12 +61,22 @@ with builtins; with lib;
       };
 
       # WSL is closer to a container than anything else
-      boot.isContainer = true;
+      boot = {
+        isContainer = true;
+
+        binfmt.registrations = mkIf cfg.interop.register {
+          WSLInterop = {
+            magicOrExtension = "MZ";
+            interpreter = "/init";
+            fixBinary = true;
+          };
+        };
+      };
       environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
 
       environment = {
         # Include Windows %PATH% in Linux $PATH.
-        extraInit = ''PATH="$PATH:$WSLPATH"'';
+        extraInit = mkIf cfg.interop.includePath ''PATH="$PATH:$WSLPATH"'';
 
         etc = {
           "wsl.conf".text = generators.toINI { } cfg.wslConf;
