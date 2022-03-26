@@ -16,9 +16,11 @@ if [ ! -e "/run/current-system" ]; then
 fi
 
 if [ ! -e "/run/systemd.pid" ]; then
+    @wrapperDir@/umount /proc/sys/fs/binfmt_misc
+
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
         LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive \
-        @daemonize@/bin/daemonize /run/current-system/sw/bin/unshare -fp --mount-proc systemd
+        @daemonize@/bin/daemonize /run/current-system/sw/bin/unshare -fp --mount-proc @systemdWrapper@
     /run/current-system/sw/bin/pgrep -xf systemd >/run/systemd.pid
 
     # Wait for systemd to start
