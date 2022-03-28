@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-20.09";
+    nixpkgs.url = "nixpkgs/nixos-21.11";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -13,6 +13,7 @@
 
   outputs = { self, nixpkgs, flake-utils, ... }:
     {
+
       nixosModules.wsl = {
         imports = [
           ./modules/build-tarball.nix
