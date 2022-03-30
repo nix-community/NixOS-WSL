@@ -3,13 +3,15 @@ categories:
   - title: '🚀 Features'
     labels:
       - enhancement
-  - title: "🛠️ Bugfixes"
+  - title: "🪲 Bugfixes"
     labels:
       - bug
   - title: "📖 Documentation"
     labels:
       - documentation
 template: |
-    ## Changelog
+    # Changelog
+
+    ## 🛠️ General Changes
 
     $CHANGES
