@@ -16,7 +16,7 @@ if [ ! -e "/run/current-system" ]; then
 fi
 
 if [ ! -e "/run/systemd.pid" ]; then
-    @wrapperDir@/umount /proc/sys/fs/binfmt_misc
+    @wrapperDir@/umount /proc/sys/fs/binfmt_misc || true
 
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
         LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive \

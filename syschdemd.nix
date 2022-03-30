@@ -14,7 +14,7 @@ pkgs.substituteAll {
   fsPackagesPath = lib.makeBinPath config.system.fsPackages;
 
   systemdWrapper = pkgs.writeShellScript "systemd-wrapper.sh" ''
-    mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc
+    mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc || true
     exec systemd
   '';
 }
