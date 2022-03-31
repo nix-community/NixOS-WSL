@@ -21,9 +21,13 @@ if [ ! -e "/run/systemd.pid" ]; then
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
         LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive \
         @daemonize@/bin/daemonize /run/current-system/sw/bin/unshare -fp --mount-proc @systemdWrapper@
-    /run/current-system/sw/bin/pgrep -xf systemd >/run/systemd.pid
 
-    # Wait for systemd to start
+    # Wait until systemd has been started to prevent a race condition from occuring
+    while ! /run/current-system/sw/bin/pgrep -xf systemd >/run/systemd.pid; do
+        $sw/sleep 1s
+    done
+
+    # Wait for systemd to start services
     status=1
     while [[ $status -gt 0 ]]; do
         $sw/sleep 1
