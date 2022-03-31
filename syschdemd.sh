@@ -5,17 +5,7 @@ set -e
 sw="/nix/var/nix/profiles/system/sw/bin"
 systemPath=$(${sw}/readlink -f /nix/var/nix/profiles/system)
 
-# Needs root to work
-if [[ $EUID -ne 0 ]]; then
-    echo "[ERROR] Requires root! :( Make sure the WSL default user is set to root"
-    exit 1
-fi
-
-if [ ! -e "/run/current-system" ]; then
-    LANG="C.UTF-8" /nix/var/nix/profiles/system/activate
-fi
-
-if [ ! -e "/run/systemd.pid" ]; then
+function start_systemd {
     @wrapperDir@/umount /proc/sys/fs/binfmt_misc || true
 
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
@@ -36,6 +26,20 @@ if [ ! -e "/run/systemd.pid" ]; then
             $sw/systemctl is-system-running -q --wait 2>/dev/null ||
             status=$?
     done
+}
+
+# Needs root to work
+if [[ $EUID -ne 0 ]]; then
+    echo "[ERROR] Requires root! :( Make sure the WSL default user is set to root"
+    exit 1
+fi
+
+if [ ! -e "/run/current-system" ]; then
+    LANG="C.UTF-8" /nix/var/nix/profiles/system/activate
+fi
+
+if [ ! -e "/run/systemd.pid" ]; then
+    start_systemd
 fi
 
 userShell=$($sw/getent passwd @defaultUser@ | $sw/cut -d: -f7)
@@ -51,9 +55,18 @@ fi
 exportCmd="$(export -p | $sw/grep -vE ' (HOME|LOGNAME|SHELL|USER)='); export WSLPATH=\"$PATH\"; export INSIDE_NAMESPACE=true"
 
 if [ -z "${INSIDE_NAMESPACE:-}" ]; then
+
+    # Test whether systemd is still alive if it was started previously
+    if ! [ -d "/proc/$(</run/systemd.pid)" ]; then
+        # Clear systemd pid if the process is not alive anymore
+        $sw/rm /run/systemd.pid
+        start_systemd
+    fi
+
     exec $sw/nsenter -t $(</run/systemd.pid) -p -m -- $sw/machinectl -q \
         --uid=@defaultUser@ shell .host /bin/sh -c \
         "cd \"$PWD\"; $exportCmd; source /etc/set-environment; exec $cmd"
+
 else
     exec $cmd
 fi
