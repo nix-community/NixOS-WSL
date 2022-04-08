@@ -6,6 +6,8 @@ sw="/nix/var/nix/profiles/system/sw/bin"
 systemPath=$(${sw}/readlink -f /nix/var/nix/profiles/system)
 
 function start_systemd {
+    echo "Starting systemd..." >&2
+
     @wrapperDir@/umount /proc/sys/fs/binfmt_misc || true
 
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
@@ -30,7 +32,7 @@ function start_systemd {
 
 # Needs root to work
 if [[ $EUID -ne 0 ]]; then
-    echo "[ERROR] Requires root! :( Make sure the WSL default user is set to root"
+    echo "[ERROR] Requires root! :( Make sure the WSL default user is set to root" >&2
     exit 1
 fi
 

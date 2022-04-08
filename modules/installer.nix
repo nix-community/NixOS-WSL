@@ -31,8 +31,6 @@ with builtins; with lib; {
         echo "Optimizing store..."
         nix-store --optimize
 
-
-        echo "Starting systemd..."
         # Don't package the shell here, it's contained in the rootfs
         exec ${builtins.unsafeDiscardStringContext config.users.users.root.shell} "$@"
       '';
