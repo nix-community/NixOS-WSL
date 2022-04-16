@@ -56,13 +56,19 @@ fi
 # Pass external environment but filter variables specific to root user.
 exportCmd="$(export -p | $sw/grep -vE ' (HOME|LOGNAME|SHELL|USER)='); export WSLPATH=\"$PATH\"; export INSIDE_NAMESPACE=true"
 
-if [ -z "${INSIDE_NAMESPACE:-}" ]; then
+if [[ -z "${INSIDE_NAMESPACE:-}" ]]; then
 
     # Test whether systemd is still alive if it was started previously
     if ! [ -d "/proc/$(</run/systemd.pid)" ]; then
         # Clear systemd pid if the process is not alive anymore
         $sw/rm /run/systemd.pid
         start_systemd
+    fi
+
+    # If we are currently in /root, this is probably because the directory that WSL was started is inaccessible
+    # cd to the user's home to prevent a warning about permission being denied on /root
+    if [[ $PWD == "/root" ]]; then
+        cd @defaultUserHome@
     fi
 
     exec $sw/nsenter -t $(</run/systemd.pid) -p -m -- $sw/machinectl -q \

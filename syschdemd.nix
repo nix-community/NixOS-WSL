@@ -1,4 +1,10 @@
-{ lib, pkgs, config, defaultUser, ... }:
+{ lib
+, pkgs
+, config
+, defaultUser
+, defaultUserHome ? "/home/${defaultUser}"
+, ...
+}:
 
 pkgs.substituteAll {
   name = "syschdemd";
@@ -8,8 +14,8 @@ pkgs.substituteAll {
 
   buildInputs = with pkgs; [ daemonize ];
 
+  inherit defaultUser defaultUserHome;
   inherit (pkgs) daemonize;
-  inherit defaultUser;
   inherit (config.security) wrapperDir;
   fsPackagesPath = lib.makeBinPath config.system.fsPackages;
 
