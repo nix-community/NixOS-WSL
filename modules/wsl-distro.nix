@@ -47,7 +47,7 @@ with builtins; with lib;
   config =
     let
       cfg = config.wsl;
-      syschdemd = import ../syschdemd.nix { inherit lib pkgs config; defaultUser = cfg.defaultUser; };
+      syschdemd = import ../syschdemd.nix { inherit lib pkgs config; defaultUser = cfg.defaultUser; defaultUserHome = config.users.users.${cfg.defaultUser}.home; };
     in
     mkIf cfg.enable {
 
