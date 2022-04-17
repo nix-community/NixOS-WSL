@@ -49,35 +49,49 @@ let
     # Write wsl.conf so that it is present when NixOS is started for the first time
     cp ${config.environment.etc."wsl.conf".source} ./etc/wsl.conf
 
-    # Copy the system configuration
-    mkdir -p ./etc/nixos/nixos-wsl
-    cp -R ${lib.cleanSource ../.}/. ./etc/nixos/nixos-wsl
-    mv ./etc/nixos/nixos-wsl/configuration.nix ./etc/nixos/configuration.nix
-    # Patch the import path to avoid havin a flake.nix in /etc/nixos
-    sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
+    ${lib.optionalString config.wsl.tarball.includeConfig ''
+      # Copy the system configuration
+      mkdir -p ./etc/nixos/nixos-wsl
+      cp -R ${lib.cleanSource ../.}/. ./etc/nixos/nixos-wsl
+      mv ./etc/nixos/nixos-wsl/configuration.nix ./etc/nixos/configuration.nix
+      # Patch the import path to avoid having a flake.nix in /etc/nixos
+      sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
+    ''}
   '';
 
 in
-mkIf config.wsl.enable {
-  # These options make no sense without the wsl-distro module anyway
+{
 
-  system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
-    # No contents, structure will be added by prepare script
-    contents = [ ];
-
-    fileName = "nixos-wsl-${pkgs.hostPlatform.system}";
-
-    storeContents = pkgs2storeContents [
-      config.system.build.toplevel
-      channelSources
-      preparer
-    ];
-
-    extraCommands = "${preparer}/bin/wsl-prepare";
-
-    # Use gzip
-    compressCommand = "gzip";
-    compressionExtension = ".gz";
+  options.wsl.tarball = {
+    includeConfig = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether or not to copy the system configuration into the tarball";
+    };
   };
 
+
+  config = mkIf config.wsl.enable {
+    # These options make no sense without the wsl-distro module anyway
+
+    system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
+      # No contents, structure will be added by prepare script
+      contents = [ ];
+
+      fileName = "nixos-wsl-${pkgs.hostPlatform.system}";
+
+      storeContents = pkgs2storeContents [
+        config.system.build.toplevel
+        channelSources
+        preparer
+      ];
+
+      extraCommands = "${preparer}/bin/wsl-prepare";
+
+      # Use gzip
+      compressCommand = "gzip";
+      compressionExtension = ".gz";
+    };
+
+  };
 }
