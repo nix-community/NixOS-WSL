@@ -19,6 +19,9 @@ in
 
     # Enable integration with Docker Desktop (needs to be installed)
     # docker.enable = true;
+
+    # Enable native Docker support within NixOS
+    # docker-native.enable = true;
   };
 
   # Enable nix flakes

@@ -20,6 +20,7 @@
           ./modules/wsl-distro.nix
           ./modules/docker-desktop.nix
           ./modules/installer.nix
+          ./modules/docker-native.nix
         ];
       };
 
