@@ -19,6 +19,9 @@ in
 
     # Enable integration with Docker Desktop (needs to be installed)
     # docker.enable = true;
+
+    # Enable authenticating sudo prompts with Windows Hello
+    # windowsHello.enable = true;
   };
 
   # Enable nix flakes
