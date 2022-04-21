@@ -17,9 +17,10 @@
       nixosModules.wsl = {
         imports = [
           ./modules/build-tarball.nix
-          ./modules/wsl-distro.nix
           ./modules/docker-desktop.nix
           ./modules/installer.nix
+          ./modules/windows-hello.nix
+          ./modules/wsl-distro.nix
         ];
       };
 
