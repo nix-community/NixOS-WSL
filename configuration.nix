@@ -17,8 +17,12 @@ in
     defaultUser = "nixos";
     startMenuLaunchers = true;
 
+    # Enable native Docker support
+    # docker-native.enable = true;
+
     # Enable integration with Docker Desktop (needs to be installed)
-    # docker.enable = true;
+    # docker-desktop.enable = true;
+
   };
 
   # Enable nix flakes
