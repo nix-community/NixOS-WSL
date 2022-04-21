@@ -42,6 +42,20 @@ with builtins; with lib;
           description = "Include Windows PATH in WSL PATH";
         };
       };
+
+      compatibility = {
+        interopPreserveArgvZero = mkOption {
+          type = nullOr bool;
+          default = null;
+          description = ''
+            Register binfmt interpreter for Windows executables with 'preserves argv[0]' flag.
+
+            Default (null): autodetect, at some performance cost.
+            To avoid the performance cost, set this to true for WSL Preview 0.58 and up,
+            or to false for older versions (including pre-Microsoft Store).
+          '';
+        };
+      };
     };
 
   config =
@@ -65,11 +79,38 @@ with builtins; with lib;
         isContainer = true;
 
         binfmt.registrations = mkIf cfg.interop.register {
-          WSLInterop = {
-            magicOrExtension = "MZ";
-            interpreter = "/init";
-            fixBinary = true;
-          };
+          WSLInterop =
+            let
+              compat = cfg.compatibility.interopPreserveArgvZero;
+
+              # WSL Preview 0.58 and up registers the /init binfmt interp for Windows executable
+              # with the "preserve argv[0]" flag, so if you run `./foo.exe`, the interp gets invoked
+              # as `/init foo.exe ./foo.exe`.
+              #   argv[0] --^        ^-- actual path
+              #
+              # Older versions expect to be called without the argv[0] bit, simply as `/init ./foo.exe`.
+              #
+              # We detect that by running `/init /known-not-existing-path.exe` and checking the exit code:
+              # the new style interp expects at least two arguments, so exits with exit code 1,
+              # presumably meaning "parsing error"; the old style interp attempts to actually run
+              # the executable, fails to find it, and exits with 255.
+              compatWrapper = pkgs.writeShellScript "nixos-wsl-binfmt-hack" ''
+                /init /nixos-wsl-does-not-exist.exe
+                [ $? -eq 255 ] && shift
+                exec /init $@
+              '';
+
+              # use the autodetect hack if unset, otherwise call /init directly
+              interpreter = if compat == null then compatWrapper else "/init";
+
+              # enable for the wrapper and autodetect hack
+              preserveArgvZero = if compat == false then false else true;
+            in
+            {
+              magicOrExtension = "MZ";
+              fixBinary = true;
+              inherit interpreter preserveArgvZero;
+            };
         };
       };
       environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
