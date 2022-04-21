@@ -18,7 +18,7 @@ in
     startMenuLaunchers = true;
 
     # Enable integration with Docker Desktop (needs to be installed)
-    # docker.enable = true;
+    # docker-desktop.enable = true;
 
     # Enable native Docker support within NixOS
     # docker-native.enable = true;

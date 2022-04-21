@@ -1,13 +1,17 @@
 { config, lib, pkgs, ... }:
 with builtins; with lib; {
 
-  options.wsl.docker = with types; {
+  imports = [
+    (mkRenamedOptionModule [ "wsl" "docker" ] [ "wsl" "docker-desktop" ])
+  ];
+
+  options.wsl.docker-desktop = with types; {
     enable = mkEnableOption "Docker Desktop integration";
   };
 
   config =
     let
-      cfg = config.wsl.docker;
+      cfg = config.wsl.docker-desktop;
     in
     mkIf (config.wsl.enable && cfg.enable) {
 
