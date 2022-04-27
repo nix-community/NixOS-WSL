@@ -21,6 +21,7 @@ in
     # docker.enable = true;
 
     # Enable authenticating sudo prompts with Windows Hello
+    # DO NOT USE THIS FOR ANYTHING SECURITY-CRITICAL
     # windowsHello.enable = true;
   };
 
