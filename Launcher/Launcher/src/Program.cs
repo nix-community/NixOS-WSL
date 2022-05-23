@@ -1,5 +1,7 @@
 ﻿using System.CommandLine;
 using Launcher.Commands;
+using Launcher.Helpers;
+using WslApiAdapter.WslApi;
 
 namespace Launcher;
 
@@ -20,7 +22,20 @@ internal static class Program {
             Uninstall.GetCommand()
         };
 
-        rootCommand.SetHandler(() => { Console.WriteLine("root"); });
+        rootCommand.SetHandler(() => {
+            if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
+                InstallationHelper.Install();
+            }
+
+            try {
+                WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
+                Program.result = (int) exitCode;
+            }
+            catch (WslApiException e) {
+                Console.Error.WriteLine("An error occured when starting the shell");
+                Program.result = e.HResult;
+            }
+        });
 
         rootCommand.Invoke(args);
 
