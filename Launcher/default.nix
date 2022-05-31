@@ -65,7 +65,7 @@ stdenv.mkDerivation rec {
       -p:ContinuousIntegrationBuild=true \
       -p:Deterministic=true \
       --packages "$HOME/nuget_pkgs" \
-      -r win10-x64 \
+      -r win-x64 \
       -c Release \
       --output $out/bin \
       Launcher

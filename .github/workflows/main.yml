@@ -57,16 +57,13 @@ jobs:
           name: installer
           path: Launcher/Launcher-Appx/nixos-wsl-installer.tar.gz
 
-      # - name: Setup dotnet toolchain
-      #   run: choco install -y dotnet-sdk visualstudio2022-workload-universalbuildtools windows-sdk-11-version-21h2-all
-
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
         with:
           vs-version: "[17.2,"
 
       - name: Build Launcher
-        run: cd Launcher; dotnet publish --self-contained -r win10-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\bin Launcher
+        run: cd Launcher; dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\bin Launcher
 
       - name: Upload Launcher
         uses: actions/upload-artifact@v3
