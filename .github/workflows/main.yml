@@ -1,4 +1,4 @@
-name: 'Build NixOS WSL tarball'
+name: 'Build NixOS WSL'
 
 on: [push, pull_request, release]
 
@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
@@ -29,7 +29,7 @@ jobs:
           nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
       - name: Upload tarball
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rootfs
           path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
@@ -39,10 +39,49 @@ jobs:
           nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
 
       - name: Upload installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
+
+  appx:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download installer
+        uses: actions/download-artifact@v3
+        with:
+          name: installer
+          path: Launcher/Launcher-Appx/nixos-wsl-installer.tar.gz
+
+      # - name: Setup dotnet toolchain
+      #   run: choco install -y dotnet-sdk visualstudio2022-workload-universalbuildtools windows-sdk-11-version-21h2-all
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: "[17.2,"
+
+      - name: Build Launcher
+        run: cd Launcher; dotnet publish --self-contained -r win10-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\bin Launcher
+
+      - name: Upload Launcher
+        uses: actions/upload-artifact@v3
+        with:
+          name: launcher
+          path: Launcher/Launcher/bin
+
+      - name: Build AppX package
+        run: cd Launcher; msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
+
+      - name: Upload AppX
+        uses: actions/upload-artifact@v3
+        with:
+          name: appx
+          path: Launcher/Launcher-Appx/AppPackages
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -50,16 +89,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: rootfs
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: installer
-          
+
       - name: Generate checksums
         run: |
           for x in *.tar.gz; do
