@@ -26,7 +26,7 @@ jobs:
 
       - name: Build tarball
         run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
+          nix build -vL '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
       - name: Upload tarball
         uses: actions/upload-artifact@v3
@@ -36,7 +36,7 @@ jobs:
 
       - name: Build installer
         run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
+          nix build -vL '.#nixosConfigurations.mysystem.config.system.build.installer'
 
       - name: Upload installer
         uses: actions/upload-artifact@v3
@@ -74,11 +74,21 @@ jobs:
       - name: Build AppX package
         run: cd Launcher; msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
 
+      - name: Sign package
+        env:
+          APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
+          CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
+        if: env.APPX_SIGNING_CERT != ''
+        run: |
+          Write-Output $env:APPX_SIGNING_CERT > appx-cert.b64
+          certutil -decode appx-cert.b64 appx-cert.pfx
+          &"C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" sign /fd $env:CERT_ALGORITHM /a /f appx-cert.pfx $(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].FullName
+
       - name: Upload AppX
         uses: actions/upload-artifact@v3
         with:
           name: appx
-          path: Launcher/Launcher-Appx/AppPackages/*.msixbundle
+          path: Launcher/Launcher-Appx/AppPackages/
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
