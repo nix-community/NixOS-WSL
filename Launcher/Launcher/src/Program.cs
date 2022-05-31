@@ -24,7 +24,11 @@ internal static class Program {
 
         rootCommand.SetHandler(() => {
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-                InstallationHelper.Install();
+                result = InstallationHelper.Install();
+                if (result != 0)
+                { 
+                    return;
+                }
             }
 
             try {

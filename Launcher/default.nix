@@ -38,30 +38,30 @@ stdenv.mkDerivation rec {
 
   configurePhase = ''
     runHook preConfigure
-    
+
     mkdir .home
     export HOME=$PWD/.home
-    
+
     export DOTNET_NOLOGO=1
     export DOTNET_CLI_TELEMETRY_OPTOUT=1
-    
-    dotnet nuget disable source nuget.org    
+
+    dotnet nuget disable source nuget.org
     nuget sources Add -Name nix -Source "$PWD/nix"
     nuget init "$nugetDeps" "$PWD/nix"
-    
+
     mkdir -p $HOME/.nuget/NuGet
     cp $HOME/.config/NuGet/NuGet.Config $HOME/.nuget/NuGet
-    
-    runHook postConfigure    
+
+    runHook postConfigure
   '';
 
   buildPhase = ''
     runHook preBuild
-    
+
     mkdir -p $out
-    
+
     dotnet publish \
-      --no-self-contained \
+      --self-contained \
       -p:ContinuousIntegrationBuild=true \
       -p:Deterministic=true \
       --packages "$HOME/nuget_pkgs" \
@@ -69,7 +69,7 @@ stdenv.mkDerivation rec {
       -c Release \
       --output $out/bin \
       Launcher
-    
+
     runHook postBuild
   '';
 

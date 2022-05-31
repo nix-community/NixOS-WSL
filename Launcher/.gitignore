@@ -7,3 +7,6 @@ bin/
 .idea/
 *.DotSettings.user
 obj/
+AppPackages/
+BundleArtifacts/
+*.pfx
