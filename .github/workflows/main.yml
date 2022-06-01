@@ -115,9 +115,12 @@ jobs:
         with:
           name: appx
 
+      - name: Rename appx
+        run: mv */*.msixbundle NixOS-WSL.msixbundle
+
       - name: Generate checksums
         run: |
-          for x in *.tar.gz */*.msixbundle; do
+          for x in *.tar.gz NixOS-WSL.msixbundle; do
             sha256sum $x > ${x}.sha256
           done
 
@@ -129,7 +132,7 @@ jobs:
             nixos-wsl-x86_64-linux.tar.gz.sha256
             nixos-wsl-installer.tar.gz
             nixos-wsl-installer.tar.gz.sha256
-            */*.msixbundle
-            */*.msixbundle.sha256
+            NixOS-WSL.msixbundle
+            NixOS-WSL.msixbundle.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
