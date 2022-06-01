@@ -1,4 +1,5 @@
-﻿using WslApiAdapter.WslApi;
+﻿using System.Reflection;
+using WslApiAdapter.WslApi;
 
 namespace Launcher.Helpers;
 
@@ -14,11 +15,32 @@ public static class InstallationHelper {
             Console.Error.WriteLine($"{DistributionInfo.DisplayName} is already installed!");
             return 0;
         }
+        
+        const string tarFileName = "nixos-wsl-installer.tar.gz";
+
+        // Determine tarball location
+        var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        if (assemblyPath == null) {
+            goto tarFail;
+        }
+
+        var tarPath = Path.Combine(assemblyPath, tarFileName);
+        if (!File.Exists(tarPath)) {
+            var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
+            if (parentDirectory != null) {
+                tarPath = Path.Combine(parentDirectory, tarFileName);
+                if (!File.Exists(tarPath)) {
+                    goto tarFail;
+                }
+            }
+            else goto tarFail;
+        }
 
         try {
             WslApiLoader.WslRegisterDistribution(
                 DistributionInfo.Name,
-                "nixos-wsl-installer.tar.gz"
+                tarPath
             );
         }
         catch (WslApiException e) {
@@ -48,6 +70,10 @@ public static class InstallationHelper {
 
         Console.WriteLine("Installation finished successfully");
         return 0;
+        
+        tarFail:
+        Console.Error.WriteLine("Could not find distro tarball");
+        return 1;
     }
 
     /// <summary>
