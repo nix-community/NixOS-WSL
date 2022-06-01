@@ -44,7 +44,7 @@ jobs:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
 
-  appx:
+  package:
     needs: build
     runs-on: windows-latest
     steps:
@@ -92,23 +92,32 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs:
+      - build
+      - package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - name: Download rootfs
+        uses: actions/download-artifact@v3
         with:
           name: rootfs
 
-      - uses: actions/download-artifact@v3
+      - name: Download installer
+        uses: actions/download-artifact@v3
         with:
           name: installer
 
+      - name: Download appx
+        uses: actions/download-artifact@v3
+        with:
+          name: appx
+
       - name: Generate checksums
         run: |
-          for x in *.tar.gz; do
+          for x in *.tar.gz */*.msixbundle; do
             sha256sum $x > ${x}.sha256
           done
 
@@ -120,5 +129,7 @@ jobs:
             nixos-wsl-x86_64-linux.tar.gz.sha256
             nixos-wsl-installer.tar.gz
             nixos-wsl-installer.tar.gz.sha256
+            */*.msixbundle
+            */*.msixbundle.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
