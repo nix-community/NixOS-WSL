@@ -128,8 +128,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            nixos-wsl-x86_64-linux.tar.gz
-            nixos-wsl-x86_64-linux.tar.gz.sha256
             nixos-wsl-installer.tar.gz
             nixos-wsl-installer.tar.gz.sha256
             NixOS-WSL.msixbundle
