@@ -113,7 +113,9 @@ with builtins; with lib;
             };
         };
       };
+
       environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
+      hardware.opengl.enable = true; # Enable GPU acceleration
 
       environment = {
         # Include Windows %PATH% in Linux $PATH.
