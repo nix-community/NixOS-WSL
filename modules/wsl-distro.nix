@@ -97,7 +97,7 @@ with builtins; with lib;
               compatWrapper = pkgs.writeShellScript "nixos-wsl-binfmt-hack" ''
                 /init /nixos-wsl-does-not-exist.exe
                 [ $? -eq 255 ] && shift
-                exec /init $@
+                exec /init "$@"
               '';
 
               # use the autodetect hack if unset, otherwise call /init directly
