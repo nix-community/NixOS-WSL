@@ -109,6 +109,7 @@ with builtins; with lib;
             {
               magicOrExtension = "MZ";
               fixBinary = true;
+              wrapInterpreterInShell = false;
               inherit interpreter preserveArgvZero;
             };
         };
