@@ -55,7 +55,7 @@ internal static class Program {
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var distroNameResult = context.ParseResult.FindResultFor(distroNameOption);
 
-            if (distroNameResult != null) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
+            if (distroNameResult != null && distroNameResult.Tokens.Count > 0) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
 
             await next(context);
         });
