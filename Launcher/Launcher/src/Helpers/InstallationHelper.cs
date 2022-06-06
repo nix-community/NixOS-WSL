@@ -15,26 +15,23 @@ public static class InstallationHelper {
             Console.Error.WriteLine($"{DistributionInfo.DisplayName} is already installed!");
             return 0;
         }
-        
+
         const string tarFileName = "nixos-wsl-installer.tar.gz";
 
         // Determine tarball location
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        if (assemblyPath == null) {
-            goto tarFail;
-        }
+        if (assemblyPath == null) goto tarFail;
 
         var tarPath = Path.Combine(assemblyPath, tarFileName);
         if (!File.Exists(tarPath)) {
             var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
             if (parentDirectory != null) {
                 tarPath = Path.Combine(parentDirectory, tarFileName);
-                if (!File.Exists(tarPath)) {
-                    goto tarFail;
-                }
+                if (!File.Exists(tarPath)) goto tarFail;
+            } else {
+                goto tarFail;
             }
-            else goto tarFail;
         }
 
         try {
@@ -42,8 +39,7 @@ public static class InstallationHelper {
                 DistributionInfo.Name,
                 tarPath
             );
-        }
-        catch (WslApiException e) {
+        } catch (WslApiException e) {
             Console.Error.WriteLine("There was an error registering the distribution");
             return e.HResult;
         }
@@ -60,17 +56,16 @@ public static class InstallationHelper {
             if (exitCode != 0) {
                 Console.Error.WriteLine("An error occured during first-time setup");
                 var result = (int) exitCode;
-                return (result == 0) ? 1 : result;
+                return result == 0 ? 1 : result;
             }
-        }
-        catch (WslApiException e) {
+        } catch (WslApiException e) {
             Console.Error.WriteLine("An internal error occured, when starting first-time setup!");
             return e.HResult;
         }
 
         Console.WriteLine("Installation finished successfully");
         return 0;
-        
+
         tarFail:
         Console.Error.WriteLine("Could not find distro tarball");
         return 1;
@@ -89,8 +84,7 @@ public static class InstallationHelper {
 
         try {
             WslApiLoader.WslUnregisterDistribution(DistributionInfo.Name);
-        }
-        catch (WslApiException e) {
+        } catch (WslApiException e) {
             Console.Error.WriteLine("An error occured when unregistering the distribution!");
             return e.HResult;
         }

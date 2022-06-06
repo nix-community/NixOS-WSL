@@ -1,7 +1,7 @@
 ﻿using System.CommandLine;
 using Launcher.Helpers;
 
-namespace Launcher.Commands; 
+namespace Launcher.Commands;
 
 public static class Install {
     public static Command GetCommand() {
@@ -12,7 +12,7 @@ public static class Install {
             Description = "Delete the existing installation and install a fresh copy"
         };
         command.Add(reinstallOpt);
-        
+
         command.SetHandler((bool reinstall) => {
             if (reinstall) {
                 var result = InstallationHelper.Uninstall();
@@ -24,7 +24,7 @@ public static class Install {
 
             Program.result = InstallationHelper.Install();
         }, reinstallOpt);
-        
+
         return command;
     }
 }
