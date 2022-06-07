@@ -104,7 +104,7 @@ with builtins; with lib;
               interpreter = if compat == null then compatWrapper else "/init";
 
               # enable for the wrapper and autodetect hack
-              preserveArgvZero = if compat == false then false else true;
+              preserveArgvZero = compat;
             in
             {
               magicOrExtension = "MZ";
