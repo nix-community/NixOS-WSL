@@ -126,8 +126,8 @@ with builtins; with lib;
           "wsl.conf".text = generators.toINI { } cfg.wslConf;
 
           # DNS settings are managed by WSL
-          hosts.enable = false;
-          "resolv.conf".enable = false;
+          hosts.enable = mkDefault false;
+          "resolv.conf".enable = mkDefault false;
         };
       };
 
@@ -169,7 +169,7 @@ with builtins; with lib;
       systemd.services."autovt@".enable = false;
 
       systemd.services.firewall.enable = false;
-      systemd.services.systemd-resolved.enable = false;
+      systemd.services.systemd-resolved.enable = mkDefault false;
       systemd.services.systemd-udevd.enable = false;
 
       # Don't allow emergency mode, because we don't have a console.
