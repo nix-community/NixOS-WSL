@@ -52,7 +52,7 @@ with builtins; with lib;
 
             Default (null): autodetect, at some performance cost.
             To avoid the performance cost, set this to true for WSL Preview 0.58 and up,
-            or to false for older versions (including pre-Microsoft Store).
+            or to false for any older versions, including pre-Microsoft Store and Windows 10.
           '';
         };
       };
