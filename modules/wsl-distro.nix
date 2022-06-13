@@ -129,6 +129,13 @@ with builtins; with lib;
           hosts.enable = false;
           "resolv.conf".enable = false;
         };
+
+        systemPackages = [
+          (pkgs.runCommand "wslpath" { } ''
+            mkdir -p $out/bin
+            ln -s /init $out/bin
+          '')
+        ];
       };
 
       networking.dhcpcd.enable = false;
