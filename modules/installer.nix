@@ -58,8 +58,12 @@ with builtins; with lib; {
           { source = passwd; target = "/etc/passwd"; }
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/sh"; }
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/mount"; }
-          { source = "/init"; target = "/bin/wslpath"; }
         ];
+
+        extraCommands = ''
+          mkdir -p bin
+          ${pkgs.coreutils}/bin/ln -s /init bin/wslpath
+        '';
       };
 
     }
