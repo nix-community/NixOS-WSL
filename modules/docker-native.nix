@@ -6,7 +6,7 @@ with builtins; with lib; {
 
     addToDockerGroup = mkOption {
       type = bool;
-      default = false;
+      default = config.security.sudo.wheelNeedsPassword;
       description = ''
         Wether to add the default user to the docker group.
 
