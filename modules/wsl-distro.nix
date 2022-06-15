@@ -129,6 +129,13 @@ with builtins; with lib;
           hosts.enable = false;
           "resolv.conf".enable = false;
         };
+
+        systemPackages = [
+          (pkgs.runCommand "wslpath" { } ''
+            mkdir -p $out/bin
+            ln -rs /init $out/bin/wslpath
+          '')
+        ];
       };
 
       networking.dhcpcd.enable = false;
@@ -162,8 +169,10 @@ with builtins; with lib;
             done
           ''
         );
-        wslpath = stringAfter [ ] ''
+        populateBin = stringAfter [ ] ''
           ln -sf /init /bin/wslpath
+          ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
+          ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
         '';
       };
 
