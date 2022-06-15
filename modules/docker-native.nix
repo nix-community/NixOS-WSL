@@ -10,7 +10,7 @@ with builtins; with lib; {
       description = ''
         Wether to add the default user to the docker group.
 
-        This is not recommend to be enabled because it essentially permits unauthenticated root access.
+        This is not recommended, if you have a password, because it essentially permits unauthenticated root access.
       '';
     };
   };
