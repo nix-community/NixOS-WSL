@@ -3,6 +3,16 @@ with builtins; with lib; {
 
   options.wsl.docker-native = with types; {
     enable = mkEnableOption "Native Docker integration in NixOS.";
+
+    addToDockerGroup = mkOption {
+      type = bool;
+      default = config.security.sudo.wheelNeedsPassword;
+      description = ''
+        Wether to add the default user to the docker group.
+
+        This is not recommend to be enabled because it essentially permits unauthenticated root access.
+      '';
+    };
   };
 
   config =
@@ -23,9 +33,8 @@ with builtins; with lib; {
 
       virtualisation.docker.enable = true;
 
-      users.groups.docker.members = [
+      users.groups.docker.members = lib.mkIf cfg.addToDockerGroup [
         config.wsl.defaultUser
       ];
     };
-
 }
