@@ -25,7 +25,7 @@ with builtins; with lib;
       };
       startMenuLaunchers = mkEnableOption "shortcuts for GUI applications in the windows start menu";
       wslConf = mkOption {
-        type = attrsOf (attrsOf (oneOf [string int bool]));
+        type = attrsOf (attrsOf (oneOf [ string int bool ]));
         description = "Entries that are added to /etc/wsl.conf";
       };
 
