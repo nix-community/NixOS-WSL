@@ -133,7 +133,7 @@ with builtins; with lib;
         systemPackages = [
           (pkgs.runCommand "wslpath" { } ''
             mkdir -p $out/bin
-            ln -rs /init $out/bin/wslpath
+            ln -s /init $out/bin/wslpath
           '')
         ];
       };
