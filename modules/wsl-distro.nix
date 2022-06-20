@@ -170,6 +170,7 @@ with builtins; with lib;
           ''
         );
         populateBin = stringAfter [ ] ''
+          echo "setting up /bin..."
           ln -sf /init /bin/wslpath
           ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
           ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
