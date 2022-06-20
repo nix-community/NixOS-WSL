@@ -129,6 +129,13 @@ with builtins; with lib;
           hosts.enable = false;
           "resolv.conf".enable = false;
         };
+
+        systemPackages = [
+          (pkgs.runCommand "wslpath" { } ''
+            mkdir -p $out/bin
+            ln -s /init $out/bin/wslpath
+          '')
+        ];
       };
 
       networking.dhcpcd.enable = false;
@@ -152,15 +159,22 @@ with builtins; with lib;
         wheelNeedsPassword = mkDefault false; # The default user will not have a password by default
       };
 
-      system.activationScripts.copy-launchers = mkIf cfg.startMenuLaunchers (
-        stringAfter [ ] ''
-          for x in applications icons; do
-            echo "Copying /usr/share/$x"
-            mkdir -p /usr/share/$x
-            ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
-          done
-        ''
-      );
+      system.activationScripts = {
+        copy-launchers = mkIf cfg.startMenuLaunchers (
+          stringAfter [ ] ''
+            for x in applications icons; do
+              echo "Copying /usr/share/$x"
+              mkdir -p /usr/share/$x
+              ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+            done
+          ''
+        );
+        populateBin = stringAfter [ ] ''
+          ln -sf /init /bin/wslpath
+          ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
+          ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
+        '';
+      };
 
       # Disable systemd units that don't make sense on WSL
       systemd.services."serial-getty@ttyS0".enable = false;
