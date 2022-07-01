@@ -25,7 +25,7 @@ with builtins; with lib;
       };
       startMenuLaunchers = mkEnableOption "shortcuts for GUI applications in the windows start menu";
       wslConf = mkOption {
-        type = attrsOf (attrsOf coercedToStr);
+        type = attrsOf (attrsOf (oneOf [ string int bool ]));
         description = "Entries that are added to /etc/wsl.conf";
       };
 
@@ -71,6 +71,10 @@ with builtins; with lib;
           mountFsTab = true;
           root = "${cfg.automountPath}/";
           options = cfg.automountOptions;
+        };
+        network = {
+          generateResolvConf = mkDefault true;
+          generateHosts = mkDefault true;
         };
       };
 
@@ -126,8 +130,8 @@ with builtins; with lib;
           "wsl.conf".text = generators.toINI { } cfg.wslConf;
 
           # DNS settings are managed by WSL
-          hosts.enable = mkDefault false;
-          "resolv.conf".enable = mkDefault false;
+          hosts.enable = !config.wsl.wslConf.network.generateHosts;
+          "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
         };
       };
 
@@ -174,5 +178,7 @@ with builtins; with lib;
 
       # Don't allow emergency mode, because we don't have a console.
       systemd.enableEmergencyMode = false;
+
+      warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf) "systemd-resolved is enabled, but resolv.conf is managed by WSL");
     };
 }
