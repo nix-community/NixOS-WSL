@@ -11,7 +11,7 @@ A minimal root filesystem for running NixOS on WSL. It can be used with
 
 ## Quick start
 
-First, [download the latest release\'s installer](https://github.com/nix-community/NixOS-WSL/releases/latest/download/nixos-wsl-installer.tar.gz).
+First, [download the latest release\'s installer](https://github.com/nix-community/NixOS-WSL/releases/latest).
 
 Then open up a Terminal, PowerShell or Command Prompt and run:
 
