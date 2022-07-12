@@ -1,5 +1,5 @@
 ﻿using System.CommandLine;
-using WslApiAdapter.WslApi;
+using WSL;
 
 namespace Launcher.Commands;
 

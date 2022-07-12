@@ -3,7 +3,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using Launcher.Commands;
 using Launcher.Helpers;
-using WslApiAdapter.WslApi;
+using WSL;
 
 namespace Launcher;
 

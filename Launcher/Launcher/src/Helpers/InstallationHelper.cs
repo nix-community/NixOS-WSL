@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using WslApiAdapter.WslApi;
+using WSL;
 
 namespace Launcher.Helpers;
 

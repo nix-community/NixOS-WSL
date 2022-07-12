@@ -9,10 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\WslApiAdapter\WslApiAdapter.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <PackageReference Include="nzbr.wsl.net" Version="1.0.0.1" />
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
     </ItemGroup>
 
