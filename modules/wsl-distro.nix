@@ -181,18 +181,26 @@ with builtins; with lib;
         '';
       };
 
-      # Disable systemd units that don't make sense on WSL
-      systemd.services."serial-getty@ttyS0".enable = false;
-      systemd.services."serial-getty@hvc0".enable = false;
-      systemd.services."getty@tty1".enable = false;
-      systemd.services."autovt@".enable = false;
+      systemd = {
+        # Disable systemd units that don't make sense on WSL
+        services = {
+          "serial-getty@ttyS0".enable = false;
+          "serial-getty@hvc0".enable = false;
+          "getty@tty1".enable = false;
+          "autovt@".enable = false;
+          firewall.enable = false;
+          systemd-resolved.enable = false;
+          systemd-udevd.enable = false;
+        };
 
-      systemd.services.firewall.enable = false;
-      systemd.services.systemd-resolved.enable = mkDefault false;
-      systemd.services.systemd-udevd.enable = false;
+        tmpfiles.rules = [
+          # Don't remove the X11 socket
+          "d /tmp/.X11-unix 1777 root root"
+        ];
 
-      # Don't allow emergency mode, because we don't have a console.
-      systemd.enableEmergencyMode = false;
+        # Don't allow emergency mode, because we don't have a console.
+        enableEmergencyMode = false;
+      };
 
       warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf) "systemd-resolved is enabled, but resolv.conf is managed by WSL");
     };
