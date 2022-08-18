@@ -1,6 +1,7 @@
 { lib
 , pkgs
 , config
+, automountPath
 , defaultUser
 , defaultUserHome ? "/home/${defaultUser}"
 , ...
@@ -21,6 +22,7 @@ pkgs.substituteAll {
 
   systemdWrapper = pkgs.writeShellScript "systemd-wrapper.sh" ''
     mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc || true
+    mount --make-rshared ${automountPath}
     exec systemd
   '';
 }

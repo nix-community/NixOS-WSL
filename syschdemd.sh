@@ -8,14 +8,12 @@ systemPath=$(${sw}/readlink -f /nix/var/nix/profiles/system)
 function start_systemd {
     echo "Starting systemd..." >&2
 
-    @wrapperDir@/umount /proc/sys/fs/binfmt_misc || true
-
     PATH=/run/current-system/systemd/lib/systemd:@fsPackagesPath@ \
         LOCALE_ARCHIVE=/run/current-system/sw/lib/locale/locale-archive \
         @daemonize@/bin/daemonize /run/current-system/sw/bin/unshare -fp --mount-proc @systemdWrapper@
 
     # Wait until systemd has been started to prevent a race condition from occuring
-    while ! /run/current-system/sw/bin/pgrep -xf systemd >/run/systemd.pid; do
+    while ! $sw/pgrep -xf systemd | $sw/tail -n1 >/run/systemd.pid; do
         $sw/sleep 1s
     done
 
