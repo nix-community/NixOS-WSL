@@ -40,16 +40,16 @@
           pkgs = import nixpkgs { inherit system; };
         in
         {
-          checks.check-format = pkgs.runCommand "check-format"
-            {
-              buildInputs = with pkgs; [ nixpkgs-fmt ];
-            } ''
-            nixpkgs-fmt --check ${./.}
-            mkdir $out # success
-          '';
+          checks = {
+            check-format = pkgs.runCommand "check-format" { nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ]; } ''
+              nixpkgs-fmt --check ${./.}
+              shfmt -i 2 -d ${./scripts}/*.sh
+              mkdir $out # success
+            '';
+          };
 
           devShell = pkgs.mkShell {
-            nativeBuildInputs = with pkgs; [ nixpkgs-fmt ];
+            nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ];
           };
         }
       );
