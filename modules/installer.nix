@@ -59,6 +59,12 @@ with builtins; with lib; {
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/sh"; }
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/mount"; }
         ];
+
+        extraCommands = pkgs.writeShellScript "prepare" ''
+          export PATH=$PATH:${pkgs.coreutils}/bin
+          mkdir -p bin
+          ln -s /init bin/wslpath
+        '';
       };
 
     }

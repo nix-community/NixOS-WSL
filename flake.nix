@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-21.11";
+    nixpkgs.url = "nixpkgs/nixos-22.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -17,10 +17,11 @@
       nixosModules.wsl = {
         imports = [
           ./modules/build-tarball.nix
-          ./modules/wsl-distro.nix
           ./modules/docker-desktop.nix
           ./modules/docker-native.nix
           ./modules/installer.nix
+          ./modules/interop.nix
+          ./modules/wsl-distro.nix
         ];
       };
 
@@ -39,16 +40,16 @@
           pkgs = import nixpkgs { inherit system; };
         in
         {
-          checks.check-format = pkgs.runCommand "check-format"
-            {
-              buildInputs = with pkgs; [ nixpkgs-fmt ];
-            } ''
-            nixpkgs-fmt --check ${./.}
-            mkdir $out # success
-          '';
+          checks = {
+            check-format = pkgs.runCommand "check-format" { nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ]; } ''
+              nixpkgs-fmt --check ${./.}
+              shfmt -i 2 -d ${./scripts}/*.sh
+              mkdir $out # success
+            '';
+          };
 
           devShell = pkgs.mkShell {
-            nativeBuildInputs = with pkgs; [ nixpkgs-fmt ];
+            nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ];
           };
         }
       );

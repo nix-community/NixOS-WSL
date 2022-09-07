@@ -1,7 +1,7 @@
 <h1 align=center>
   NixOS on WSL<br />
   <a href="https://matrix.to/#/#wsl:nixos.org"><img src="https://img.shields.io/matrix/wsl:nixos.org?server_fqdn=nixos.ems.host&logo=matrix" alt="Matrix Chat" /></a>
-  <a href="https://github.com/NixOS/nixpkgs/tree/nixos-21.11"><img src="https://img.shields.io/badge/nixpkgs-21.11-brightgreen" alt="nixpkgs 21.11" /></a>
+  <a href="https://github.com/NixOS/nixpkgs/tree/nixos-22.05"><img src="https://img.shields.io/badge/nixpkgs-22.05-brightgreen" alt="nixpkgs 22.05" /></a>
   <a href="https://github.com/nix-community/NixOS-WSL/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nix-community/NixOS-WSL/total"></a>
 </h1>
 
@@ -11,7 +11,7 @@ A minimal root filesystem for running NixOS on WSL. It can be used with
 
 ## Quick start
 
-First, [download the latest release\'s installer](https://github.com/nix-community/NixOS-WSL/releases/latest/download/nixos-wsl-installer.tar.gz).
+First, [download the latest release\'s installer](https://github.com/nix-community/NixOS-WSL/releases/latest).
 
 Then open up a Terminal, PowerShell or Command Prompt and run:
 
