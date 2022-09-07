@@ -36,7 +36,7 @@
 
     <Applications>
         <Application Id="NixOS"
-                     Executable="Launcher\Launcher.exe"
+                     Executable="Launcher\NixOS.exe"
                      EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
                     Description="NixOS WSL Distro Launcher"
@@ -47,10 +47,10 @@
                 <uap:SplashScreen Image="Images\SplashScreen.png"/>
             </uap:VisualElements>
             <Extensions>
-                <uap3:Extension Category="windows.appExecutionAlias" Executable="Launcher\Launcher.exe"
+                <uap3:Extension Category="windows.appExecutionAlias" Executable="Launcher\NixOS.exe"
                                 EntryPoint="Windows.FullTrustApplication">
                     <uap3:AppExecutionAlias>
-                        <desktop:ExecutionAlias Alias="nixos.exe"/>
+                        <desktop:ExecutionAlias Alias="NixOS.exe"/>
                     </uap3:AppExecutionAlias>
                 </uap3:Extension>
             </Extensions>
