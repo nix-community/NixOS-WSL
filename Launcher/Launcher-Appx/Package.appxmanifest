@@ -12,7 +12,7 @@
     <Identity
             Name="NixOS"
             Publisher="CN=nzbr"
-            Version="21.11.0.0"
+            Version="22.5.0.0"
             ProcessorArchitecture="x64"/>
 
     <Properties>
