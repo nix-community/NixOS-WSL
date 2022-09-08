@@ -44,7 +44,7 @@ jobs:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
 
-  package:
+  launcher:
     needs: build
     runs-on: windows-latest
     steps:
@@ -55,21 +55,25 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: installer
-          path: Launcher/Launcher-Appx/nixos-wsl-installer.tar.gz
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
         with:
-          vs-version: "[17.2,"
+          vs-version: '[17.2,'
 
       - name: Build Launcher
-        run: cd Launcher; dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\bin Launcher
+        run: cd Launcher; dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\pkg Launcher
+
+      - name: Bundle installer with Launcher
+        run: |
+          Copy-Item nixos-wsl-installer.tar.gz Launcher\Launcher\pkg\
+          Copy-Item nixos-wsl-installer.tar.gz Launcher\Launcher-Appx\
 
       - name: Upload Launcher
         uses: actions/upload-artifact@v3
         with:
           name: launcher
-          path: Launcher/Launcher/bin
+          path: Launcher/Launcher/pkg
 
       - name: Build AppX package
         run: cd Launcher; msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
@@ -94,7 +98,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     needs:
       - build
-      - package
+      - launcher
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
