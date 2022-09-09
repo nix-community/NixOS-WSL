@@ -16,22 +16,11 @@ public static class InstallationHelper {
             return 0;
         }
 
-        const string tarFileName = "nixos-wsl-installer.tar.gz";
-
         // Determine tarball location
-        var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        if (assemblyPath == null) goto tarFail;
-
-        var tarPath = Path.Combine(assemblyPath, tarFileName);
-        if (!File.Exists(tarPath)) {
-            var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
-            if (parentDirectory != null) {
-                tarPath = Path.Combine(parentDirectory, tarFileName);
-                if (!File.Exists(tarPath)) goto tarFail;
-            } else {
-                goto tarFail;
-            }
+        var tarPath = FindTarball();
+        if (tarPath == null) {
+            Console.Error.WriteLine("Could not find distro tarball");
+            return 1;
         }
 
         try {
@@ -65,10 +54,6 @@ public static class InstallationHelper {
 
         Console.WriteLine("Installation finished successfully");
         return 0;
-
-        tarFail:
-        Console.Error.WriteLine("Could not find distro tarball");
-        return 1;
     }
 
     /// <summary>
@@ -91,5 +76,38 @@ public static class InstallationHelper {
 
         Console.WriteLine("Uninstall completed");
         return 0;
+    }
+
+    /// <summary>
+    ///     Find the path of the installer tarball
+    /// </summary>
+    /// <returns>the full path to the tarball or null</returns>
+    private static string? FindTarball() {
+        const string tarFileName = "nixos-wsl-installer.tar.gz";
+
+        var tarPath = "";
+        
+        // Accept a tarball in the current directory when running a debug build
+        #if (DEBUG)
+        var pwd = Directory.GetCurrentDirectory();
+        tarPath = Path.Combine(pwd, tarFileName);
+        if (File.Exists(tarPath)) return tarPath;
+        #endif
+        
+        // Look for the tarball in the same directory as the executable
+        var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        if (assemblyPath != null) {
+            tarPath = Path.Combine(assemblyPath, tarFileName);
+            if (File.Exists(tarPath)) return tarPath;
+        
+            // In the APPX package, the tarball is in the parent directory
+            var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
+            if (parentDirectory != null) {
+                tarPath = Path.Combine(parentDirectory, tarFileName);
+                if (File.Exists(tarPath)) return tarPath;
+            }    
+        }
+        
+        return null;
     }
 }
