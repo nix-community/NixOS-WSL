@@ -58,11 +58,7 @@ let
       sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
 
       # Write version number
-      echo "${
-        if (getEnv "NIXOS_WSL_VERSION") != ""
-        then getEnv "NIXOS_WSL_VERSION"
-        else "DEV_BUILD"
-      }" > ./etc/nixos/nixos-wsl/VERSION
+      echo "${config.wsl.version}" > ./etc/nixos/nixos-wsl/VERSION
     ''}
   '';
 
