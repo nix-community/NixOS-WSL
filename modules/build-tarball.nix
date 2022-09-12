@@ -56,6 +56,13 @@ let
       mv ./etc/nixos/nixos-wsl/configuration.nix ./etc/nixos/configuration.nix
       # Patch the import path to avoid having a flake.nix in /etc/nixos
       sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
+
+      # Write version number
+      echo "${
+        if (getEnv "NIXOS_WSL_VERSION") != ""
+        then getEnv "NIXOS_WSL_VERSION"
+        else "DEV_BUILD"
+      }" > ./etc/nixos/nixos-wsl/VERSION
     ''}
   '';
 
