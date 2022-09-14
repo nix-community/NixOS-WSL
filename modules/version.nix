@@ -9,7 +9,7 @@ with builtins; with lib;
         let
           env = getEnv "NIXOS_WSL_VERSION";
         in
-        if env != null then env else "DEV_BUILD";
+        if env != null && env != "" then env else "DEV_BUILD";
     };
   };
 
