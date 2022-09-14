@@ -30,6 +30,8 @@ jobs:
           NIXOS_VERSION=$(nix-instantiate --eval -E '(import ./.).inputs.nixpkgs.lib.version' | sed -E 's/"(.+\...).*"/\1/') # Get NixOS version from nixpkgs
           NIXOS_VERSION_MS=$(echo $NIXOS_VERSION | sed -E 's/\.0*(.+)/\.\1/')                                                # Remove the leading 0 from the minor version (if it exists)
           NIXOS_WSL_VERSION=${NIXOS_VERSION_MS}.${TAG_COUNT}.${COMMIT_COUNT}                                                 # Compose the NixOS-WSL version number
+
+          echo $NIXOS_WSL_VERSION > ./VERSION
           echo "::set-output name=version::$NIXOS_WSL_VERSION"
 
       - name: Run checks
@@ -37,11 +39,8 @@ jobs:
           nix flake check
 
       - name: Build tarball
-        env:
-          NIXOS_WSL_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          # Build needs to be impure to be able to include the version
-          nix build --impure -vL '.#nixosConfigurations.mysystem.config.system.build.tarball'
+          nix build -vL '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
       - name: Upload tarball
         uses: actions/upload-artifact@v3
@@ -50,10 +49,8 @@ jobs:
           path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
 
       - name: Build installer
-        env:
-          NIXOS_WSL_VERSION: ${{ steps.version.outputs.version }}
         run: |
-          nix build --impure -vL '.#nixosConfigurations.mysystem.config.system.build.installer'
+          nix build -vL '.#nixosConfigurations.mysystem.config.system.build.installer'
 
       - name: Upload installer
         uses: actions/upload-artifact@v3
