@@ -1,6 +1,9 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Reflection;
 using Launcher.Commands;
 using Launcher.Helpers;
 using WSL;
@@ -31,9 +34,17 @@ internal static class Program {
         };
         distroNameOption.SetDefaultValue(DistributionInfo.Name);
 
-        // Add the --distro-name option to the root command and all subcommands
+        var versionOption = new Option<bool>("--version") {
+            Description = "Show version information",
+        };
+
+        // Add the global options to the root command and all subcommands
         rootCommand.AddOption(distroNameOption);
-        foreach (var subcommand in rootCommand.Subcommands) subcommand.AddOption(distroNameOption);
+        rootCommand.AddOption(versionOption);
+        foreach (var subcommand in rootCommand.Subcommands) {
+            subcommand.AddOption(distroNameOption);
+            subcommand.AddOption(versionOption);
+        }
 
         rootCommand.SetHandler(() => {
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
@@ -49,19 +60,58 @@ internal static class Program {
                 result = e.HResult;
             }
         });
+        
+        var commandLineBuilder = new CommandLineBuilder(rootCommand)
+            .UseHelp()
+            .UseEnvironmentVariableDirective()
+            .UseParseDirective()
+            .UseSuggestDirective()
+            .RegisterWithDotnetSuggest()
+            .UseTypoCorrections()
+            .UseParseErrorReporting()
+            .UseExceptionHandler()
+            .CancelOnProcessTermination();;
 
-        var commandLineBuilder = new CommandLineBuilder(rootCommand);
-
-        // Implement a global --distro-name option
+        // Implement --distro-name option
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var distroNameResult = context.ParseResult.FindResultFor(distroNameOption);
 
             if (distroNameResult != null && distroNameResult.Tokens.Count > 0) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
 
             await next(context);
-        });
+        }, (MiddlewareOrder) (-1300)); // Run before --version
+        
+        // Implement --version option
+        commandLineBuilder.AddMiddleware(async (context, next) => {
+            var versionResult = context.ParseResult.FindResultFor(versionOption);
 
-        commandLineBuilder.UseDefaults();
+            if (versionResult != null) {
+                uint exitCode = 1;
+                string ver = "Unknown";
+                try {
+                    if (StartupHelper.BootDistro()) {
+                        ver = WslApiLoader.WslLaunchGetOutput(
+                            DistributionInfo.Name,
+                            "nixos-wsl-version",
+                            false,
+                            out exitCode
+                        ).Trim();                        
+                    }
+                } catch (Exception e) {
+                    context.Console.Error.WriteLine(e.Message);
+                }
+                
+                if (exitCode != 0) {
+                    ver = "Unknown";
+                }
+                
+                context.Console.Out.WriteLine($"Launcher:  {Assembly.GetEntryAssembly()?.GetName().Version?.ToString()}");
+                context.Console.Out.WriteLine($"Installed: {ver}");
+            } else {
+                await next(context);
+            }
+        }, (MiddlewareOrder) (-1200)); // Internal value for the builtin version option
+        
         await commandLineBuilder.Build().InvokeAsync(args);
 
         return result;

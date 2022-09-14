@@ -35,21 +35,9 @@ public static class InstallationHelper {
 
         Console.WriteLine("Performing first-time setup...");
 
-        try {
-            WslApiLoader.WslLaunchInteractive(
-                DistributionInfo.Name,
-                "sh -c \"exit\"", // Don't run anything, exit after we get a shell
-                false,
-                out var exitCode
-            );
-            if (exitCode != 0) {
-                Console.Error.WriteLine("An error occured during first-time setup");
-                var result = (int) exitCode;
-                return result == 0 ? 1 : result;
-            }
-        } catch (WslApiException e) {
-            Console.Error.WriteLine("An internal error occured, when starting first-time setup!");
-            return e.HResult;
+        if (!StartupHelper.BootDistro()) {
+            Console.Error.WriteLine("An error occured during first-time setup");
+            return 1;
         }
 
         Console.WriteLine("Installation finished successfully");

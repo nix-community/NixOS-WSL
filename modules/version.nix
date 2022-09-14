@@ -3,6 +3,7 @@ with builtins; with lib;
 {
 
   options = with types; {
+    # TODO: Put version in a file and read it from there
     wsl.version = mkOption {
       type = str;
       default =
