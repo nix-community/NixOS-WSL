@@ -3,7 +3,6 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Reflection;
 using Launcher.Commands;
 using Launcher.Helpers;
 using WSL;
@@ -70,7 +69,7 @@ internal static class Program {
             .UseTypoCorrections()
             .UseParseErrorReporting()
             .UseExceptionHandler()
-            .CancelOnProcessTermination();;
+            .CancelOnProcessTermination();
 
         // Implement --distro-name option
         commandLineBuilder.AddMiddleware(async (context, next) => {
@@ -86,27 +85,11 @@ internal static class Program {
             var versionResult = context.ParseResult.FindResultFor(versionOption);
 
             if (versionResult != null) {
-                uint exitCode = 1;
-                string ver = "Unknown";
-                try {
-                    if (StartupHelper.BootDistro()) {
-                        ver = WslApiLoader.WslLaunchGetOutput(
-                            DistributionInfo.Name,
-                            "nixos-wsl-version",
-                            false,
-                            out exitCode
-                        ).Trim();                        
-                    }
-                } catch (Exception e) {
-                    context.Console.Error.WriteLine(e.Message);
-                }
-                
-                if (exitCode != 0) {
-                    ver = "Unknown";
-                }
-                
-                context.Console.Out.WriteLine($"Launcher:  {Assembly.GetEntryAssembly()?.GetName().Version?.ToString()}");
-                context.Console.Out.WriteLine($"Installed: {ver}");
+                var vl = VersionHelper.LauncherVersion?.ToString();
+                var vi = VersionHelper.InstalledVersion?.ToString() ?? "UNKNOWN";
+
+                context.Console.Out.WriteLine($"Launcher:  {vl}");
+                context.Console.Out.WriteLine($"Installed: {vi}");
             } else {
                 await next(context);
             }
