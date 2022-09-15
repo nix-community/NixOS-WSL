@@ -52,6 +52,7 @@ internal static class Program {
             }
 
             try {
+                VersionHelper.CheckForUpdate();
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
                 result = (int) exitCode;
             } catch (WslApiException e) {

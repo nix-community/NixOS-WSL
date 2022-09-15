@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using Launcher.Helpers;
 using WSL;
 
 namespace Launcher.Commands;
@@ -24,10 +25,12 @@ public static class Run {
             }
 
             try {
-                if (string.IsNullOrEmpty(cmd))
+                if (string.IsNullOrEmpty(cmd)) {
+                    VersionHelper.CheckForUpdate();
                     WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out exitCode);
-                else
+                } else {
                     WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode);
+                }
             } catch (WslApiException e) {
                 Console.Error.WriteLine("An error occured when starting the command!");
                 Program.result = e.HResult;
