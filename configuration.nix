@@ -1,6 +1,5 @@
-{ lib, pkgs, config, modulesPath, ... }:
+{ pkgs, config, modulesPath, ... }:
 
-with lib;
 let
   nixos-wsl = import ./default.nix;
 in

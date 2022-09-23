@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "scripts/native-systemd-shim/Cargo.toml"
+    ]
+}
