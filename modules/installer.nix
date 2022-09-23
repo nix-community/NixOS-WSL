@@ -169,7 +169,7 @@ with builtins; with lib; {
 
         extraCommands = pkgs.writeShellScript "prepare" ''
           export PATH=${busybox}/bin:$PATH
-          mkdir -p bin nix/wsl-installer
+          mkdir -p bin root nix/wsl-installer
 
           ln -vs /init bin/wslpath
           ln -vs ../..${installer} nix/wsl-installer/installer.sh
