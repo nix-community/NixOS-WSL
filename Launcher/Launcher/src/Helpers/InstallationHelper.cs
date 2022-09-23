@@ -70,7 +70,7 @@ public static class InstallationHelper {
     ///     Find the path of the installer tarball
     /// </summary>
     /// <returns>the full path to the tarball or null</returns>
-    private static string? FindTarball() {
+    public static string? FindTarball() {
         const string tarFileName = "nixos-wsl-installer.tar.gz";
 
         var tarPath = "";
