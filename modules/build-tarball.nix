@@ -22,7 +22,7 @@ let
   preparer = pkgs.writeShellScriptBin "wsl-prepare" ''
     set -e
 
-    mkdir -m 0755 ./bin ./etc
+    mkdir -m 0755 ./bin ./etc ./lib{,/systemd}
     mkdir -m 1777 ./tmp
 
     # WSL requires a /bin/sh - only temporary, NixOS's activate will overwrite
@@ -30,6 +30,9 @@ let
 
     # WSL also requires a /bin/mount, otherwise the host fs isn't accessible
     ln -s /nix/var/nix/profiles/system/sw/bin/mount ./bin/mount
+
+    # WSL requires /lib/systemd/systemd for native integration
+    ln -s /nix/var/nix/profiles/system/systemd/lib/systemd/systemd ./lib/systemd/systemd
 
     # Set system profile
     system=${config.system.build.toplevel}
@@ -39,7 +42,9 @@ let
 
     # Set channel
     mkdir -p ./nix/var/nix/profiles/per-user/root
-    ./$system/sw/bin/nix-env --store `pwd` -p ./nix/var/nix/profiles/per-user/root/channels --set ${channelSources}
+    ${lib.optionalString config.wsl.tarball.setChannel ''
+      ./$system/sw/bin/nix-env --store `pwd` -p ./nix/var/nix/profiles/per-user/root/channels --set ${channelSources}
+    ''}
     mkdir -m 0700 -p ./root/.nix-defexpr
     ln -s /nix/var/nix/profiles/per-user/root/channels ./root/.nix-defexpr/channels
 
@@ -67,6 +72,12 @@ in
       type = types.bool;
       default = true;
       description = "Whether or not to copy the system configuration into the tarball";
+    };
+
+    setChannel = mkOption {
+      type = types.bool;
+      default = false;
+      description = "";
     };
   };
 

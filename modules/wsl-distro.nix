@@ -44,10 +44,16 @@ with builtins; with lib;
           root = "${cfg.automountPath}/";
           options = cfg.automountOptions;
         };
+        boot = {
+          systemd = true;
+          command = "/bin/sh -c 'mount --bind -o ro /nix/store /nix/store; export LANG=\"C.UTF-8\"; /nix/var/nix/profiles/system/activate;'";
+        };
         network = {
+          hostname = config.networking.hostName;
           generateResolvConf = mkDefault true;
           generateHosts = mkDefault true;
         };
+        user.default = cfg.defaultUser;
       };
 
       # WSL is closer to a container than anything else
@@ -56,22 +62,15 @@ with builtins; with lib;
       environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
       hardware.opengl.enable = true; # Enable GPU acceleration
 
-      environment = {
+      environment.etc = {
+        "wsl.conf".text = generators.toINI { } cfg.wslConf;
 
-        etc = {
-          "wsl.conf".text = generators.toINI { } cfg.wslConf;
+        # Hostname gets overwritten by WSL and thus modify Nix derivations
+        hostname.enable = false;
 
-          # DNS settings are managed by WSL
-          hosts.enable = !config.wsl.wslConf.network.generateHosts;
-          "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
-        };
-
-        systemPackages = [
-          (pkgs.runCommand "wslpath" { } ''
-            mkdir -p $out/bin
-            ln -s /init $out/bin/wslpath
-          '')
-        ];
+        # DNS settings are managed by WSL
+        hosts.enable = !config.wsl.wslConf.network.generateHosts;
+        "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
       };
 
       networking.dhcpcd.enable = false;
@@ -82,18 +81,11 @@ with builtins; with lib;
         extraGroups = [ "wheel" ]; # Allow the default user to use sudo
       };
 
-      users.users.root = {
-        shell = "${syschdemd}/bin/syschdemd";
-        # Otherwise WSL fails to login as root with "initgroups failed 5"
-        extraGroups = [ "root" ];
-      };
+      # Otherwise WSL fails to login as root with "initgroups failed 5"
+      users.users.root.extraGroups = [ "root" ];
 
-      security.sudo = {
-        extraConfig = ''
-          Defaults env_keep+=INSIDE_NAMESPACE
-        '';
-        wheelNeedsPassword = mkDefault false; # The default user will not have a password by default
-      };
+      # The default user will not have a password by default
+      security.sudo.wheelNeedsPassword = mkDefault false; 
 
       system.activationScripts = {
         copy-launchers = mkIf cfg.startMenuLaunchers (
@@ -105,11 +97,15 @@ with builtins; with lib;
             done
           ''
         );
-        populateBin = stringAfter [ ] ''
-          echo "setting up /bin..."
+        populateWslEnvironment = stringAfter [ ] ''
+          echo "synchronizing /bin..."
           ln -sf /init /bin/wslpath
           ln -sf ${pkgs.bashInteractive}/bin/bash /bin/sh
           ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
+
+          echo "synchronizing /lib/systemd/systemd..."
+          mkdir -p /lib/systemd
+          ln -sf ${pkgs.systemd}/lib/systemd/systemd /lib/systemd/systemd
         '';
       };
 
