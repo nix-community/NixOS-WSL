@@ -106,7 +106,7 @@ main() {
     shift
     command="$*"
   else
-    command=$(get_shell @username@)
+    command="$(get_shell @username@)"
   fi
 
   # If we're executed from inside the container, e.g. sudo
@@ -124,13 +124,18 @@ main() {
   exportCmd="$(export -p | grep -vE ' (HOME|LOGNAME|SHELL|USER)=')"
 
   run_in_namespace \
-    machinectl \
+    systemd-run \
     --quiet \
     --uid=@uid@ \
+    --collect \
+    --wait \
+    --pty \
+    --service-type=exec \
     --setenv=INSIDE_NAMESPACE=true \
     --setenv=WSLPATH="$(clean_wslpath)" \
-    shell .host \
-    /bin/sh -c "cd \"$PWD\"; $exportCmd; source /etc/set-environment; exec $command"
+    --working-directory="$PWD" \
+    --machine=.host \
+    /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
 }
 
 main "$@"
