@@ -6,8 +6,6 @@ let
 in
 {
   imports = [
-    "${modulesPath}/profiles/minimal.nix"
-
     nixos-wsl.nixosModules.wsl
   ];
 
