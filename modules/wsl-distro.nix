@@ -50,10 +50,16 @@ with builtins; with lib;
         };
       };
 
-      # WSL is closer to a container than anything else
-      boot.isContainer = true;
+      # We don't need a boot loader
+      boot.loader.grub.enable = false;
+      system.build.installBootLoader = pkgs.writeShellScript "fake-bootloader" "";
+      boot.initrd.enable = false;
+      system.build.initialRamdisk = pkgs.runCommand "fake-initrd" { } ''
+        mkdir $out
+        touch $out/${config.system.boot.loader.initrdFile}
+      '';
+      system.build.initialRamdiskSecretAppender = pkgs.writeShellScriptBin "append-initrd-secrets" "";
 
-      environment.noXlibs = lib.mkForce false; # override xlibs not being installed (due to isContainer) to enable the use of GUI apps
       hardware.opengl.enable = true; # Enable GPU acceleration
 
       environment = {
