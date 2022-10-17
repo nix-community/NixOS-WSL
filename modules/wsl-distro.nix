@@ -145,6 +145,9 @@ with builtins; with lib;
           enableEmergencyMode = false;
         };
 
+        # Start a systemd user session when starting a command through runuser
+        security.pam.services.runuser.startSession = true;
+
         warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf) "systemd-resolved is enabled, but resolv.conf is managed by WSL");
       })
       (mkIf (!cfg.nativeSystemd) {

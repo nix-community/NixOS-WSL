@@ -44,10 +44,9 @@ mkWrappedScript {
     glibc # getent
     gnugrep
     systemd # machinectl
-    util-linux # nsenter
+    util-linux # nsenter, runuser
     wrapper
   ];
   username = defaultUser.name;
-  uid = defaultUser.uid;
   inherit automountPath;
 }

@@ -126,7 +126,6 @@ main() {
   run_in_namespace \
     systemd-run \
     --quiet \
-    --uid=@uid@ \
     --collect \
     --wait \
     --pty \
@@ -135,7 +134,7 @@ main() {
     --setenv=WSLPATH="$(clean_wslpath)" \
     --working-directory="$PWD" \
     --machine=.host \
-    /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
+    "$(which runuser)" -u @username@ -- /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
 }
 
 main "$@"
