@@ -52,7 +52,7 @@ with builtins; with lib;
 
       # We don't need a boot loader
       boot.loader.grub.enable = false;
-      system.build.installBootLoader = pkgs.writeShellScript "fake-bootloader" "";
+      system.build.installBootLoader = "${pkgs.coreutils}/bin/true"
       boot.initrd.enable = false;
       system.build.initialRamdisk = pkgs.runCommand "fake-initrd" { } ''
         mkdir $out
