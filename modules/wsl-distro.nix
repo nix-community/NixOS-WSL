@@ -33,7 +33,10 @@ with builtins; with lib;
   config =
     let
       cfg = config.wsl;
-      syschdemd = pkgs.callPackage ../scripts/syschdemd.nix { inherit (cfg) automountPath defaultUser; };
+      syschdemd = pkgs.callPackage ../scripts/syschdemd.nix {
+        inherit (cfg) automountPath;
+        defaultUser = config.users.users.${cfg.defaultUser};
+      };
     in
     mkIf cfg.enable {
 

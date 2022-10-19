@@ -106,7 +106,7 @@ main() {
     shift
     command="$*"
   else
-    command=$(get_shell @defaultUser@)
+    command=$(get_shell @username@)
   fi
 
   # If we're executed from inside the container, e.g. sudo
@@ -117,7 +117,7 @@ main() {
   # If we are currently in /root, this is probably because the directory that WSL was started is inaccessible
   # cd to the user's home to prevent a warning about permission being denied on /root
   if [ "$PWD" == "/root" ]; then
-    cd "$(get_home @defaultUser@)"
+    cd "$(get_home @username@)"
   fi
 
   # Pass external environment but filter variables specific to root user.
@@ -126,7 +126,7 @@ main() {
   run_in_namespace \
     machinectl \
     --quiet \
-    --uid=@defaultUser@ \
+    --uid=@uid@ \
     --setenv=INSIDE_NAMESPACE=true \
     --setenv=WSLPATH="$(clean_wslpath)" \
     shell .host \
