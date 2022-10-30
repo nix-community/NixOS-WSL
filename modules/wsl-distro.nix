@@ -34,7 +34,12 @@ with builtins; with lib;
   config =
     let
       cfg = config.wsl;
-      syschdemd = pkgs.callPackage ../scripts/syschdemd.nix { inherit (cfg) automountPath defaultUser; };
+
+      syschdemd = pkgs.callPackage ../scripts/syschdemd.nix {
+        inherit (cfg) automountPath;
+        defaultUser = config.users.users.${cfg.defaultUser};
+      };
+
       shim = pkgs.callPackage ../scripts/native-systemd-shim/shim.nix { };
 
       bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''

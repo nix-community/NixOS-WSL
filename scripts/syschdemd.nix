@@ -47,5 +47,7 @@ mkWrappedScript {
     util-linux # nsenter
     wrapper
   ];
-  inherit defaultUser automountPath;
+  username = defaultUser.name;
+  uid = defaultUser.uid;
+  inherit automountPath;
 }
