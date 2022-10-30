@@ -48,9 +48,7 @@ with builtins; with lib; {
         compressionExtension = ".gz";
         extraArgs = "--hard-dereference";
 
-        storeContents = with pkgs; pkgs2storeContents [
-          installer
-        ];
+        storeContents = pkgs2storeContents [ installer ];
 
         contents = [
           { source = config.environment.etc."wsl.conf".source; target = "/etc/wsl.conf"; }

@@ -20,17 +20,11 @@ with builtins; with lib; {
       cfg = config.wsl.docker-native;
     in
     mkIf (config.wsl.enable && cfg.enable) {
-      nixpkgs.overlays = [
-        (self: super: {
-          docker = super.docker.override { iptables = pkgs.iptables-legacy; };
-        })
-      ];
-
       environment.systemPackages = with pkgs; [
-        docker
         docker-compose
       ];
 
+      virtualisation.docker.package = (pkgs.docker.override { iptables = pkgs.iptables-legacy; });
       virtualisation.docker.enable = true;
 
       users.groups.docker.members = lib.mkIf cfg.addToDockerGroup [

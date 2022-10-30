@@ -74,9 +74,6 @@ with builtins; with lib;
           };
       };
 
-      # Include Windows %PATH% in Linux $PATH.
-      environment.extraInit = mkIf cfg.includePath ''PATH="$PATH:$WSLPATH"'';
-
       warnings =
         let
           registrations = config.boot.binfmt.registrations;
