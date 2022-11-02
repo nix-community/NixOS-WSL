@@ -21,6 +21,7 @@
           ./modules/docker-native.nix
           ./modules/installer.nix
           ./modules/interop.nix
+          ./modules/wsl-conf.nix
           ./modules/wsl-distro.nix
         ];
       };
