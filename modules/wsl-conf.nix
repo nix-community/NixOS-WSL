@@ -85,6 +85,10 @@ with lib; {
 
     environment.etc."wsl.conf".text = generators.toINI { } config.wsl.wslConf;
 
+    warnings = (optional (config.wsl.wslConf.boot.systemd && !config.wsl.nativeSystemd)
+      "systemd is enabled in wsl.conf, but wsl.nativeSystemd is not enabled. Unless you did this on purpos, this WILL make your system UNBOOTABLE!"
+    );
+
   };
 
 }

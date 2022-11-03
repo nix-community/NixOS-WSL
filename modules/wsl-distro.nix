@@ -117,7 +117,9 @@ with lib; {
             enableEmergencyMode = false;
           };
 
-          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf) "systemd-resolved is enabled, but resolv.conf is managed by WSL");
+          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf)
+            "systemd-resolved is enabled, but resolv.conf is managed by WSL"
+          );
         }
         (mkIf (!cfg.nativeSystemd) {
           users.users.root.shell = "${syschdemd}/bin/syschdemd";
