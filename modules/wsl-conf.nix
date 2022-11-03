@@ -1,6 +1,6 @@
 { lib, pkgs, config, ... }:
-with builtins; with lib; {
 
+with lib; {
   imports = [
     (mkRenamedOptionModule [ "wsl" "automountPath" ] [ "wsl" "wslConf" "automount" "root" ])
     (mkRenamedOptionModule [ "wsl" "automountOptions" ] [ "wsl" "wslConf" "automount" "options" ])
