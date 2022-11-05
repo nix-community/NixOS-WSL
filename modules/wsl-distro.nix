@@ -153,7 +153,7 @@ with lib;
           security.sudo.extraConfig = ''
             Defaults env_keep+=INSIDE_NAMESPACE
           '';
-          wsl.wslConf.users.default = "root";
+          wsl.wslConf.user.default = "root";
 
           # Include Windows %PATH% in Linux $PATH.
           environment.extraInit = mkIf cfg.interop.includePath ''PATH="$PATH:$WSLPATH"'';
