@@ -1,7 +1,7 @@
 { lib, pkgs, config, ... }:
 
-with lib;
-{
+with lib; {
+
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
     nativeSystemd = mkOption {
@@ -9,26 +9,12 @@ with lib;
       default = false;
       description = "Use native WSL systemd support";
     };
-    automountPath = mkOption {
-      type = str;
-      default = "/mnt";
-      description = "The path where windows drives are mounted (e.g. /mnt/c)";
-    };
-    automountOptions = mkOption {
-      type = str;
-      default = "metadata,uid=1000,gid=100";
-      description = "Options to use when mounting windows drives";
-    };
     defaultUser = mkOption {
       type = str;
       default = "nixos";
       description = "The name of the default user";
     };
     startMenuLaunchers = mkEnableOption "shortcuts for GUI applications in the windows start menu";
-    wslConf = mkOption {
-      type = attrsOf (attrsOf (oneOf [ string int bool ]));
-      description = "Entries that are added to /etc/wsl.conf";
-    };
   };
 
   config =
@@ -51,19 +37,6 @@ with lib;
     mkIf cfg.enable (
       mkMerge [
         {
-          wsl.wslConf = {
-            automount = {
-              enabled = true;
-              mountFsTab = true;
-              root = "${cfg.automountPath}/";
-              options = cfg.automountOptions;
-            };
-            network = {
-              generateResolvConf = mkDefault true;
-              generateHosts = mkDefault true;
-            };
-          };
-
           # We don't need a boot loader
           boot.loader.grub.enable = false;
           system.build.installBootLoader = "${pkgs.coreutils}/bin/true";
@@ -79,8 +52,6 @@ with lib;
           environment = {
 
             etc = {
-              "wsl.conf".text = generators.toINI { } cfg.wslConf;
-
               # DNS settings are managed by WSL
               hosts.enable = !config.wsl.wslConf.network.generateHosts;
               "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
@@ -146,14 +117,16 @@ with lib;
             enableEmergencyMode = false;
           };
 
-          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf) "systemd-resolved is enabled, but resolv.conf is managed by WSL");
+          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf)
+            "systemd-resolved is enabled, but resolv.conf is managed by WSL"
+          );
         }
         (mkIf (!cfg.nativeSystemd) {
           users.users.root.shell = "${syschdemd}/bin/syschdemd";
           security.sudo.extraConfig = ''
             Defaults env_keep+=INSIDE_NAMESPACE
           '';
-          wsl.wslConf.users.default = "root";
+          wsl.wslConf.user.default = "root";
 
           # Include Windows %PATH% in Linux $PATH.
           environment.extraInit = mkIf cfg.interop.includePath ''PATH="$PATH:$WSLPATH"'';
