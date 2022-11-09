@@ -76,6 +76,8 @@ with lib; {
           # Otherwise WSL fails to login as root with "initgroups failed 5"
           users.users.root.extraGroups = [ "root" ];
 
+          powerManagement.enable = false;
+
           security.sudo.wheelNeedsPassword = mkDefault false; # The default user will not have a password by default
 
           system.activationScripts = {
