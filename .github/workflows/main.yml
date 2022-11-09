@@ -5,20 +5,22 @@ on: [push, pull_request, release]
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.tests.outputs.tests }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
 
+      - name: Find tests
+        id: tests
+        run: |
+          find tests -maxdepth 1 -name '*.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+
       - name: Install nix
-        uses: cachix/install-nix-action@v12
-        with:
-          install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20201221_9fab14a/install
-          # Configure Nix to enable flakes
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+        uses: cachix/install-nix-action@v16
 
       - name: Run checks
         run: |
@@ -29,7 +31,7 @@ jobs:
           nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
       - name: Upload tarball
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rootfs
           path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
@@ -39,24 +41,44 @@ jobs:
           nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
 
       - name: Upload installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
 
+  tests:
+    needs:
+      - build
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
+        test: ${{ fromJSON(needs.build.outputs.tests) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Execute test
+        run: |
+          pwsh ${{ matrix.test }}
+
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+    needs:
+      - build
+      - tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: rootfs
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: installer
 
