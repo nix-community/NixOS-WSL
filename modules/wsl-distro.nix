@@ -22,7 +22,7 @@ with lib; {
       cfg = config.wsl;
 
       syschdemd = pkgs.callPackage ../scripts/syschdemd.nix {
-        inherit (cfg) automountPath;
+        automountPath = cfg.wslConf.automount.root;
         defaultUser = config.users.users.${cfg.defaultUser};
       };
 
@@ -149,9 +149,9 @@ with lib; {
             # preserve $PATH from parent
             variables.PATH = [ "$PATH" ];
             extraInit = ''
-              export WSLPATH=$(echo "$PATH" | tr ':' '\n' | grep -E "^${cfg.automountPath}" | tr '\n' ':')
+              export WSLPATH=$(echo "$PATH" | tr ':' '\n' | grep -E "^${cfg.wslConf.automount.root}" | tr '\n' ':')
               ${if cfg.interop.includePath then "" else ''
-                export PATH=$(echo "$PATH" | tr ':' '\n' | grep -vE "^${cfg.automountPath}" | tr '\n' ':')
+                export PATH=$(echo "$PATH" | tr ':' '\n' | grep -vE "^${cfg.wslConf.automount.root}" | tr '\n' ':')
               ''}
             '';
           };
