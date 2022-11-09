@@ -105,6 +105,8 @@ with lib; {
               "autovt@".enable = false;
               firewall.enable = false;
               systemd-resolved.enable = false;
+              # system clock cannot be changed
+              systemd-timesyncd.enable = false;
               systemd-udevd.enable = false;
             };
 
