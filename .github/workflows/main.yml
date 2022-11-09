@@ -17,7 +17,7 @@ jobs:
       - name: Find tests
         id: tests
         run: |
-          find tests -maxdepth 1 -name '*.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+          find tests -name '*.spec.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
       - name: Install nix
         uses: cachix/install-nix-action@v16
@@ -59,6 +59,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: installer
 
       - name: Execute test
         run: |
