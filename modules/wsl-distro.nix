@@ -130,9 +130,17 @@ with lib; {
           # Start a systemd user session when starting a command through runuser
           security.pam.services.runuser.startSession = true;
 
-          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf)
-            "systemd-resolved is enabled, but resolv.conf is managed by WSL"
-          );
+          warnings = flatten [
+            (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
+              "systemd-resolved is enabled, but resolv.conf is managed by WSL"
+            )
+            (optional ((length config.networking.nameservers) > 0 && config.wsl.wslConf.network.generateResolvConf)
+              "custom nameservers are set, but resolv.conf is managed by WSL"
+            )
+            (optional ((length config.networking.nameservers) == 0 && !config.services.resolved.enable && !config.wsl.wslConf.network.generateResolvConf)
+              "resolv.conf generation is turned off, but no other nameservers are configured"
+            )
+          ];
         }
         (mkIf (!cfg.nativeSystemd) {
           users.users.root.shell = "${syschdemd}/bin/syschdemd";
