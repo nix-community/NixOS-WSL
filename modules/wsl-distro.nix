@@ -51,11 +51,15 @@ with lib; {
 
           environment = {
 
-            etc = {
-              # DNS settings are managed by WSL
-              hosts.enable = !config.wsl.wslConf.network.generateHosts;
-              "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
-            };
+            # Only set the options if the files are managed by WSL
+            etc = mkMerge [
+              (mkIf config.wsl.wslConf.network.generateHosts {
+                hosts.enable = false;
+              })
+              (mkIf config.wsl.wslConf.network.generateResolvConf {
+                "resolv.conf".enable = false;
+              })
+            ];
 
             systemPackages = [
               (pkgs.runCommand "wslpath" { } ''
