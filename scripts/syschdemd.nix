@@ -30,6 +30,7 @@ let
     src = ./wrapper.sh;
     path = lib.makeSearchPath "" [
       "/run/wrappers/bin" # mount
+      "${gnugrep}/bin" # grep
       "${systemd}/lib/systemd" # systemd
     ];
   };
