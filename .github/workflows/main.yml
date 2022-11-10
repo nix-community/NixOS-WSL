@@ -21,7 +21,7 @@ jobs:
       - name: Find tests 🔍
         id: tests
         run: |
-          find tests -name '*.spec.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+          find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
       - name: Find checks 🔍
         id: checks
@@ -80,10 +80,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
         os:
           - ubuntu-latest
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
-        test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -95,8 +95,9 @@ jobs:
           name: installer
 
       - name: Execute test 🧪
+        shell: pwsh
         run: |
-          pwsh ${{ matrix.test }}
+          Invoke-Pester -Output Detailed ${{ matrix.test }}
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
