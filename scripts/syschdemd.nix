@@ -7,6 +7,7 @@
 , gnugrep
 , systemd
 , util-linux
+, which
 , defaultUser
 , automountPath
 ,
@@ -45,6 +46,7 @@ mkWrappedScript {
     gnugrep
     systemd # machinectl
     util-linux # nsenter, runuser
+    which
     wrapper
   ];
   username = defaultUser.name;
