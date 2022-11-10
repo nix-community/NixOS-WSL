@@ -8,16 +8,25 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tests: ${{ steps.tests.outputs.tests }}
+      checks: ${{ steps.checks.outputs.checks }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
+
       - name: Find tests 🔍
         id: tests
         run: |
           find tests -name '*.spec.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+
+      - name: Find checks 🔍
+        id: checks
+        run: |
+          nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
 
   build:
     name: Build 🛠️
@@ -42,7 +51,13 @@ jobs:
           path: result/tarball/nixos-wsl-installer.tar.gz
 
   checks:
-    name: Run Flake Checks 📋
+    name: Flake Check 📋
+    needs:
+      - find-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJSON(needs.find-tests.outputs.checks) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,11 +68,12 @@ jobs:
       - name: Install nix ❄️
         uses: cachix/install-nix-action@v18
 
-      - name: Run checks 📋
+      - name: Run check 📋
         run: |
-          nix flake check -L
+          nix build -L --impure --expr "with builtins; (getFlake (toString ./.)).checks.\${currentSystem}.${{ matrix.check }}"
 
   tests:
+    name: Test 🧪
     needs:
       - find-tests
       - build
@@ -68,7 +84,6 @@ jobs:
           - ubuntu-latest
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
         test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
-    name: Test 🧪
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
