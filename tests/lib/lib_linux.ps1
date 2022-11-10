@@ -24,7 +24,7 @@ function WSL-Launch([string]$id, [string]$command) {
 # TODO: WSL-CopyFile
 
 function WSL-Shutdown([string]$id) {
-  docker stop $id
+  docker restart $id # Restart instead of stop so that exec can still be used
   if ($LASTEXITCODE -ne 0) {
     throw "Failed to stop container"
   }
