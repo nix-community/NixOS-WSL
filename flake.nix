@@ -11,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
     {
 
       nixosModules.wsl = {
@@ -43,11 +43,12 @@
         {
           checks =
             let
-              args = { inherit self; };
+              args = { inherit inputs; };
             in
             {
               nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
               shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+              side-effects = pkgs.callPackage ./checks/side-effects.nix args;
             };
 
           devShell = pkgs.mkShell {
