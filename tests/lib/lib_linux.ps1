@@ -17,9 +17,6 @@ function WSL-Install() {
 
 function WSL-Launch([string]$id, [string]$command) {
     docker exec -t $id /nix/nixos-wsl/entrypoint -c "$command"
-    if ($LASTEXITCODE -ne 0) {
-        throw "$command failed"
-    }
 }
 
 function WSL-Uninstall([string]$id) {
