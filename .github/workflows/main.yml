@@ -1,9 +1,10 @@
-name: 'Build NixOS WSL tarball'
+name: 'CI'
 
 on: [push, pull_request, release]
 
 jobs:
-  build:
+  find-tests:
+    name: Find tests 🔍
     runs-on: ubuntu-latest
     outputs:
       tests: ${{ steps.tests.outputs.tests }}
@@ -11,93 +12,103 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
 
-      - name: Find tests
+      - name: Find tests 🔍
         id: tests
         run: |
           find tests -name '*.spec.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
-      - name: Install nix
-        uses: cachix/install-nix-action@v16
-
-      - name: Run checks
-        run: |
-          nix flake check
-
-      - name: Build tarball
-        run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
-
-      - name: Upload tarball
-        uses: actions/upload-artifact@v3
+  build:
+    name: Build 🛠️
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          name: rootfs
-          path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
+          fetch-depth: 0
 
-      - name: Build installer
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
+
+      - name: Build installer 🛠️
         run: |
           nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
 
-      - name: Upload installer
+      - name: Upload installer 📤
         uses: actions/upload-artifact@v3
         with:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
 
+  checks:
+    name: Run Flake Checks 📋
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
+
+      - name: Run checks 📋
+        run: |
+          nix flake check
+
   tests:
     needs:
+      - find-tests
       - build
     strategy:
       matrix:
         os:
           - ubuntu-latest
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
-        test: ${{ fromJSON(needs.build.outputs.tests) }}
+        test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
+    name: Test 🧪
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
+      - name: Download installer 📥
+        uses: actions/download-artifact@v3
         with:
           name: installer
 
-      - name: Execute test
+      - name: Execute test 🧪
         run: |
           pwsh ${{ matrix.test }}
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs:
+      - checks
       - build
       - tests
+    name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: rootfs
-
-      - uses: actions/download-artifact@v3
+      - name: Download installer 📥
+        uses: actions/download-artifact@v3
         with:
           name: installer
 
-      - name: Generate checksums
+      - name: Generate checksums 🔑
         run: |
           for x in *.tar.gz; do
             sha256sum $x > ${x}.sha256
           done
 
-      - name: Attach to release
+      - name: Attach to release 📦
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            nixos-wsl-x86_64-linux.tar.gz
-            nixos-wsl-x86_64-linux.tar.gz.sha256
             nixos-wsl-installer.tar.gz
             nixos-wsl-installer.tar.gz.sha256
         env:
