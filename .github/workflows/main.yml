@@ -4,7 +4,7 @@ on: [push, pull_request, release]
 
 jobs:
   find-tests:
-    name: Find tests 🔍
+    name: Find Tests 🔍
     runs-on: ubuntu-latest
     outputs:
       tests: ${{ steps.tests.outputs.tests }}
@@ -62,6 +62,7 @@ jobs:
       - find-tests
       - build
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-latest
