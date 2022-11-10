@@ -55,7 +55,7 @@ jobs:
 
       - name: Run checks 📋
         run: |
-          nix flake check
+          nix flake check -L
 
   tests:
     needs:
