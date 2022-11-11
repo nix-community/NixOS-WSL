@@ -11,7 +11,7 @@ Describe "Exit Codes" {
   }
 
   It "should return 1 when running false" {
-    WSL-Launch $id "true" # TODO: This fails on purpose
+    WSL-Launch $id "false"
     $LASTEXITCODE | Should -Be 1
   }
 
