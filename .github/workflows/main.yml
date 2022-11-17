@@ -1,6 +1,9 @@
 name: 'CI'
 
-on: [push, pull_request, release]
+on:
+  push: {}
+  pull_request: {}
+  workflow_call: {}
 
 jobs:
   find-tests:
@@ -98,35 +101,3 @@ jobs:
         shell: pwsh
         run: |
           Invoke-Pester -Output Detailed ${{ matrix.test }}
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs:
-      - checks
-      - build
-      - tests
-    name: Create Release 📢
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Download installer 📥
-        uses: actions/download-artifact@v3
-        with:
-          name: installer
-
-      - name: Generate checksums 🔑
-        run: |
-          for x in *.tar.gz; do
-            sha256sum $x > ${x}.sha256
-          done
-
-      - name: Attach to release 📦
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            nixos-wsl-installer.tar.gz
-            nixos-wsl-installer.tar.gz.sha256
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
