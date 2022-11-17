@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Build 🛠️
-    uses: nzbr/nixos-wsl/.github/workflows/main.yml@tests
+    uses: nix-community/nixos-wsl/.github/workflows/main.yml@main
   release:
     needs:
       - build
