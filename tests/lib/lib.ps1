@@ -1,8 +1,8 @@
 BeforeAll {
   if ($IsWindows) {
-    . $PSScriptRoot/lib_windows.ps1
+    . $PSScriptRoot/init_windows.ps1
   }
   else {
-    . $PSScriptRoot/lib_linux.ps1
+    . $PSScriptRoot/init_linux.ps1
   }
 }
