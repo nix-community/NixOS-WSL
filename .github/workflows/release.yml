@@ -1,0 +1,35 @@
+name: 'Release'
+
+on:
+  push:
+    tags: []
+
+jobs:
+  build:
+    name: Build 🛠️
+    uses: nix-community/nixos-wsl/.github/workflows/main.yml@main
+  release:
+    needs:
+      - build
+    name: Create Release 📢
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download installer 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: installer
+
+      - name: Generate checksums 🔑
+        run: |
+          for x in *.tar.gz; do
+            sha256sum $x > ${x}.sha256
+          done
+
+      - name: Attach to release 📦
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            nixos-wsl-installer.tar.gz
+            nixos-wsl-installer.tar.gz.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -56,6 +56,7 @@ with builtins; with lib; {
           { source = passwd; target = "/etc/passwd"; }
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/sh"; }
           { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/mount"; }
+          { source = "${installer}"; target = "/nix/nixos-wsl/entrypoint"; }
         ];
 
         extraCommands = pkgs.writeShellScript "prepare" ''

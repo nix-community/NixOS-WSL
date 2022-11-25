@@ -1,78 +1,103 @@
-name: 'Build NixOS WSL tarball'
+name: 'CI'
 
-on: [push, pull_request, release]
+on:
+  push: {}
+  pull_request: {}
+  workflow_call: {}
 
 jobs:
+  find-tests:
+    name: Find Tests 🔍
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.tests.outputs.tests }}
+      checks: ${{ steps.checks.outputs.checks }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
+
+      - name: Find tests 🔍
+        id: tests
+        run: |
+          find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+
+      - name: Find checks 🔍
+        id: checks
+        run: |
+          nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
+
   build:
+    name: Build 🛠️
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
 
-      - name: Install nix
-        uses: cachix/install-nix-action@v12
-        with:
-          install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20201221_9fab14a/install
-          # Configure Nix to enable flakes
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
 
-      - name: Run checks
-        run: |
-          nix flake check
-
-      - name: Build tarball
-        run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
-
-      - name: Upload tarball
-        uses: actions/upload-artifact@v2
-        with:
-          name: rootfs
-          path: result/tarball/nixos-wsl-x86_64-linux.tar.gz
-
-      - name: Build installer
+      - name: Build installer 🛠️
         run: |
           nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
 
-      - name: Upload installer
-        uses: actions/upload-artifact@v2
+      - name: Upload installer 📤
+        uses: actions/upload-artifact@v3
         with:
           name: installer
           path: result/tarball/nixos-wsl-installer.tar.gz
 
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: build
+  checks:
+    name: Flake Check 📋
+    needs:
+      - find-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJSON(needs.find-tests.outputs.checks) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@v2
+        uses: actions/checkout@v3
         with:
-          name: rootfs
+          fetch-depth: 0
 
-      - uses: actions/download-artifact@v2
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
+
+      - name: Run check 📋
+        run: |
+          nix build -L --impure --expr "with builtins; (getFlake (toString ./.)).checks.\${currentSystem}.${{ matrix.check }}"
+
+  tests:
+    name: Test 🧪
+    needs:
+      - find-tests
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
+        os:
+          - ubuntu-latest
+          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download installer 📥
+        uses: actions/download-artifact@v3
         with:
           name: installer
 
-      - name: Generate checksums
+      - name: Execute test 🧪
+        shell: pwsh
         run: |
-          for x in *.tar.gz; do
-            sha256sum $x > ${x}.sha256
-          done
-
-      - name: Attach to release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            nixos-wsl-x86_64-linux.tar.gz
-            nixos-wsl-x86_64-linux.tar.gz.sha256
-            nixos-wsl-installer.tar.gz
-            nixos-wsl-installer.tar.gz.sha256
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          Invoke-Pester -Output Detailed ${{ matrix.test }}

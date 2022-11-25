@@ -75,8 +75,10 @@ in
     # These options make no sense without the wsl-distro module anyway
 
     system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
-      # No contents, structure will be added by prepare script
-      contents = [ ];
+
+      contents = [
+        { source = config.users.users.root.shell; target = "/nix/nixos-wsl/entrypoint"; }
+      ];
 
       fileName = "nixos-wsl-${pkgs.hostPlatform.system}";
 

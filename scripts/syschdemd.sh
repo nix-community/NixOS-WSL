@@ -101,7 +101,7 @@ main() {
     start_systemd
   fi
 
-  if [ $# -gt 0 ]; then
+  if [ $# -gt 1 ]; then # Ignore just -c without a command
     # wsl seems to prefix with "-c"
     shift
     command="$*"

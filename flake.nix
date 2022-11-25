@@ -11,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
     {
 
       nixosModules.wsl = {
@@ -41,13 +41,15 @@
           pkgs = import nixpkgs { inherit system; };
         in
         {
-          checks = {
-            check-format = pkgs.runCommand "check-format" { nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ]; } ''
-              nixpkgs-fmt --check ${./.}
-              shfmt -i 2 -d ${./scripts}/*.sh
-              mkdir $out # success
-            '';
-          };
+          checks =
+            let
+              args = { inherit inputs; };
+            in
+            {
+              nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
+              shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+              side-effects = pkgs.callPackage ./checks/side-effects.nix args;
+            };
 
           devShell = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";

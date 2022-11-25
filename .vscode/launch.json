@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "PowerShell: Invoke Pester",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "Invoke-Pester -Output Detailed",
+    }
+  ]
+}
