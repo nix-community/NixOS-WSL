@@ -61,7 +61,8 @@ fn real_main() -> anyhow::Result<()> {
     // if things go right, we will never return from here
     Err(
         Command::new("/nix/var/nix/profiles/system/systemd/lib/systemd/systemd")
-            .args(env::args_os())
+            .arg0(env::args_os().next().expect("arg0 missing"))
+            .args(env::args_os().skip(1))
             .exec()
             .into(),
     )
