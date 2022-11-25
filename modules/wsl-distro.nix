@@ -146,6 +146,11 @@ with lib; {
               mkdir -p /sbin
               ln -sf ${shim}/bin/nixos-wsl-native-systemd-shim /sbin/init
             '';
+            setupLogin = stringAfter [ ] ''
+              echo "setting up /bin/login..."
+              mkdir -p /bin
+              ln -sf ${pkgs.shadow}/bin/login /bin/login
+            '';
           };
 
           environment = {
