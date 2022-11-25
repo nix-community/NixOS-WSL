@@ -1,3 +1,7 @@
+if ($PSVersionTable.PSEdition -ne 'Core') {
+  throw "The tests are not compatible with Windows PowerShell, please use PowerShell Core instead"
+}
+
 # Implementation-independent base class
 class Distro {
   [string]$id

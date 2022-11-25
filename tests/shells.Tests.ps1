@@ -29,7 +29,7 @@ users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
   It "should be possible to use fish" {
     Add-ShellTest "fish" "fish"
   }
-  It "should be possible to use Powershell" {
+  It "should be possible to use PowerShell" {
     Add-ShellTest "powershell" "pwsh"
   }
   It "should be possible to use nushell" {
