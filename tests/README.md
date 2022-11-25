@@ -14,7 +14,7 @@ Please note that the tests are not compatible with Windows PowerShell, but requi
 
 ### Linux
 
-Running the tests requires Docker and PowerShell to be installed on your system. Make sure that it is possible to access the internet from inside docker containers
+Running the tests requires Docker and PowerShell to be installed on your system. Make sure that the user you are running the tests as has permissions to run docker containers and that it is possible to access the internet from inside docker containers.
 
 ### Running the Tests
 
