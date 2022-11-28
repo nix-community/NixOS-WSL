@@ -132,13 +132,13 @@ with lib; {
 
           warnings = flatten [
             (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
-              "systemd-resolved is enabled, but resolv.conf is managed by WSL"
+              "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
             )
             (optional ((length config.networking.nameservers) > 0 && config.wsl.wslConf.network.generateResolvConf)
-              "custom nameservers are set through `networking.nameservers`, but resolv.conf is managed by WSL"
+              "custom nameservers are set (networking.nameservers), but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
             )
             (optional ((length config.networking.nameservers) == 0 && !config.services.resolved.enable && !config.wsl.wslConf.network.generateResolvConf)
-              "resolv.conf generation is turned off, but no other nameservers are configured"
+              "resolv.conf generation is turned off (wsl.wslConf.network.generateResolvConf), but no other nameservers are configured (networking.nameservers)"
             )
           ];
         }
