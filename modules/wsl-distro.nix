@@ -101,12 +101,16 @@ with lib; {
           systemd = {
             # Disable systemd units that don't make sense on WSL
             services = {
+              # no virtual console to switch to
               "serial-getty@ttyS0".enable = false;
               "serial-getty@hvc0".enable = false;
               "getty@tty1".enable = false;
               "autovt@".enable = false;
               firewall.enable = false;
               systemd-resolved.enable = false;
+              # system clock cannot be changed
+              systemd-timesyncd.enable = false;
+              # no udev devices can be attached
               systemd-udevd.enable = false;
             };
 
