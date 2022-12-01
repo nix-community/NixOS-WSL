@@ -98,6 +98,11 @@ jobs:
         with:
           name: installer
 
+      - name: Setup Host ⚙️
+        run: |
+          modprobe ip_tables
+          modprobe iptable_nat
+
       - name: Execute test 🧪
         shell: pwsh
         run: |
