@@ -111,7 +111,7 @@ main() {
 
   # If we're executed from inside the container, e.g. sudo
   if is_in_container; then
-    exec $command
+    eval $command
   fi
 
   # If we are currently in /root, this is probably because the directory that WSL was started is inaccessible
