@@ -51,11 +51,15 @@ with lib; {
 
           environment = {
 
-            etc = {
-              # DNS settings are managed by WSL
-              hosts.enable = !config.wsl.wslConf.network.generateHosts;
-              "resolv.conf".enable = !config.wsl.wslConf.network.generateResolvConf;
-            };
+            # Only set the options if the files are managed by WSL
+            etc = mkMerge [
+              (mkIf config.wsl.wslConf.network.generateHosts {
+                hosts.enable = false;
+              })
+              (mkIf config.wsl.wslConf.network.generateResolvConf {
+                "resolv.conf".enable = false;
+              })
+            ];
 
             systemPackages = [
               (pkgs.runCommand "wslpath" { } ''
@@ -126,9 +130,17 @@ with lib; {
           # Start a systemd user session when starting a command through runuser
           security.pam.services.runuser.startSession = true;
 
-          warnings = (optional (config.systemd.services.systemd-resolved.enable && config.wsl.wslConf.network.generateResolvConf)
-            "systemd-resolved is enabled, but resolv.conf is managed by WSL"
-          );
+          warnings = flatten [
+            (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
+              "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
+            )
+            (optional ((length config.networking.nameservers) > 0 && config.wsl.wslConf.network.generateResolvConf)
+              "custom nameservers are set (networking.nameservers), but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
+            )
+            (optional ((length config.networking.nameservers) == 0 && !config.services.resolved.enable && !config.wsl.wslConf.network.generateResolvConf)
+              "resolv.conf generation is turned off (wsl.wslConf.network.generateResolvConf), but no other nameservers are configured (networking.nameservers)"
+            )
+          ];
         }
         (mkIf (!cfg.nativeSystemd) {
           users.users.root.shell = "${syschdemd}/bin/syschdemd";
