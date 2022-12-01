@@ -85,7 +85,7 @@ jobs:
       matrix:
         test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
         os:
-          - ubuntu-latest
+          - ubuntu-20.04
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
     runs-on: ${{ matrix.os }}
     steps:
