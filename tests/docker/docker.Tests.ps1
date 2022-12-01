@@ -5,7 +5,13 @@ BeforeAll {
 Describe "Docker (native)" {
   BeforeAll {
     $distro = Install-Distro
-    $distro.InstallConfig("$PSScriptRoot/docker-native.nix")
+    try {
+      $distro.InstallConfig("$PSScriptRoot/docker-native.nix")
+    }
+    catch {
+      $distro.Launch("sudo journalctl --no-pager -u docker.service")
+      throw $_
+    }
   }
 
   It "should be possible to run a docker container" {
