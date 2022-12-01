@@ -134,7 +134,7 @@ main() {
     --setenv=WSLPATH="$(clean_wslpath)" \
     --working-directory="$PWD" \
     --machine=.host \
-    "$(which runuser)" -u @username@ -- /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
+    "$(which runuser)" --pty -u @username@ -- /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
 }
 
 main "$@"
