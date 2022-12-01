@@ -85,7 +85,6 @@ jobs:
       matrix:
         test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
         os:
-          - ubuntu-22.04
           - ubuntu-20.04
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
     runs-on: ${{ matrix.os }}
@@ -97,11 +96,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: installer
-
-      - name: Setup Host ⚙️
-        run: |
-          modprobe ip_tables
-          modprobe iptable_nat
 
       - name: Execute test 🧪
         shell: pwsh
