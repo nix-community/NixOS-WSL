@@ -118,11 +118,6 @@ with lib; {
               systemd-udevd.enable = false;
             };
 
-            tmpfiles.rules = [
-              # Don't remove the X11 socket
-              "d /tmp/.X11-unix 1777 root root"
-            ];
-
             # Don't allow emergency mode, because we don't have a console.
             enableEmergencyMode = false;
           };
