@@ -4,12 +4,44 @@ use nix::mount::{mount, MsFlags};
 use nix::sys::wait::{waitid, Id, WaitPidFlag};
 use nix::unistd::Pid;
 use std::env;
-use std::fs::OpenOptions;
+use std::fs::{create_dir, remove_file, OpenOptions};
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::os::unix::process::CommandExt;
 use std::process::{Command, Stdio};
 
 fn real_main() -> anyhow::Result<()> {
+    log::trace!("Unscrewing /dev/shm...");
+
+    remove_file("/dev/shm").context("When removing old /dev/shm")?;
+    create_dir("/dev/shm").context("When creating new /dev/shm")?;
+    mount(
+        Some("/run/shm"),
+        "/dev/shm",
+        None::<&str>,
+        MsFlags::MS_MOVE,
+        None::<&str>,
+    )
+    .context("When relocating /dev/shm")?;
+    mount(
+        Some("/dev/shm"),
+        "/run/shm",
+        None::<&str>,
+        MsFlags::MS_BIND,
+        None::<&str>,
+    )
+    .context("When bind mounting /run/shm to /dev/shm")?;
+
+    log::trace!("Remounting / shared...");
+
+    mount(
+        None::<&str>,
+        "/",
+        None::<&str>,
+        MsFlags::MS_REC | MsFlags::MS_SHARED,
+        None::<&str>,
+    )
+    .context("When remounting /")?;
+
     log::trace!("Remounting /nix/store read-only...");
 
     mount(
