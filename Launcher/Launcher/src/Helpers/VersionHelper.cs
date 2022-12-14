@@ -40,16 +40,16 @@ public static class VersionHelper {
             out var exitCode
         );
         if (exitCode == 0) return; // noupdate file exists
-        
+
         var ver = InstalledVersion?.AsVersion();
         if (ver == null) return;
 
         if (LauncherVersion > ver) {
-            Console.WriteLine("An update for NixOS-WSL is ready to be installed");
+            Console.WriteLine("An update for NixOS-WSL is ready to be installed!");
             // Don't print that until updating has been figured out
             // Console.WriteLine("Run 'NixOS update' to apply it or 'sudo touch /etc/nixos/.noupdate' (inside WSL) to disable this message");
-            Console.WriteLine("Run 'sudo touch /etc/nixos/.noupdate' (inside WSL) to disable this message");
-        } 
+            Console.WriteLine("Run 'sudo touch /etc/nixos/.noupdate' to disable this message");
+        }
     }
 
     public class NixosWslVersion {
