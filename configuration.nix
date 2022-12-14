@@ -1,19 +1,16 @@
-{ lib, pkgs, config, modulesPath, ... }:
+{ pkgs, config, modulesPath, ... }:
 
-with lib;
 let
   nixos-wsl = import ./default.nix;
 in
 {
   imports = [
-    "${modulesPath}/profiles/minimal.nix"
-
     nixos-wsl.nixosModules.wsl
   ];
 
   wsl = {
     enable = true;
-    automountPath = "/mnt";
+    wslConf.automount.root = "/mnt";
     defaultUser = "nixos";
     startMenuLaunchers = true;
 

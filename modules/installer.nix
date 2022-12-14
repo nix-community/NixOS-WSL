@@ -163,8 +163,9 @@ with builtins; with lib; {
           { source = config.environment.etc."wsl.conf".source; target = "/etc/wsl.conf"; }
           { source = config.environment.etc."fstab".source; target = "/etc/fstab"; }
           { source = passwd; target = "/etc/passwd"; }
-          { source = "${busybox}/bin/busybox"; target = "/bin/sh"; }
-          { source = "${busybox}/bin/busybox"; target = "/bin/mount"; }
+          { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/sh"; }
+          { source = "${pkgs.busybox}/bin/busybox"; target = "/bin/mount"; }
+          { source = "${installer}"; target = "/nix/nixos-wsl/entrypoint"; }
         ];
 
         extraCommands = pkgs.writeShellScript "prepare" ''

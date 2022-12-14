@@ -101,36 +101,40 @@ main() {
     start_systemd
   fi
 
-  if [ $# -gt 0 ]; then
+  if [ $# -gt 1 ]; then # Ignore just -c without a command
     # wsl seems to prefix with "-c"
     shift
     command="$*"
   else
-    command=$(get_shell @defaultUser@)
+    command="$(get_shell @username@)"
   fi
 
   # If we're executed from inside the container, e.g. sudo
   if is_in_container; then
-    exec $command
+    eval $command
   fi
 
   # If we are currently in /root, this is probably because the directory that WSL was started is inaccessible
   # cd to the user's home to prevent a warning about permission being denied on /root
   if [ "$PWD" == "/root" ]; then
-    cd "$(get_home @defaultUser@)"
+    cd "$(get_home @username@)"
   fi
 
   # Pass external environment but filter variables specific to root user.
   exportCmd="$(export -p | grep -vE ' (HOME|LOGNAME|SHELL|USER)=')"
 
   run_in_namespace \
-    machinectl \
+    systemd-run \
     --quiet \
-    --uid=@defaultUser@ \
+    --collect \
+    --wait \
+    --pty \
+    --service-type=exec \
     --setenv=INSIDE_NAMESPACE=true \
     --setenv=WSLPATH="$(clean_wslpath)" \
-    shell .host \
-    /bin/sh -c "cd \"$PWD\"; $exportCmd; source /etc/set-environment; exec $command"
+    --working-directory="$PWD" \
+    --machine=.host \
+    "$(which runuser)" --pty -u @username@ -- /bin/sh -c "$exportCmd; source /etc/set-environment; exec $command"
 }
 
 main "$@"

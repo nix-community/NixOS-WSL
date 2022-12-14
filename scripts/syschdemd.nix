@@ -7,6 +7,7 @@
 , gnugrep
 , systemd
 , util-linux
+, which
 , defaultUser
 , automountPath
 ,
@@ -30,6 +31,7 @@ let
     src = ./wrapper.sh;
     path = lib.makeSearchPath "" [
       "/run/wrappers/bin" # mount
+      "${gnugrep}/bin" # grep
       "${systemd}/lib/systemd" # systemd
     ];
   };
@@ -44,8 +46,10 @@ mkWrappedScript {
     glibc # getent
     gnugrep
     systemd # machinectl
-    util-linux # nsenter
+    util-linux # nsenter, runuser
+    which
     wrapper
   ];
-  inherit defaultUser automountPath;
+  username = defaultUser.name;
+  inherit automountPath;
 }

@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -11,7 +11,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
     {
 
       nixosModules.wsl = {
@@ -22,6 +22,7 @@
           ./modules/installer.nix
           ./modules/interop.nix
           ./modules/version.nix
+          ./modules/wsl-conf.nix
           ./modules/wsl-distro.nix
         ];
       };
@@ -35,22 +36,33 @@
 
     } //
     flake-utils.lib.eachSystem
-      (with flake-utils.lib.system; [ "x86_64-linux" "aarch64-linux" ])
+      [ "x86_64-linux" "aarch64-linux" ]
       (system:
         let
           pkgs = import nixpkgs { inherit system; };
         in
         {
-          checks = {
-            check-format = pkgs.runCommand "check-format" { nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ]; } ''
-              nixpkgs-fmt --check ${./.}
-              shfmt -i 2 -d ${./scripts}/*.sh
-              mkdir $out # success
-            '';
-          };
+          checks =
+            let
+              args = { inherit inputs; };
+            in
+            {
+              nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
+              shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+              side-effects = pkgs.callPackage ./checks/side-effects.nix args;
+            };
 
           devShell = pkgs.mkShell {
-            nativeBuildInputs = with pkgs; [ nixpkgs-fmt shfmt ];
+            RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+
+            nativeBuildInputs = with pkgs; [
+              nixpkgs-fmt
+              shfmt
+              rustc
+              cargo
+              rustfmt
+              clippy
+            ];
           };
         }
       );
