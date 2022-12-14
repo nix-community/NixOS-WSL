@@ -24,7 +24,7 @@ jobs:
         with:
           name: appx
 
-      - name: Rename appx 🖊️
+      - name: Rename appx ✏️
         run: mv */*.msixbundle NixOS-WSL.msixbundle
 
       - name: Generate checksums 🔑
