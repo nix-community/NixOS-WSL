@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, options, ... }:
 
 with lib; {
 
@@ -176,6 +176,11 @@ with lib; {
               ''}
             '';
           };
+        })
+        # this option doesn't exist on older NixOS, so hack.
+        (lib.optionalAttrs (builtins.hasAttr "oomd" options.systemd) {
+          # systemd-oomd requires cgroup pressure info which WSL doesn't have
+          systemd.oomd.enable = false;
         })
       ]);
 }
