@@ -44,7 +44,7 @@ jobs:
           echo "::set-output name=version::$NIXOS_WSL_VERSION"
 
   build:
-    name: Build 🛠️
+    name: Build Tarball 🛠️
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,6 +66,7 @@ jobs:
           path: result/tarball/nixos-wsl-installer.tar.gz
 
   launcher:
+    name: Build Launcher 🛠️
     needs:
       - prepare
       - build
