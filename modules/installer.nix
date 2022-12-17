@@ -100,6 +100,8 @@ with builtins; with lib; {
               FLAKE=true
             fi
 
+            # TODO: Check that nixos-rebuild builds the current configuration
+
             # Update channels
             echo "Updating channels..."
             nix-channel --add https://nixos.org/channels/nixos-${config.system.nixos.release} nixos
