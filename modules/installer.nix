@@ -68,10 +68,14 @@ with builtins; with lib; {
 
             #Parse arguments
             GC=true
+            REBUILD=false
             for arg in "$@"; do
               case $arg in
                 --no-gc)
                   GC=false
+                  ;;
+                --rebuild)
+                  REBUILD=true
                   ;;
                 *)
                   echo "Unknown argument: $arg"
@@ -100,12 +104,26 @@ with builtins; with lib; {
               FLAKE=true
             fi
 
-            # TODO: Check that nixos-rebuild builds the current configuration
+            # Check that nixos-rebuild builds the current configuration
+            EXTERNAL=false
+            if ! $FLAKE; then
+              dir=$PWD
+              cd $(mktemp -d)
+              nixos-rebuild build
+              if [[ $(readlink /run/current-system) != $(readlink result) ]]; then
+                echo "The current configuration does not match what is produced by nixos-rebuild!" >&2
+                echo "Please make sure to update your nixos channel or nixpkgs input to NixOS ${config.system.nixos.release}" >&2
+                EXTERNAL=true
+              fi
+              cd $dir
+            fi
 
             # Update channels
-            echo "Updating channels..."
-            nix-channel --add https://nixos.org/channels/nixos-${config.system.nixos.release} nixos
-            nix-channel --update -v
+            if ! $FLAKE && ! $EXTERNAL; then
+              echo "Updating channels..."
+              nix-channel --add https://nixos.org/channels/nixos-${config.system.nixos.release} nixos
+              nix-channel --update -v
+            fi
 
             # Replace config
             echo "Updating configuration..."
@@ -115,8 +133,8 @@ with builtins; with lib; {
             chmod a-w -R /etc/nixos/nixos-wsl
 
             # Rebuild
-            if ! $FLAKE; then
-              if prompt_yn "Run nixos-rebuild switch?"; then
+            if ! $FLAKE && ! $EXTERNAL; then
+              if REBUILD || prompt_yn "Run nixos-rebuild switch?"; then
                 nixos-rebuild -v switch
               fi
             fi
