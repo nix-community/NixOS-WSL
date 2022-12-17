@@ -8,7 +8,6 @@ public static class StartupHelper {
     public static bool BootDistro() {
         if (booted) return true;
         try {
-            // TODO: Only do this if the distro isn't running already
             WslApiLoader.WslLaunchInteractive(
                 DistributionInfo.Name,
                 "sh -c \"exit\"", // Don't run anything, exit after we get a shell

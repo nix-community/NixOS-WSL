@@ -101,6 +101,8 @@ with builtins; with lib; {
             if [ -f /etc/nixos/flake.nix ]; then
               echo "Flake detected!"
               echo "Please update your nixpkgs input to \"github:nixos/nixpkgs/nixos-${config.system.nixos.release}\" and run nixos-rebuild to complete the update"
+              echo "Press enter to continue..."
+              read
               FLAKE=true
             fi
 
@@ -113,6 +115,8 @@ with builtins; with lib; {
               if [[ $(readlink /run/current-system) != $(readlink result) ]]; then
                 echo "The current configuration does not match what is produced by nixos-rebuild!" >&2
                 echo "Please make sure to update your nixos channel or nixpkgs input to NixOS ${config.system.nixos.release}" >&2
+                echo "Press enter to continue..."
+                read
                 EXTERNAL=true
               fi
               cd $dir
@@ -134,8 +138,8 @@ with builtins; with lib; {
 
             # Rebuild
             if ! $FLAKE && ! $EXTERNAL; then
-              if REBUILD || prompt_yn "Run nixos-rebuild switch?"; then
-                nixos-rebuild -v switch
+              if $REBUILD || prompt_yn "Run nixos-rebuild switch?"; then
+                nixos-rebuild switch
               fi
             fi
 
