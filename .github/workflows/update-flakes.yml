@@ -32,7 +32,7 @@ jobs:
         with:
           commit-message: Update flakes
           committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          author: github-actions <actions@users.noreply.github.com>
           signoff: false
           branch: flake-updates
           delete-branch: true
