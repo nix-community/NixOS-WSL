@@ -1,5 +1,5 @@
 { lib, pkgs, options, config, ... }:
-with builtins; with lib;
+with lib;
 {
 
   options = with types; {
