@@ -60,7 +60,7 @@ with lib;
                 '') config.wsl.version
               )}
               --json)
-                echo '${toJSON config.wsl.version}' | ${pkgs.jq}/bin/jq # Use jq to pretty-print the JSON
+                echo '${generators.toJSON {} config.wsl.version}' | ${pkgs.jq}/bin/jq # Use jq to pretty-print the JSON
                 exit 0
                 ;;
               *)
