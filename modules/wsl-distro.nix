@@ -88,9 +88,13 @@ with lib; {
             copy-launchers = mkIf cfg.startMenuLaunchers (
               stringAfter [ ] ''
                 for x in applications icons; do
-                  echo "Copying /usr/share/$x"
-                  mkdir -p /usr/share/$x
-                  ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+                  echo "setting up /usr/share/''${x}..."
+                  if [[ -d $systemConfig/sw/share/$x ]]; then
+                    mkdir -p /usr/share/$x
+                    ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+                  else
+                    rm -rf /usr/share/$x
+                  fi
                 done
               ''
             );
