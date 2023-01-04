@@ -73,29 +73,35 @@ public static class InstallationHelper {
     public static string? FindTarball() {
         const string tarFileName = "nixos-wsl-installer.tar.gz";
 
-        var tarPath = "";
-        
         // Accept a tarball in the current directory when running a debug build
         #if (DEBUG)
         var pwd = Directory.GetCurrentDirectory();
-        tarPath = Path.Combine(pwd, tarFileName);
-        if (File.Exists(tarPath)) return tarPath;
+        var debugTarPath = Path.Combine(pwd, tarFileName);
+        if (File.Exists(debugTarPath)) {
+            return debugTarPath;
+        }
         #endif
-        
+
         // Look for the tarball in the same directory as the executable
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        if (assemblyPath != null) {
-            tarPath = Path.Combine(assemblyPath, tarFileName);
-            if (File.Exists(tarPath)) return tarPath;
-        
-            // In the APPX package, the tarball is in the parent directory
-            var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
-            if (parentDirectory != null) {
-                tarPath = Path.Combine(parentDirectory, tarFileName);
-                if (File.Exists(tarPath)) return tarPath;
-            }    
+        if (assemblyPath == null) {
+            return null;
         }
-        
-        return null;
+
+        var tarPath = Path.Combine(assemblyPath, tarFileName);
+        if (File.Exists(tarPath)) {
+            return tarPath;
+        }
+
+        // In the APPX package, the tarball is in the parent directory
+        var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
+        if (parentDirectory == null) {
+            return null;
+        }
+
+        tarPath = Path.Combine(parentDirectory, tarFileName);
+        return File.Exists(tarPath)
+            ? tarPath
+            : null;
     }
 }

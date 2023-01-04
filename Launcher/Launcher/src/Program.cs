@@ -61,7 +61,7 @@ internal static class Program {
                 result = e.HResult;
             }
         });
-        
+
         var commandLineBuilder = new CommandLineBuilder(rootCommand)
             .UseHelp()
             .UseEnvironmentVariableDirective()
@@ -77,11 +77,13 @@ internal static class Program {
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var distroNameResult = context.ParseResult.FindResultFor(distroNameOption);
 
-            if (distroNameResult != null && distroNameResult.Tokens.Count > 0) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
+            if (distroNameResult is {Tokens.Count: > 0}) {
+                DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
+            }
 
             await next(context);
         }, (MiddlewareOrder) (-1300)); // Run before --version
-        
+
         // Implement --version option
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var versionResult = context.ParseResult.FindResultFor(versionOption);
@@ -96,7 +98,7 @@ internal static class Program {
                 await next(context);
             }
         }, (MiddlewareOrder) (-1200)); // Internal value for the builtin version option
-        
+
         await commandLineBuilder.Build().InvokeAsync(args);
 
         return result;
