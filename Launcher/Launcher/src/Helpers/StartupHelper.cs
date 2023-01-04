@@ -17,17 +17,15 @@ public static class StartupHelper {
                 out var exitCode
             );
             if (exitCode != 0) {
-                goto fail;
+                Console.Error.WriteLine("An error occured during the distro's startup process");
+                return false;
             }
         } catch (WslApiException) {
-            goto fail;
+            Console.Error.WriteLine("An error occured while trying to run a command in the distro");
+            return false;
         }
 
         booted = true;
         return true;
-
-        fail:
-        Console.Error.WriteLine("An error occured when starting the distro");
-        return false;
     }
 }
