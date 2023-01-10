@@ -153,7 +153,7 @@ with lib; {
         })
         (mkIf cfg.nativeSystemd {
           wsl.wslConf = {
-            user.default = cfg.defaultUser;
+            user.default = config.users.users.${cfg.defaultUser}.name;
             boot.systemd = true;
           };
 
