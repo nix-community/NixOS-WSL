@@ -12,6 +12,32 @@ function Remove-Escapes {
   }
 }
 
+function Split-String {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$InputString
+  )
+
+  # use a regular expression to match quoted parts of the input string
+  $regex = '(?<=^|\s)("[^"]*"|''[^'']*''|[^\s]+)'
+  $matches = [regex]::matches($InputString, $regex)
+
+  # create an array to store the split parts of the string
+  $splitString = @()
+
+  # loop through the matches and add each part to the array
+  foreach ($match in $matches) {
+    # remove the quotes from the start and end of the match
+    $part = $match.Value.Trim("'").Trim('"')
+
+    $splitString += $part
+  }
+
+  # return the split parts of the string
+  return $splitString
+}
+
 # Implementation-independent base class
 class Distro {
   [string]$id
@@ -138,7 +164,7 @@ class WslDistro : Distro {
 
   [Array]Launch([string]$command) {
     $result = @()
-    & wsl.exe (@("-d", "$($this.id)") + $command.Split()) | Tee-Object -Variable result | Write-Host
+    & wsl.exe (@("-d", "$($this.id)") + $(Split-String $command)) | Tee-Object -Variable result | Write-Host
     return $result
   }
 
