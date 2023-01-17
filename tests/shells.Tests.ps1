@@ -18,7 +18,7 @@ users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
 "@ > $temp
       $distro.InstallConfig($temp)
       Remove-Item $temp
-      $distro.Launch("echo `$SHELL") | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
+      $distro.Launch("echo `$SHELL") | Remove-Escapes | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
       $LASTEXITCODE | Should -Be 0
     }
   }

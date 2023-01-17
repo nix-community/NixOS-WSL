@@ -2,6 +2,16 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
   throw "The tests are not compatible with Windows PowerShell, please use PowerShell Core instead"
 }
 
+function Remove-Escapes {
+  param(
+    [parameter(ValueFromPipeline = $true)]
+    [string[]]$InputObject
+  )
+  process {
+    $InputObject | ForEach-Object { $_ -replace '\x1b(\[(\?..|.)|.)', '' }
+  }
+}
+
 # Implementation-independent base class
 class Distro {
   [string]$id
@@ -155,9 +165,11 @@ class WslDistro : Distro {
 # Auto-select the implementation to use
 function Install-Distro() {
   if ($IsWindows) {
+    Write-Host "Detected Windows host, using WSL"
     return [WslDistro]::new()
   }
   else {
+    Write-Host "Detected Linux host, using Docker"
     return [DockerDistro]::new()
   }
 }
