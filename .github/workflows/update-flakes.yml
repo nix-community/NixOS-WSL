@@ -15,24 +15,21 @@ jobs:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
 
-      - name: Install nix
-        uses: cachix/install-nix-action@v12
+      - name: Install nix ❄️
+        uses: cachix/install-nix-action@v18
         with:
-          install_url: https://github.com/numtide/nix-flakes-installer/releases/download/nix-2.4pre20201221_9fab14a/install
-          # Configure Nix to enable flakes
-          extra_nix_config: |
-            experimental-features = nix-command flakes
+          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
-      - name: Update flakes
-        run: nix flake update --recreate-lock-file
+      - name: Update flakes ⌛
+        run: nix flake update
 
-      - name: Create Pull Request
+      - name: Create Pull Request 📨
         id: cpr
         uses: peter-evans/create-pull-request@v3
         with:
           commit-message: Update flakes
           committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          author: github-actions <actions@users.noreply.github.com>
           signoff: false
           branch: flake-updates
           delete-branch: true

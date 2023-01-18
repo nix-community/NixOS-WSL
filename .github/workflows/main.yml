@@ -21,6 +21,8 @@ jobs:
 
       - name: Install nix ❄️
         uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
       - name: Find tests 🔍
         id: tests
@@ -55,6 +57,8 @@ jobs:
 
       - name: Install nix ❄️
         uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
       - name: Set version 🏷️
         run: |
@@ -88,6 +92,8 @@ jobs:
 
       - name: Install nix ❄️
         uses: cachix/install-nix-action@v18
+        with:
+          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
       - name: Run check 📋
         run: |

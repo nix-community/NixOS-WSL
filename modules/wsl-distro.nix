@@ -88,9 +88,13 @@ with lib; {
             copy-launchers = mkIf cfg.startMenuLaunchers (
               stringAfter [ ] ''
                 for x in applications icons; do
-                  echo "Copying /usr/share/$x"
-                  mkdir -p /usr/share/$x
-                  ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+                  echo "setting up /usr/share/''${x}..."
+                  if [[ -d $systemConfig/sw/share/$x ]]; then
+                    mkdir -p /usr/share/$x
+                    ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+                  else
+                    rm -rf /usr/share/$x
+                  fi
                 done
               ''
             );
@@ -170,9 +174,9 @@ with lib; {
             # preserve $PATH from parent
             variables.PATH = [ "$PATH" ];
             extraInit = ''
-              export WSLPATH=$(echo "$PATH" | tr ':' '\n' | grep -E "^${cfg.wslConf.automount.root}" | tr '\n' ':')
+              export WSLPATH=$(echo "$PATH" | tr ':' '\0' | command grep -a "^${cfg.wslConf.automount.root}" | tr '\0' ':')
               ${if cfg.interop.includePath then "" else ''
-                export PATH=$(echo "$PATH" | tr ':' '\n' | grep -vE "^${cfg.wslConf.automount.root}" | tr '\n' ':')
+                export PATH=$(echo "$PATH" | tr ':' '\0' | command grep -av "^${cfg.wslConf.automount.root}" | tr '\0' ':')
               ''}
             '';
           };

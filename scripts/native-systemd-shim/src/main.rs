@@ -4,16 +4,24 @@ use nix::mount::{mount, MsFlags};
 use nix::sys::wait::{waitid, Id, WaitPidFlag};
 use nix::unistd::Pid;
 use std::env;
-use std::fs::{create_dir, remove_file, OpenOptions};
+use std::fs::{create_dir_all, remove_dir_all, remove_file, OpenOptions};
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::os::unix::process::CommandExt;
+use std::path::Path;
 use std::process::{Command, Stdio};
 
 fn real_main() -> anyhow::Result<()> {
     log::trace!("Unscrewing /dev/shm...");
 
-    remove_file("/dev/shm").context("When removing old /dev/shm")?;
-    create_dir("/dev/shm").context("When creating new /dev/shm")?;
+    let dev_shm = Path::new("/dev/shm");
+
+    if dev_shm.is_symlink() {
+        remove_file(dev_shm).context("When removing /dev/shm symlink")?;
+    } else if dev_shm.is_dir() {
+        remove_dir_all(dev_shm).context("When removing old /dev/shm")?;
+    }
+
+    create_dir_all("/dev/shm").context("When creating new /dev/shm")?;
     mount(
         Some("/run/shm"),
         "/dev/shm",
