@@ -9,16 +9,19 @@ with lib;
       in
       {
         release = mkOption {
+          internal = true;
           description = "the NixOS-WSL release";
           type = str;
           default = elemAt versionFile 0;
         };
         rev = mkOption {
+          internal = true;
           description = "the NixOS-WSL git revision";
           type = str;
           default = elemAt versionFile 1;
         };
         systemd = mkOption {
+          internal = true;
           type = enum [ "native" "syschdemd" ];
           description = "the systemd implementation used by NixOS-WSL";
           default = if config.wsl.nativeSystemd then "native" else "syschdemd";
