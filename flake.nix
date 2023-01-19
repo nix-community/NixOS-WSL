@@ -51,6 +51,8 @@
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
             };
 
+          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-systemd-shim/shim.nix { };
+
           devShell = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
