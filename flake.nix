@@ -12,6 +12,7 @@
   };
 
   outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
+    with nixpkgs.lib;
     {
 
       nixosModules.wsl = {
@@ -21,8 +22,13 @@
           ./modules/docker-native.nix
           ./modules/installer.nix
           ./modules/interop.nix
+          ./modules/version.nix
           ./modules/wsl-conf.nix
           ./modules/wsl-distro.nix
+
+          ({ ... }: {
+            wsl.version.rev = mkIf (self ? rev) self.rev;
+          })
         ];
       };
 
@@ -50,6 +56,8 @@
               shfmt = pkgs.callPackage ./checks/shfmt.nix args;
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
             };
+
+          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-systemd-shim/shim.nix { };
 
           devShell = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";

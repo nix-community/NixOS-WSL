@@ -6,12 +6,13 @@ on:
   workflow_call: {}
 
 jobs:
-  find-tests:
-    name: Find Tests 🔍
+  prepare:
+    name: Prepare 🚀
     runs-on: ubuntu-latest
     outputs:
       tests: ${{ steps.tests.outputs.tests }}
       checks: ${{ steps.checks.outputs.checks }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,8 +34,20 @@ jobs:
         run: |
           nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
 
+      - name: Generate Version 🏷️
+        id: version
+        run: |
+          TAG_COUNT=$(git rev-list --tags --no-walk --count)                                                                 # Count all tags
+          COMMIT_COUNT=$(git rev-list --use-bitmap-index --count $(git rev-list --tags --no-walk --max-count=1)..HEAD)       # Count all commits since the last tag
+          NIXOS_VERSION=$(nix-instantiate --eval -E '(import ./.).inputs.nixpkgs.lib.version' | sed -E 's/"(.+\...).*"/\1/') # Get NixOS version from nixpkgs
+          NIXOS_VERSION_MS=$(echo $NIXOS_VERSION | sed -E 's/\.0*(.+)/\.\1/')                                                # Remove the leading 0 from the minor version (if it exists)
+          NIXOS_WSL_VERSION=${NIXOS_VERSION_MS}.${TAG_COUNT}.${COMMIT_COUNT}                                                 # Compose the NixOS-WSL version number
+          echo "version=$NIXOS_WSL_VERSION" >> $GITHUB_OUTPUT
+
   build:
     name: Build 🛠️
+    needs:
+      - prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,6 +59,11 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
+
+      - name: Set version 🏷️
+        run: |
+          echo ${{ needs.prepare.outputs.version }} > ./VERSION
+          echo $(git rev-parse HEAD) >> ./VERSION
 
       - name: Build installer 🛠️
         run: |
@@ -60,11 +78,11 @@ jobs:
   checks:
     name: Flake Check 📋
     needs:
-      - find-tests
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        check: ${{ fromJSON(needs.find-tests.outputs.checks) }}
+        check: ${{ fromJSON(needs.prepare.outputs.checks) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -84,12 +102,12 @@ jobs:
   tests:
     name: Test 🧪
     needs:
-      - find-tests
+      - prepare
       - build
     strategy:
       fail-fast: false
       matrix:
-        test: ${{ fromJSON(needs.find-tests.outputs.tests) }}
+        test: ${{ fromJSON(needs.prepare.outputs.tests) }}
         os:
           - ubuntu-20.04
           # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
