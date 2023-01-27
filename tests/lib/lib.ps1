@@ -2,6 +2,42 @@ if ($PSVersionTable.PSEdition -ne 'Core') {
   throw "The tests are not compatible with Windows PowerShell, please use PowerShell Core instead"
 }
 
+function Remove-Escapes {
+  param(
+    [parameter(ValueFromPipeline = $true)]
+    [string[]]$InputObject
+  )
+  process {
+    $InputObject | ForEach-Object { $_ -replace '\x1b(\[(\?..|.)|.)', '' }
+  }
+}
+
+function Split-String {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$InputString
+  )
+
+  # use a regular expression to match quoted parts of the input string
+  $regex = '(?<=^|\s)("[^"]*"|''[^'']*''|[^\s]+)'
+  $matches = [regex]::matches($InputString, $regex)
+
+  # create an array to store the split parts of the string
+  $splitString = @()
+
+  # loop through the matches and add each part to the array
+  foreach ($match in $matches) {
+    # remove the quotes from the start and end of the match
+    $part = $match.Value.Trim("'").Trim('"')
+
+    $splitString += $part
+  }
+
+  # return the split parts of the string
+  return $splitString
+}
+
 # Implementation-independent base class
 class Distro {
   [string]$id
@@ -84,9 +120,10 @@ class DockerDistro : Distro {
   }
 
   [Array]Launch([string]$command) {
+    Write-Host "> $command"
     $result = @()
     docker exec -t $this.id /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
-    return $result
+    return $result | Remove-Escapes
   }
 
   [string]GetPath([string]$path) {
@@ -127,9 +164,10 @@ class WslDistro : Distro {
   }
 
   [Array]Launch([string]$command) {
+    Write-Host "> $command"
     $result = @()
-    & wsl.exe (@("-d", "$($this.id)") + $command.Split()) | Tee-Object -Variable result | Write-Host
-    return $result
+    & wsl.exe (@("-d", "$($this.id)") + $(Split-String $command)) | Tee-Object -Variable result | Write-Host
+    return $result | Remove-Escapes
   }
 
   [string]GetPath([string]$path) {
@@ -155,9 +193,11 @@ class WslDistro : Distro {
 # Auto-select the implementation to use
 function Install-Distro() {
   if ($IsWindows) {
+    Write-Host "Detected Windows host, using WSL2"
     return [WslDistro]::new()
   }
   else {
+    Write-Host "Detected Linux host, using Docker"
     return [DockerDistro]::new()
   }
 }

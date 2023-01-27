@@ -39,7 +39,7 @@ users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
     Add-ShellTest "xonsh" "xonsh"
   }
   # Do bash last so every shell was used to run InstallConfig
-  It "should be possible to use bash" {
+  It "should be possible to go back to bash" {
     Add-ShellTest "bashInteractive" "bash"
   }
 
