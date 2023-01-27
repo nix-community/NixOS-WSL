@@ -120,9 +120,10 @@ class DockerDistro : Distro {
   }
 
   [Array]Launch([string]$command) {
+    Write-Host "> $command"
     $result = @()
     docker exec -t $this.id /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
-    return $result
+    return $result | Remove-Escapes
   }
 
   [string]GetPath([string]$path) {
@@ -163,9 +164,10 @@ class WslDistro : Distro {
   }
 
   [Array]Launch([string]$command) {
+    Write-Host "> $command"
     $result = @()
     & wsl.exe (@("-d", "$($this.id)") + $(Split-String $command)) | Tee-Object -Variable result | Write-Host
-    return $result
+    return $result | Remove-Escapes
   }
 
   [string]GetPath([string]$path) {
@@ -191,7 +193,7 @@ class WslDistro : Distro {
 # Auto-select the implementation to use
 function Install-Distro() {
   if ($IsWindows) {
-    Write-Host "Detected Windows host, using WSL"
+    Write-Host "Detected Windows host, using WSL2"
     return [WslDistro]::new()
   }
   else {
