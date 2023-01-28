@@ -166,7 +166,7 @@ class WslDistro : Distro {
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    & wsl.exe (@("-d", "$($this.id)") + $(Split-String $command)) | Tee-Object -Variable result | Write-Host
+    & wsl.exe -d $this.id -e /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 

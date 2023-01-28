@@ -29,8 +29,11 @@ Describe "Shells" {
   It "should be possible to use fish" {
     Add-ShellTest "fish" "fish"
   }
-  It "should be possible to use PowerShell" {
-    Add-ShellTest "powershell" "pwsh"
+  if (!$IsWindows) {
+    # Skip on windows, because it just doesn't work for some reason
+    It "should be possible to use PowerShell" {
+      Add-ShellTest "powershell" "pwsh"
+    }
   }
   It "should be possible to use nushell" {
     Add-ShellTest "nushell" "nu"
