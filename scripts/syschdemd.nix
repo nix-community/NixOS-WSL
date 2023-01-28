@@ -10,7 +10,7 @@
 , which
 , defaultUser
 , automountPath
-,
+, ...
 }:
 let
   mkWrappedScript =
