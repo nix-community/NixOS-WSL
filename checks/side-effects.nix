@@ -1,7 +1,7 @@
 # Test that including the WSL module in a config does not change anything without enabling it
 
-{ inputs
-, system
+{ system
+, inputs
 , emptyFile
 , ...
 }:
