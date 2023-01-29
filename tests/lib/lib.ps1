@@ -111,7 +111,7 @@ class DockerDistro : Distro {
       [DockerDistro]::imageCreated = $true
     }
 
-    $this.id = [guid]::NewGuid().ToString()
+    $this.id = $(New-Guid).ToString()
 
     docker run -di --privileged --volume "/:$([DockerDistro]::hostMount)" --name $this.id $([DockerDistro]::imageName) "/bin/sh" | Out-Null
     if ($LASTEXITCODE -ne 0) {
@@ -152,7 +152,7 @@ class WslDistro : Distro {
   WslDistro() {
     $tarball = $this.FindTarball()
 
-    $this.id = [guid]::NewGuid().ToString()
+    $this.id = $(New-Guid).ToString()
     $this.tempdir = Join-Path $([System.IO.Path]::GetTempPath()) $this.id
     New-Item -ItemType Directory $this.tempdir
 
