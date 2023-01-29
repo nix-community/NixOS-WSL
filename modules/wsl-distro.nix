@@ -127,7 +127,7 @@ with lib; {
 
             # Link the X11 socket into place. This is a no-op on a normal setup,
             # but helps if /tmp is a tmpfs or mounted from some other location.
-            tmpfiles.rules = [ "L /tmp/.X11-unix - - - - /mnt/wslg/.X11-unix" ];
+            tmpfiles.rules = [ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ];
           };
 
           # Start a systemd user session when starting a command through runuser
