@@ -105,6 +105,7 @@ with lib; {
               ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
             '';
             update-entrypoint.text = ''
+              mkdir -p /nix/nixos-wsl
               ln -sf ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
             '';
           };
