@@ -106,7 +106,7 @@ with lib; {
             '';
             update-entrypoint.text = ''
               mkdir -p /nix/nixos-wsl
-              ln -sf ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
+              ln -sfn ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
             '';
           };
 
