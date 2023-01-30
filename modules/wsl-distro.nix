@@ -104,6 +104,9 @@ with lib; {
               ln -sf ${bash}/bin/sh /bin/sh
               ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
             '';
+            update-entrypoint.text = ''
+              ln -sf ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
+            '';
           };
 
           systemd = {
@@ -153,7 +156,7 @@ with lib; {
         })
         (mkIf cfg.nativeSystemd {
           wsl.wslConf = {
-            user.default = cfg.defaultUser;
+            user.default = config.users.users.${cfg.defaultUser}.name;
             boot.systemd = true;
           };
 

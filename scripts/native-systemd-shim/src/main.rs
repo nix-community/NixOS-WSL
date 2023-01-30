@@ -4,13 +4,13 @@ use nix::mount::{mount, MsFlags};
 use nix::sys::wait::{waitid, Id, WaitPidFlag};
 use nix::unistd::Pid;
 use std::env;
-use std::fs::{create_dir_all, remove_dir_all, remove_file, OpenOptions};
+use std::fs::{create_dir_all, metadata, remove_dir_all, remove_file, OpenOptions};
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-fn real_main() -> anyhow::Result<()> {
+fn unscrew_dev_shm() -> anyhow::Result<()> {
     log::trace!("Unscrewing /dev/shm...");
 
     let dev_shm = Path::new("/dev/shm");
@@ -38,6 +38,19 @@ fn real_main() -> anyhow::Result<()> {
         None::<&str>,
     )
     .context("When bind mounting /run/shm to /dev/shm")?;
+
+    Ok(())
+}
+
+fn real_main() -> anyhow::Result<()> {
+    if metadata("/dev/shm")
+        .context("When checking /dev/shm")?
+        .is_symlink()
+    {
+        unscrew_dev_shm()?;
+    } else {
+        log::trace!("/dev/shm is not a symlink, leaving as-is...");
+    };
 
     log::trace!("Remounting / shared...");
 

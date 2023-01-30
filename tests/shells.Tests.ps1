@@ -9,13 +9,13 @@ Describe "Shells" {
     function Add-ShellTest([string]$package, [string]$executable) {
       $temp = New-TemporaryFile
       @"
-{ pkgs, config, ... }:
-{
-imports = [ ./base.nix ];
+        { pkgs, config, ... }:
+        {
+        imports = [ ./base.nix ];
 
-users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
-}
-"@ > $temp
+        users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
+        }
+"@ >  $temp
       $distro.InstallConfig($temp)
       Remove-Item $temp
       $distro.Launch("echo `$SHELL") | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
@@ -39,7 +39,7 @@ users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
     Add-ShellTest "xonsh" "xonsh"
   }
   # Do bash last so every shell was used to run InstallConfig
-  It "should be possible to use bash" {
+  It "should be possible to go back to bash" {
     Add-ShellTest "bashInteractive" "bash"
   }
 

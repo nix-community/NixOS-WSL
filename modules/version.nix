@@ -1,5 +1,5 @@
 { lib, pkgs, options, config, ... }:
-with builtins; with lib;
+with lib;
 {
 
   options = with types; {
@@ -9,16 +9,19 @@ with builtins; with lib;
       in
       {
         release = mkOption {
+          internal = true;
           description = "the NixOS-WSL release";
           type = str;
           default = elemAt versionFile 0;
         };
         rev = mkOption {
+          internal = true;
           description = "the NixOS-WSL git revision";
           type = str;
           default = elemAt versionFile 1;
         };
         systemd = mkOption {
+          internal = true;
           type = enum [ "native" "syschdemd" ];
           description = "the systemd implementation used by NixOS-WSL";
           default = if config.wsl.nativeSystemd then "native" else "syschdemd";
@@ -60,7 +63,7 @@ with builtins; with lib;
                 '') config.wsl.version
               )}
               --json)
-                echo '${toJSON config.wsl.version}' | ${pkgs.jq}/bin/jq # Use jq to pretty-print the JSON
+                echo '${generators.toJSON {} config.wsl.version}' | ${pkgs.jq}/bin/jq # Use jq to pretty-print the JSON
                 exit 0
                 ;;
               *)

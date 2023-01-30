@@ -1,3 +1,4 @@
 result
 result-*
 scripts/*/target
+nixos-wsl-installer.tar.gz
