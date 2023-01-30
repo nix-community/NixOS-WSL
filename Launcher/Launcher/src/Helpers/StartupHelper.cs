@@ -6,9 +6,7 @@ public static class StartupHelper {
     private static bool booted;
 
     public static bool BootDistro() {
-        if (booted) {
-            return true;
-        }
+        if (booted) return true;
         try {
             WslApiLoader.WslLaunchInteractive(
                 DistributionInfo.Name,

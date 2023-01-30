@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using Launcher.Helpers;
 
 namespace Launcher.Commands;

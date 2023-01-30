@@ -1,4 +1,4 @@
-﻿namespace Launcher;
+namespace Launcher;
 
 internal static class DistributionInfo {
     public const string DisplayName = "NixOS";

@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using Launcher.Helpers;
 using WSL;
 
@@ -37,7 +37,7 @@ public static class Run {
                 return;
             }
 
-            Program.result = (int) exitCode;
+            Program.result = (int)exitCode;
         }, argCmd);
 
         return command;

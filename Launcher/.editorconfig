@@ -1,0 +1,8 @@
+[*.cs]
+indent_size = 4
+csharp_new_line_before_open_brace = none
+csharp_style_var_when_type_is_apparent = true
+csharp_style_var_for_built_in_types = true
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false

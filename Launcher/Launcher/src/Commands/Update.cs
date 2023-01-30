@@ -22,7 +22,7 @@ public static class Update {
                 Directory.SetCurrentDirectory(path);
 
                 var tmpDir = "/tmp/nixos-wsl-updater/installer";
-                
+
                 Console.WriteLine("Unpacking installer...\n");
                 WslApiLoader.WslLaunchInteractive(
                     DistributionInfo.Name,
@@ -42,17 +42,16 @@ public static class Update {
                     false,
                     out exitCode
                 );
-                
-                if (exitCode != 0) {
+
+                if (exitCode != 0)
                     Console.Error.WriteLine("\nAn error occured in the update script");
-                } else {
+                else
                     Console.WriteLine("\nUpdate finished successfully");
-                }
 
                 return exitCode;
             }
 
-            Program.result = (int) Run();
+            Program.result = (int)Run();
         });
 
         return command;

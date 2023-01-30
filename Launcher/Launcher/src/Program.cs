@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -35,7 +35,7 @@ internal static class Program {
         distroNameOption.SetDefaultValue(DistributionInfo.Name);
 
         var versionOption = new Option<bool>("--version") {
-            Description = "Show version information",
+            Description = "Show version information"
         };
 
         // Add the global options to the root command and all subcommands
@@ -55,7 +55,7 @@ internal static class Program {
             try {
                 VersionHelper.CheckForUpdate();
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
-                result = (int) exitCode;
+                result = (int)exitCode;
             } catch (WslApiException e) {
                 Console.Error.WriteLine("An error occured when starting the shell");
                 result = e.HResult;
@@ -77,12 +77,10 @@ internal static class Program {
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var distroNameResult = context.ParseResult.FindResultFor(distroNameOption);
 
-            if (distroNameResult is {Tokens.Count: > 0}) {
-                DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
-            }
+            if (distroNameResult is { Tokens.Count: > 0 }) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
 
             await next(context);
-        }, (MiddlewareOrder) (-1300)); // Run before --version
+        }, (MiddlewareOrder)(-1300)); // Run before --version
 
         // Implement --version option
         commandLineBuilder.AddMiddleware(async (context, next) => {
@@ -97,7 +95,7 @@ internal static class Program {
             } else {
                 await next(context);
             }
-        }, (MiddlewareOrder) (-1200)); // Internal value for the builtin version option
+        }, (MiddlewareOrder)(-1200)); // Internal value for the builtin version option
 
         await commandLineBuilder.Build().InvokeAsync(args);
 

@@ -18,9 +18,7 @@ public static class VersionHelper {
                         true
                     ).Trim();
 
-                    if (exitCode == 0) {
-                        return new NixosWslVersion(ver);
-                    }
+                    if (exitCode == 0) return new NixosWslVersion(ver);
                 }
             } catch (Exception) {
                 // ignored
@@ -69,7 +67,12 @@ public static class VersionHelper {
                 : new Version(0, 0, 0, 0);
         }
 
-        public Version AsVersion() => _version;
-        public override string ToString() => _versionString;
+        public Version AsVersion() {
+            return _version;
+        }
+
+        public override string ToString() {
+            return _versionString;
+        }
     }
 }
