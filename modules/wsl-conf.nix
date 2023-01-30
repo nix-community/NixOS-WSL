@@ -21,7 +21,7 @@ with lib; {
       };
       root = mkOption {
         type = strMatching "^/.*[^/]$";
-        default = "/mnt/";
+        default = "/mnt";
         description = "The directory under which to mount windows drives.";
       };
       options = mkOption {
