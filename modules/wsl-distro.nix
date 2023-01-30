@@ -60,13 +60,6 @@ with lib; {
                 "resolv.conf".enable = false;
               })
             ];
-
-            systemPackages = [
-              (pkgs.runCommand "wslpath" { } ''
-                mkdir -p $out/bin
-                ln -s /init $out/bin/wslpath
-              '')
-            ];
           };
 
           networking.dhcpcd.enable = false;
