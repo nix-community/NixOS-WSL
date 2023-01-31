@@ -38,17 +38,9 @@ public static class Update {
                 Console.WriteLine("\nStarting update script...\n");
                 WslApiLoader.WslLaunchInteractive(
                     DistributionInfo.Name,
-                    $"sudo {tmpDir}/nix/wsl-installer/updater.sh",
+                    $"sudo sh -c '{tmpDir}/nix/wsl-installer/updater.sh && rm -rf \"{tmpDir}\"'",
                     false,
                     out exitCode
-                );
-
-                Console.WriteLine("\nCleaning up...\n");
-                WslApiLoader.WslLaunchInteractive(
-                    DistributionInfo.Name,
-                    $"rm -rf \"{tmpDir}\"",
-                    false,
-                    out _
                 );
 
                 if (exitCode != 0)
