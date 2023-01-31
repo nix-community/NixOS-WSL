@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using WSL;
 
 namespace Launcher.Helpers;
@@ -10,15 +11,18 @@ public static class VersionHelper {
         get {
             try {
                 if (StartupHelper.BootDistro()) {
-                    var ver = WslApiLoader.WslLaunchGetOutput(
+                    var output = WslApiLoader.WslLaunchGetOutput(
                         DistributionInfo.Name,
-                        "nixos-wsl-version",
+                        "nixos-wsl-version --json",
                         false,
                         out var exitCode,
                         true
                     ).Trim();
 
-                    if (exitCode == 0) return new NixosWslVersion(ver);
+                    var json = JsonSerializer.Deserialize<Dictionary<string, string>>(output);
+                    var version = json!["release"];
+
+                    if (exitCode == 0) return new NixosWslVersion(version);
                 }
             } catch (Exception) {
                 // ignored
