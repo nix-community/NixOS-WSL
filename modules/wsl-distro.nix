@@ -37,20 +37,20 @@ with lib; {
     mkIf cfg.enable (
       mkMerge [
         {
-          # We don't need a boot loader
-          boot.loader.grub.enable = false;
-          system.build.installBootLoader = "${pkgs.coreutils}/bin/true";
-          boot.initrd.enable = false;
-          system.build.initialRamdisk = pkgs.runCommand "fake-initrd" { } ''
-            mkdir $out
-            touch $out/${config.system.boot.loader.initrdFile}
-          '';
-          system.build.initialRamdiskSecretAppender = pkgs.writeShellScriptBin "append-initrd-secrets" "";
+          # WSL uses its own kernel and boot loader
+          boot = {
+            initrd.enable = false;
+            kernel.enable = false;
+            loader.grub.enable = false;
+            modprobeConfig.enable = false;
+          };
+
+          # WSL does not support virtual consoles
+          console.enable = false;
 
           hardware.opengl.enable = true; # Enable GPU acceleration
 
           environment = {
-
             # Only set the options if the files are managed by WSL
             etc = mkMerge [
               (mkIf config.wsl.wslConf.network.generateHosts {
@@ -69,6 +69,7 @@ with lib; {
             ];
           };
 
+          # dhcp is handled by windows
           networking.dhcpcd.enable = false;
 
           users.users.${cfg.defaultUser} = {
@@ -104,26 +105,30 @@ with lib; {
               ln -sf ${bash}/bin/sh /bin/sh
               ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
             '';
+            update-entrypoint.text = ''
+              mkdir -p /nix/nixos-wsl
+              ln -sfn ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
+            '';
           };
+
+          # no udev devices can be attached
+          services.udev.enable = lib.mkDefault false;
 
           systemd = {
             # Disable systemd units that don't make sense on WSL
             services = {
-              # no virtual console to switch to
-              "serial-getty@ttyS0".enable = false;
-              "serial-getty@hvc0".enable = false;
-              "getty@tty1".enable = false;
-              "autovt@".enable = false;
               firewall.enable = false;
-              systemd-resolved.enable = false;
+              systemd-resolved.enable = lib.mkDefault false;
               # system clock cannot be changed
               systemd-timesyncd.enable = false;
-              # no udev devices can be attached
-              systemd-udevd.enable = false;
             };
 
             # Don't allow emergency mode, because we don't have a console.
             enableEmergencyMode = false;
+
+            # Link the X11 socket into place. This is a no-op on a normal setup,
+            # but helps if /tmp is a tmpfs or mounted from some other location.
+            tmpfiles.rules = [ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ];
           };
 
           # Start a systemd user session when starting a command through runuser
@@ -153,7 +158,7 @@ with lib; {
         })
         (mkIf cfg.nativeSystemd {
           wsl.wslConf = {
-            user.default = cfg.defaultUser;
+            user.default = config.users.users.${cfg.defaultUser}.name;
             boot.systemd = true;
           };
 
