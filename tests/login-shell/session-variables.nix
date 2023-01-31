@@ -1,13 +1,13 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 {
   imports = [
     ./base.nix
-    "${builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/master.tar.gz"}/nixos"
+    "${builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-${config.system.nixos.version}.tar.gz"}/nixos"
   ];
 
   home-manager.users.nixos = { ... }: {
     home = {
-      stateVersion = "22.11";
+      stateVersion = config.system.nixos.version;
       packages = [ pkgs.vim ];
       sessionVariables = {
         EDITOR = "vim";
