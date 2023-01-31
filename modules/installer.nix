@@ -93,8 +93,8 @@ with builtins; with lib; {
 
             # Unpack rootfs
             echo "Unpacking..."
-            mkdir -p /tmp/nixos-wsl-updater/rootfs
-            ${pv}/bin/pv ${rootfs} | tar -C /tmp/nixos-wsl-updater/rootfs -xz
+            mkdir -p ./rootfs
+            ${pv}/bin/pv ${rootfs} | tar -C ./rootfs -xz
 
             # Detect flake.nix
             FLAKE=false
@@ -133,7 +133,7 @@ with builtins; with lib; {
             echo "Updating configuration..."
             rm -rf /etc/nixos/nixos-wsl.bak
             mv /etc/nixos/nixos-wsl /etc/nixos/nixos-wsl.bak
-            cp -r /tmp/nixos-wsl-updater/rootfs/etc/nixos/nixos-wsl /etc/nixos/nixos-wsl
+            cp -r ./rootfs/etc/nixos/nixos-wsl /etc/nixos/nixos-wsl
             chmod a-w -R /etc/nixos/nixos-wsl
 
             # Rebuild
@@ -145,7 +145,7 @@ with builtins; with lib; {
 
             # Clean up
             echo "Cleaning up..."
-            rm -rf /tmp/nixos-wsl-updater
+            rm -rf ./rootfs
             if $GC; then
               exec nix-collect-garbage
             fi
@@ -178,7 +178,7 @@ with builtins; with lib; {
         compressionExtension = ".gz";
         extraArgs = "--hard-dereference";
 
-        storeContents = with pkgs; pkgs2storeContents [
+        storeContents = pkgs2storeContents [
           installer
           updater
         ];

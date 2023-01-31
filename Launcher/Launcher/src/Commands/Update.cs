@@ -21,12 +21,12 @@ public static class Update {
                 if (path == null) return 1;
                 Directory.SetCurrentDirectory(path);
 
-                var tmpDir = "/tmp/nixos-wsl-updater/installer";
+                var tmpDir = $"/tmp/nixos-wsl-{VersionHelper.LauncherVersion.ToString()}";
 
                 Console.WriteLine("Unpacking installer...\n");
                 WslApiLoader.WslLaunchInteractive(
                     DistributionInfo.Name,
-                    $"sh -c 'mkdir -p \"{tmpDir}\" && tar -C \"{tmpDir}\" -xvf ./{Path.GetFileName(tarball)}'",
+                    $"sh -c 'rm -rf \"{tmpDir}\" && mkdir -p \"{tmpDir}\" && tar -C \"{tmpDir}\" -xvf ./{Path.GetFileName(tarball)}'",
                     true,
                     out var exitCode
                 );
@@ -41,6 +41,14 @@ public static class Update {
                     $"sudo {tmpDir}/nix/wsl-installer/updater.sh",
                     false,
                     out exitCode
+                );
+
+                Console.WriteLine("\nCleaning up...\n");
+                WslApiLoader.WslLaunchInteractive(
+                    DistributionInfo.Name,
+                    $"rm -rf \"{tmpDir}\"",
+                    false,
+                    out _
                 );
 
                 if (exitCode != 0)
