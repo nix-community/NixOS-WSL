@@ -179,9 +179,9 @@ with lib; {
             # preserve $PATH from parent
             variables.PATH = [ "$PATH" ];
             extraInit = ''
-              export WSLPATH=$(echo "$PATH" | tr ':' '\0' | command grep -a "^${cfg.wslConf.automount.root}" | tr '\0' ':')
+              export WSLPATH=$(echo "$PATH" | tr ':' '\0' | command grep -az "^${cfg.wslConf.automount.root}" | tr '\0' ':')
               ${if cfg.interop.includePath then "" else ''
-                export PATH=$(echo "$PATH" | tr ':' '\0' | command grep -av "^${cfg.wslConf.automount.root}" | tr '\0' ':')
+                export PATH=$(echo "$PATH" | tr ':' '\0' | command grep -avz "^${cfg.wslConf.automount.root}" | tr '\0' ':')
               ''}
             '';
           };
