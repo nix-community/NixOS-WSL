@@ -26,7 +26,7 @@ with lib; {
         defaultUser = config.users.users.${cfg.defaultUser};
       };
 
-      shim = pkgs.callPackage ../scripts/native-systemd-shim/shim.nix { };
+      nativeUtils = pkgs.callPackage ../scripts/native-utils { };
 
       bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
         makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh --prefix PATH ':' ${lib.makeBinPath [pkgs.systemd pkgs.gnugrep]}
@@ -166,7 +166,7 @@ with lib; {
             shimSystemd = stringAfter [ ] ''
               echo "setting up /sbin/init shim..."
               mkdir -p /sbin
-              ln -sf ${shim}/bin/nixos-wsl-native-systemd-shim /sbin/init
+              ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
             '';
             setupLogin = stringAfter [ ] ''
               echo "setting up /bin/login..."
@@ -179,10 +179,7 @@ with lib; {
             # preserve $PATH from parent
             variables.PATH = [ "$PATH" ];
             extraInit = ''
-              export WSLPATH=$(echo "$PATH" | tr ':' '\0' | command grep -az "^${cfg.wslConf.automount.root}" | tr '\0' ':')
-              ${if cfg.interop.includePath then "" else ''
-                export PATH=$(echo "$PATH" | tr ':' '\0' | command grep -avz "^${cfg.wslConf.automount.root}" | tr '\0' ':')
-              ''}
+              eval $(${nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
             '';
           };
         })

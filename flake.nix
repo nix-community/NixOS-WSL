@@ -58,7 +58,7 @@
               username = pkgs.callPackage ./checks/username.nix args;
             };
 
-          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-systemd-shim/shim.nix { };
+          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
 
           devShell = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";

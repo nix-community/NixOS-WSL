@@ -1,6 +1,6 @@
 {
     "rust-analyzer.linkedProjects": [
-        "scripts/native-systemd-shim/Cargo.toml"
+        "scripts/native-utils/Cargo.toml"
     ],
     "workbench.colorCustomizations": {
         "commandCenter.border": "#e7e7e799",
