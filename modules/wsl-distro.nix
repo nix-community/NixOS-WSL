@@ -8,7 +8,7 @@ let
       nativeBuildInputs = [ pkgs.makeWrapper ];
     } ''
     makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh \
-      --prefix PATH ':' ${lib.makeBinPath (with pkgs; [ systemd gnugrep ])}
+      --prefix PATH ':' ${lib.makeBinPath (with pkgs; [ systemd gnugrep coreutils ])}
   '';
 
   cfg = config.wsl;
