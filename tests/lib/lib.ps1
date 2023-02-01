@@ -12,32 +12,6 @@ function Remove-Escapes {
   }
 }
 
-function Split-String {
-  [CmdletBinding()]
-  param (
-    [Parameter(Mandatory = $true)]
-    [string]$InputString
-  )
-
-  # use a regular expression to match quoted parts of the input string
-  $regex = '(?<=^|\s)("[^"]*"|''[^'']*''|[^\s]+)'
-  $matches = [regex]::matches($InputString, $regex)
-
-  # create an array to store the split parts of the string
-  $splitString = @()
-
-  # loop through the matches and add each part to the array
-  foreach ($match in $matches) {
-    # remove the quotes from the start and end of the match
-    $part = $match.Value.Trim("'").Trim('"')
-
-    $splitString += $part
-  }
-
-  # return the split parts of the string
-  return $splitString
-}
-
 # Implementation-independent base class
 class Distro {
   [string]$id
@@ -111,7 +85,7 @@ class DockerDistro : Distro {
       [DockerDistro]::imageCreated = $true
     }
 
-    $this.id = [guid]::NewGuid().ToString()
+    $this.id = $(New-Guid).ToString()
 
     docker run -di --privileged --volume "/:$([DockerDistro]::hostMount)" --name $this.id $([DockerDistro]::imageName) "/bin/sh" | Out-Null
     if ($LASTEXITCODE -ne 0) {
@@ -152,7 +126,7 @@ class WslDistro : Distro {
   WslDistro() {
     $tarball = $this.FindTarball()
 
-    $this.id = [guid]::NewGuid().ToString()
+    $this.id = $(New-Guid).ToString()
     $this.tempdir = Join-Path $([System.IO.Path]::GetTempPath()) $this.id
     New-Item -ItemType Directory $this.tempdir
 
@@ -166,7 +140,7 @@ class WslDistro : Distro {
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    & wsl.exe (@("-d", "$($this.id)") + $(Split-String $command)) | Tee-Object -Variable result | Write-Host
+    & wsl.exe -d $this.id -e /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 

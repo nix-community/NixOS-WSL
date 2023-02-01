@@ -23,14 +23,32 @@ Describe "Shells" {
     }
   }
 
+  It "should be possible to use bash" {
+    Add-ShellTest "bashInteractive" "bash"
+  }
   It "should be possible to use zsh" {
     Add-ShellTest "zsh" "zsh"
+  }
+  It "should be possible to use dash" {
+    Add-ShellTest "dash" "dash"
+  }
+  It "should be possible to use ksh" {
+    Add-ShellTest "ksh" "ksh"
+  }
+  It "should be possible to use mksh" {
+    Add-ShellTest "mksh" "mksh"
+  }
+  It "should be possible to use yash" {
+    Add-ShellTest "yash" "yash"
   }
   It "should be possible to use fish" {
     Add-ShellTest "fish" "fish"
   }
-  It "should be possible to use PowerShell" {
-    Add-ShellTest "powershell" "pwsh"
+  if (!$IsWindows) {
+    # Skip on windows, because it just doesn't work for some reason
+    It "should be possible to use PowerShell" {
+      Add-ShellTest "powershell" "pwsh"
+    }
   }
   It "should be possible to use nushell" {
     Add-ShellTest "nushell" "nu"
