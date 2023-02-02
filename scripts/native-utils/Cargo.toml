@@ -1,0 +1,19 @@
+[package]
+name = "nixos-wsl-utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { version = "*", features = ["backtrace"] }
+nix = { version = "*", features = ["process"] }
+log = "*"
+kernlog = "*"
+clap = { version = "*", features = ["derive"] }
+
+[[bin]]
+name = "systemd-shim"
+path = "src/shim.rs"
+
+[[bin]]
+name = "split-path"
+path = "src/split_path.rs"

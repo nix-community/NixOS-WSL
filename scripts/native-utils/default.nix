@@ -1,6 +1,6 @@
 { rustPlatform }:
 rustPlatform.buildRustPackage {
-  name = "nixos-wsl-native-systemd-shim";
+  pname = "nixos-wsl-utils";
   version = "1.0.0";
 
   src = ./.;
