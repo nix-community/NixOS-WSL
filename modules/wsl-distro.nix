@@ -1,9 +1,27 @@
 { lib, pkgs, config, options, ... }:
 
-with lib; {
+with lib;
+
+let
+  bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper"
+    {
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+    } ''
+    makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh \
+      --prefix PATH ':' ${lib.makeBinPath (with pkgs; [ systemd gnugrep ])}
+  '';
+
+  cfg = config.wsl;
+in
+{
 
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
+    binShPkg = mkOption {
+      type = lib.types.package;
+      internal = true;
+      description = "Package to be linked to /bin/sh. Mainly useful to be re-used by other modules like envfs.";
+    };
     nativeSystemd = mkOption {
       type = bool;
       default = false;
@@ -14,25 +32,29 @@ with lib; {
       default = "nixos";
       description = "The name of the default user";
     };
+    populateBin = mkOption {
+      type = bool;
+      default = true;
+      internal = true;
+      description = ''
+        Dangerous! Things might break. Use with caution!
+
+        Do not populate /bin.
+
+        This is mainfly useful if another module populates /bin like envfs.
+      '';
+    };
     startMenuLaunchers = mkEnableOption "shortcuts for GUI applications in the windows start menu";
   };
 
   config =
     let
-      cfg = config.wsl;
-
       syschdemd = pkgs.callPackage ../scripts/syschdemd.nix {
         automountPath = cfg.wslConf.automount.root;
         defaultUser = config.users.users.${cfg.defaultUser};
       };
 
       nativeUtils = pkgs.callPackage ../scripts/native-utils { };
-
-      bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
-        makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh --prefix PATH ':' ${lib.makeBinPath [pkgs.systemd pkgs.gnugrep]}
-      '';
-
-      bash = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;
     in
     mkIf cfg.enable (
       mkMerge [
@@ -92,12 +114,12 @@ with lib; {
                 done
               ''
             );
-            populateBin = stringAfter [ ] ''
+            populateBin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
               echo "setting up /bin..."
               ln -sf /init /bin/wslpath
-              ln -sf ${bash}/bin/sh /bin/sh
+              ln -sf ${cfg.binShPkg}/bin/sh /bin/sh
               ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
-            '';
+            '');
             update-entrypoint.text = ''
               mkdir -p /nix/nixos-wsl
               ln -sfn ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
@@ -126,6 +148,12 @@ with lib; {
 
           # Start a systemd user session when starting a command through runuser
           security.pam.services.runuser.startSession = true;
+
+          # require people to use lib.mkForce to make it harder to brick their installation
+          wsl = {
+            binShPkg = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;
+            populateBin = true;
+          };
 
           warnings = flatten [
             (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
@@ -161,11 +189,11 @@ with lib; {
               mkdir -p /sbin
               ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
             '';
-            setupLogin = stringAfter [ ] ''
+            setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
               echo "setting up /bin/login..."
               mkdir -p /bin
               ln -sf ${pkgs.shadow}/bin/login /bin/login
-            '';
+            '');
           };
 
           environment = {
