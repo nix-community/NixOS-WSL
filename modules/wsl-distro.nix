@@ -66,6 +66,7 @@ in
             loader.grub.enable = false;
             modprobeConfig.enable = false;
           };
+          system.build.installBootLoader = "${pkgs.coreutils}/bin/true";
 
           # WSL does not support virtual consoles
           console.enable = false;
