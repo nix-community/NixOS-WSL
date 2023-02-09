@@ -3,7 +3,7 @@ use std::{
     ffi::{OsStr, OsString},
     io::{self, Write},
     os::unix::prelude::{OsStrExt, OsStringExt},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 use clap::Parser;
@@ -54,29 +54,93 @@ fn build_export(var: &str, paths: &[PathBuf]) -> OsString {
     result
 }
 
-fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
-
-    let path = env::var("PATH")?;
-
+fn do_split_paths(path: &OsStr, automount_root: &Path, include_interop: bool) -> OsString {
     let mut native = vec![];
     let mut interop = vec![];
 
     for part in env::split_paths(&path) {
-        if part.starts_with(&args.automount_root) {
+        if part.starts_with(automount_root) {
             interop.push(part);
         } else {
             native.push(part);
         }
     }
 
-    if args.include_interop {
+    if include_interop {
         native.extend(interop.clone());
     };
 
-    let mut lock = io::stdout().lock();
-    lock.write_all(build_export("PATH", &native).as_bytes())?;
-    lock.write_all(build_export("WSLPATH", &interop).as_bytes())?;
+    let mut result = OsString::new();
+    result.push(build_export("PATH", &native));
+    result.push(build_export("WSLPATH", &interop));
+    result
+}
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    let path = env::var_os("PATH").expect("PATH is not set, aborting");
+
+    io::stdout()
+        .lock()
+        .write_all(do_split_paths(&path, &args.automount_root, args.include_interop).as_bytes())?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{ffi::OsString, path::Path};
+
+    use crate::do_split_paths;
+
+    #[test]
+    fn simple() {
+        assert_eq!(
+            do_split_paths(
+                &OsString::from("/good/foo:/bad/foo"),
+                Path::new("/bad"),
+                false
+            ),
+            OsString::from("export PATH='/good/foo'\nexport WSLPATH='/bad/foo'\n")
+        );
+    }
+
+    #[test]
+    fn exactly_one() {
+        assert_eq!(
+            do_split_paths(
+                &OsString::from("/good/foo"),
+                Path::new("/bad"),
+                true
+            ),
+            OsString::from("export PATH='/good/foo'\nexport WSLPATH=''\n")
+        );
+    }
+
+    #[test]
+    fn include_interop() {
+        assert_eq!(
+            do_split_paths(
+                &OsString::from("/good/foo:/bad/foo"),
+                Path::new("/bad"),
+                true
+            ),
+            OsString::from("export PATH='/good/foo:/bad/foo'\nexport WSLPATH='/bad/foo'\n")
+        );
+    }
+
+    #[test]
+    fn spicy_escapes() {
+        assert_eq!(
+            do_split_paths(
+                &OsString::from("/good/foo'bar:/bad/foo"),
+                Path::new("/bad"),
+                true
+            ),
+            OsString::from(
+                "export PATH='/good/foo'\"'\"'bar:/bad/foo'\nexport WSLPATH='/bad/foo'\n"
+            )
+        );
+    }
 }
