@@ -23,6 +23,14 @@ This sets up a new WSL distribution `NixOS` that is installed under
 `.\NixOS`. `nixos-wsl-installer.tar.gz` is the path to the file you
 downloaded earlier. You might need to change this path or change to the download directory first.
 
+<details>
+    <summary>Installed hanged with "Starting Systemd.."</summary>
+
+## Workaround
+To get a working NixOS installation, follow the regular installation steps until it hangs after `Starting systemd...`. After that, execute `wsl --shutdown` in a windows command prompt to kill your WSL VM. Please note that this will also stop anything you have running in your other WSL instances at that moment! When you now start NixOS, it should be working.
+
+</details>
+
 You can now run NixOS:
 
 ```sh
