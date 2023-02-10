@@ -109,11 +109,7 @@ mod tests {
     #[test]
     fn exactly_one() {
         assert_eq!(
-            do_split_paths(
-                &OsString::from("/good/foo"),
-                Path::new("/bad"),
-                true
-            ),
+            do_split_paths(&OsString::from("/good/foo"), Path::new("/bad"), true),
             OsString::from("export PATH='/good/foo'\nexport WSLPATH=''\n")
         );
     }

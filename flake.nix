@@ -54,11 +54,16 @@
             {
               nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
               shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+              rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
               username = pkgs.callPackage ./checks/username.nix args;
+              test-native-utils = self.packages.${system}.utils;
             };
 
-          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+          packages = {
+            utils = pkgs.callPackage ./scripts/native-utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+          };
 
           devShell = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
