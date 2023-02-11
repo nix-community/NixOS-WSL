@@ -24,7 +24,7 @@ This sets up a new WSL distribution `NixOS` that is installed under
 downloaded earlier. You might need to change this path or change to the download directory first.
 
 <details>
-    <summary>Did Install hang with "Starting Systemd.." or do you get error message `nsenter: failed to parse pid: '-p'`?</summary>
+    <summary>Did Install hang with <code>Starting Systemd..</code> or do you get error message <code>nsenter: failed to parse pid: '-p'</code>?</summary>
 
 ## Workaround
 To get a working NixOS installation, follow the regular installation steps until it hangs after `Starting systemd...`. After that, execute `wsl --shutdown` in a windows command prompt to kill your WSL VM. Please note that this will also stop anything you have running in your other WSL instances at that moment! When you now start NixOS, it should be working.
