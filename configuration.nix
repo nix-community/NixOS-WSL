@@ -26,6 +26,7 @@ in
   nix.package = pkgs.nixFlakes;
   nix.extraOptions = ''
     experimental-features = nix-command flakes
+    extra-sandbox-paths = /usr/lib/wsl
   '';
 
   system.stateVersion = "22.11";
