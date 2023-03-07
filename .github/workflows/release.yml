@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: Build 🛠️
-    uses: nix-community/nixos-wsl/.github/workflows/main.yml@main
+    uses: ./.github/workflows/main.yml
   release:
     needs:
       - build

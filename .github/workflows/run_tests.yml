@@ -1,0 +1,52 @@
+name: Run Tests 🧪
+
+on:
+  workflow_call: {}
+  workflow_dispatch: {}
+
+jobs:
+  prepare:
+    name: Discover Tests 🔍
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.tests.outputs.tests }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Find tests 🔍
+        id: tests
+        run: |
+          find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+
+  tests:
+    name: Test 🧪
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.prepare.outputs.tests) }}
+        os:
+          - ubuntu-20.04 # Does not work on 22.04 for some reason
+          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download installer 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: installer
+
+      - name: Execute test 🧪
+        shell: pwsh
+        run: Invoke-Pester -Output Detailed ${{ matrix.test }}

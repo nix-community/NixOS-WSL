@@ -1,0 +1,59 @@
+name: Run Build 🛠️
+
+on:
+  workflow_call: {}
+  workflow_dispatch: {}
+
+jobs:
+  prepare:
+    name: Generate Version 🏷️
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Generate Version 🏷️
+        id: version
+        run: |
+          TAG_COUNT=$(git rev-list --tags --no-walk --count)                                                                 # Count all tags
+          COMMIT_COUNT=$(git rev-list --use-bitmap-index --count $(git rev-list --tags --no-walk --max-count=1)..HEAD)       # Count all commits since the last tag
+          NIXOS_VERSION=$(nix-instantiate --eval -E '(import ./.).inputs.nixpkgs.lib.version' | sed -E 's/"(.+\...).*"/\1/') # Get NixOS version from nixpkgs
+          NIXOS_VERSION_MS=$(echo $NIXOS_VERSION | sed -E 's/\.0*(.+)/\.\1/')                                                # Remove the leading 0 from the minor version (if it exists)
+          NIXOS_WSL_VERSION=${NIXOS_VERSION_MS}.${TAG_COUNT}.${COMMIT_COUNT}                                                 # Compose the NixOS-WSL version number
+          echo "version=$NIXOS_WSL_VERSION" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build 🛠️
+    needs:
+      - prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Set version 🏷️
+        run: |
+          echo ${{ needs.prepare.outputs.version }} > ./VERSION
+          echo $(git rev-parse HEAD) >> ./VERSION
+
+      - name: Build installer 🛠️
+        run: |
+          nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
+
+      - name: Upload installer 📤
+        uses: actions/upload-artifact@v3
+        with:
+          name: installer
+          path: result/tarball/nixos-wsl-installer.tar.gz

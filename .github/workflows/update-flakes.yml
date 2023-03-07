@@ -16,9 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nix ❄️
-        uses: cachix/install-nix-action@v18
-        with:
-          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
+        uses: ./.github/actions/install-nix
 
       - name: Update flakes ⌛
         run: nix flake update
