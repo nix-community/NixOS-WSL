@@ -127,9 +127,6 @@ in
             '';
           };
 
-          # no udev devices can be attached
-          services.udev.enable = lib.mkDefault false;
-
           systemd = {
             # Disable systemd units that don't make sense on WSL
             services = {
