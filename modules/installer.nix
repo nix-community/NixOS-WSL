@@ -21,7 +21,7 @@ with builtins; with lib; {
         ${pkgs.pv}/bin/pv ${rootfs} | tar xz
 
         echo "Activating nix configuration..."
-        /nix/var/nix/profiles/system/activate
+        LANG="C.UTF-8" /nix/var/nix/profiles/system/activate
         PATH=$BASEPATH:/run/current-system/sw/bin # Use packages from target system
 
         echo "Cleaning up installer files..."
