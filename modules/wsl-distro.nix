@@ -127,7 +127,7 @@ in
             '';
           };
 
-          # no udev devices can be attached
+          # useful for usbip but adds a dependency on various firmwares which are combined over 300 MB big
           services.udev.enable = lib.mkDefault false;
 
           systemd = {
