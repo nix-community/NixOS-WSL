@@ -127,6 +127,9 @@ in
             '';
           };
 
+          # useful for usbip but adds a dependency on various firmwares which are combined over 300 MB big
+          services.udev.enable = lib.mkDefault false;
+
           systemd = {
             # Disable systemd units that don't make sense on WSL
             services = {
