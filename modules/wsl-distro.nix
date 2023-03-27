@@ -3,12 +3,9 @@
 with lib;
 
 let
-  bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper"
-    {
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-    } ''
-    makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh \
-      --prefix PATH ':' ${lib.makeBinPath (with pkgs; [ systemd gnugrep ])}
+  bashWrapper = pkgs.writeShellScriptBin "sh" ''
+    . ${config.system.build.etc}/set-environment
+    exec ${pkgs.bashInteractive}/bin/sh "$@"
   '';
 
   cfg = config.wsl;
