@@ -4,7 +4,7 @@ with lib;
 
 let
   bashWrapper = pkgs.writeShellScriptBin "sh" ''
-    . ${config.system.build.etc}/set-environment
+    . ${config.system.build.etc}/etc/set-environment
     exec ${pkgs.bashInteractive}/bin/sh "$@"
   '';
 
