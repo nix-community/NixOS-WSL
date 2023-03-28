@@ -27,8 +27,10 @@ with builtins; with lib; {
       virtualisation.docker.package = (pkgs.docker.override { iptables = pkgs.iptables-legacy; });
       virtualisation.docker.enable = true;
 
-      users.groups.docker.members = lib.mkIf cfg.addToDockerGroup [
-        config.wsl.defaultUser
-      ];
+      users = lib.mkIf cfg.addToDockerGroup {
+        users.${config.wsl.defaultUser}.extraGroups = [
+          "docker"
+        ];
+      };
     };
 }
