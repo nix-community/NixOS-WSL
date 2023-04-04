@@ -4,6 +4,7 @@ with lib;
 
 let
   bashWrapper = pkgs.writeShellScriptBin "sh" ''
+    export PATH=${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}
     . ${config.system.build.etc}/etc/set-environment
     exec ${pkgs.bashInteractive}/bin/sh "$@"
   '';
