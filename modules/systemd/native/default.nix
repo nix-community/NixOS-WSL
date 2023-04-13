@@ -5,7 +5,7 @@ with lib; {
     let
       cfg = config.wsl;
 
-      nativeUtils = pkgs.callPackage ../../scripts/native-utils { };
+      nativeUtils = pkgs.callPackage ../../../utils { };
     in
     mkIf (cfg.enable && cfg.nativeSystemd) {
       wsl.wslConf = {

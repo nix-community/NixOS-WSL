@@ -5,7 +5,7 @@ with lib; {
     let
       cfg = config.wsl;
 
-      syschdemd = pkgs.callPackage ../../scripts/syschdemd.nix {
+      syschdemd = pkgs.callPackage ./syschdemd.nix {
         automountPath = cfg.wslConf.automount.root;
         defaultUser = config.users.users.${cfg.defaultUser};
       };
