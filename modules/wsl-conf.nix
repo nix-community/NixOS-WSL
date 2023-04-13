@@ -85,9 +85,10 @@ with lib; {
 
     environment.etc."wsl.conf".text = generators.toINI { } config.wsl.wslConf;
 
-    warnings = (optional (config.wsl.wslConf.boot.systemd && !config.wsl.nativeSystemd)
-      "systemd is enabled in wsl.conf, but wsl.nativeSystemd is not enabled. Unless you did this on purpos, this WILL make your system UNBOOTABLE!"
-    );
+    warnings = optional (config.wsl.wslConf.boot.systemd && !config.wsl.nativeSystemd)
+      "systemd is enabled in wsl.conf, but wsl.nativeSystemd is not enabled. Unless you did this on purpose, this WILL make your system UNBOOTABLE!"
+    ++ optional (config.wsl.wslConf.network.generateHosts && config.networking.extraHosts != "")
+      "networking.extraHosts has no effect if wsl.wslConf.network.generateHosts is true.";
 
   };
 

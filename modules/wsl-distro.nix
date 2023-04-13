@@ -3,12 +3,10 @@
 with lib;
 
 let
-  bashWrapper = pkgs.runCommand "nixos-wsl-bash-wrapper"
-    {
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-    } ''
-    makeWrapper ${pkgs.bashInteractive}/bin/sh $out/bin/sh \
-      --prefix PATH ':' ${lib.makeBinPath (with pkgs; [ systemd gnugrep ])}
+  bashWrapper = pkgs.writeShellScriptBin "sh" ''
+    export PATH=/bin:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}
+    . ${config.system.build.etc}/etc/set-environment
+    exec ${pkgs.bashInteractive}/bin/sh "$@"
   '';
 
   cfg = config.wsl;
@@ -111,7 +109,7 @@ in
       '';
     };
 
-    # no udev devices can be attached
+    # useful for usbip but adds a dependency on various firmwares which are combined over 300 MB big
     services.udev.enable = lib.mkDefault false;
 
     systemd = {
