@@ -25,6 +25,7 @@
           ./modules/version.nix
           ./modules/wsl-conf.nix
           ./modules/wsl-distro.nix
+          ./modules/systemd
 
           ({ ... }: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
