@@ -12,8 +12,12 @@ clap = { version = "*", features = ["derive"] }
 
 [[bin]]
 name = "systemd-shim"
-path = "src/shim.rs"
+path = "src/systemd_shim.rs"
 
 [[bin]]
 name = "split-path"
 path = "src/split_path.rs"
+
+[[bin]]
+name = "systemd-container"
+path = "src/systemd_container.rs"

@@ -3,7 +3,7 @@ use nix::errno::Errno;
 use nix::mount::{mount, MsFlags};
 use nix::sys::wait::{waitid, Id, WaitPidFlag};
 use nix::unistd::Pid;
-use std::env;
+use std::fs::read_to_string;
 use std::fs::{create_dir_all, metadata, remove_dir_all, remove_file, OpenOptions};
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 use std::os::unix::process::CommandExt;
@@ -42,7 +42,7 @@ fn unscrew_dev_shm() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn real_main() -> anyhow::Result<()> {
+pub fn init() -> anyhow::Result<()> {
     if metadata("/dev/shm")
         .context("When checking /dev/shm")?
         .is_symlink()
@@ -83,6 +83,28 @@ fn real_main() -> anyhow::Result<()> {
     )
     .context("When remounting /nix/store read-only")?;
 
+    log::trace!("Setting up binfmt_misc...");
+    // Mount binfmt_misc if it's not already mounted
+    let supported_filesystems =
+        read_to_string("/proc/filesystems").context("When reading /proc/filesystems")?;
+    if supported_filesystems.contains("binfmt_misc") {
+        let mounts = read_to_string("/proc/mounts").context("When reading /proc/mounts")?;
+        if !mounts.contains("/proc/sys/fs/binfmt_misc") {
+            mount(
+                Some("binfmt_misc"),
+                "/proc/sys/fs/binfmt_misc",
+                Some("binfmt_misc"),
+                MsFlags::empty(),
+                None::<&str>,
+            )
+            .context("When mounting binfmt_misc")?;
+        } else {
+            log::trace!("binfmt_misc already mounted, skipping...");
+        }
+    } else {
+        log::warn!("binfmt_misc not supported, skipping...");
+    }
+
     log::trace!("Running activation script...");
 
     let kmsg_fd = OpenOptions::new()
@@ -114,16 +136,11 @@ fn real_main() -> anyhow::Result<()> {
     // if things go right, we will never return from here
     Err(
         Command::new("/nix/var/nix/profiles/system/systemd/lib/systemd/systemd")
-            .arg0(env::args_os().next().expect("arg0 missing"))
-            .args(env::args_os().skip(1))
+            .arg0("systemd")
+            .args(&["--log-target", "kmsg"])
+            // .arg0(env::args_os().next().expect("arg0 missing"))
+            // .args(env::args_os().skip(1))
             .exec()
             .into(),
     )
-}
-
-fn main() {
-    env::set_var("RUST_BACKTRACE", "1");
-    kernlog::init().expect("Failed to set up logger...");
-    let result = real_main();
-    log::error!("Error: {:?}", result);
 }
