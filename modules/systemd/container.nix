@@ -5,7 +5,7 @@ with lib; {
     let
       cfg = config.wsl;
 
-      utils = pkgs.callPackage ../../../utils { };
+      utils = pkgs.callPackage ../../utils { };
 
       syschdemd = pkgs.callPackage ./syschdemd.nix {
         inherit utils;

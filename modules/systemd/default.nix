@@ -1,8 +1,8 @@
 { config, options, lib, ... }:
 with lib; {
   imports = [
-    ./native
-    ./syschdemd
+    ./container.nix
+    ./native.nix
   ];
 
   options.wsl = with types; {
