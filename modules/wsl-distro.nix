@@ -129,9 +129,6 @@ in
       tmpfiles.rules = [ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ];
     };
 
-    # Start a systemd user session when starting a command through runuser
-    security.pam.services.runuser.startSession = true;
-
     # require people to use lib.mkForce to make it harder to brick their installation
     wsl = {
       binShPkg = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;

@@ -13,12 +13,6 @@ ensure_root() {
   fi
 }
 
-activate() {
-  mount --bind -o ro /nix/store /nix/store
-
-  LANG="C.UTF-8" /nix/var/nix/profiles/system/activate
-}
-
 create_rundir() {
   if [ ! -d $rundir ]; then
     mkdir -p $rundir/ns
@@ -50,7 +44,7 @@ start_systemd() {
     --mount=$rundir/ns/mount \
     --mount-proc=/proc \
     --propagation=unchanged \
-    nixos-wsl-systemd-wrapper
+    systemd-shim
 
   # Wait for systemd to start
   while ! (run_in_namespace systemctl is-system-running -q --wait) &>/dev/null; do
@@ -88,10 +82,6 @@ clean_wslpath() {
 
 main() {
   ensure_root
-
-  if [ ! -e "/run/current-system" ]; then
-    activate
-  fi
 
   if [ ! -e "$rundir" ]; then
     create_rundir

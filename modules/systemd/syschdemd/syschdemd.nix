@@ -10,6 +10,7 @@
 , which
 , defaultUser
 , automountPath
+, utils
 , ...
 }:
 let
@@ -25,16 +26,6 @@ let
       substituteAllInPlace $out/bin/${name}
       wrapProgram $out/bin/${name} --prefix PATH ':' ${lib.escapeShellArg path}
     '';
-
-  wrapper = mkWrappedScript {
-    name = "nixos-wsl-systemd-wrapper";
-    src = ./wrapper.sh;
-    path = lib.makeSearchPath "" [
-      "/run/wrappers/bin" # mount
-      "${gnugrep}/bin" # grep
-      "${systemd}/lib/systemd" # systemd
-    ];
-  };
 in
 mkWrappedScript {
   name = "syschdemd";
@@ -48,7 +39,7 @@ mkWrappedScript {
     systemd # machinectl
     util-linux # nsenter, runuser
     which
-    wrapper
+    utils
   ];
   username = defaultUser.name;
   inherit automountPath;
