@@ -3,6 +3,6 @@
 , ...
 }:
 runCommand "check-shfmt" { nativeBuildInputs = [ shfmt ]; } ''
-  shfmt -i 2 -d ${./../scripts}/*.sh
+  shfmt -i 2 -d $(find ${./..} -type f -name '*.sh')
   touch $out
 ''

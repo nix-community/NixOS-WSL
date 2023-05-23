@@ -58,12 +58,12 @@
               rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
               username = pkgs.callPackage ./checks/username.nix args;
-              test-native-utils = self.packages.${system}.utils;
+              test-utils = self.packages.${system}.utils;
             };
 
           packages = {
-            utils = pkgs.callPackage ./scripts/native-utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+            utils = pkgs.callPackage ./utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
           };
 
           devShell = pkgs.mkShell {
