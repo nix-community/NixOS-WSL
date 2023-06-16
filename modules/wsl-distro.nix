@@ -132,8 +132,8 @@ in
             services = {
               firewall.enable = false;
               systemd-resolved.enable = lib.mkDefault false;
-              # system clock cannot be changed
-              systemd-timesyncd.enable = false;
+              # systemd-timesyncd actually works in WSL and without it the clock can drift
+              systemd-timesyncd.unitConfig.ConditionVirtualization = "";
             };
 
             # Don't allow emergency mode, because we don't have a console.
