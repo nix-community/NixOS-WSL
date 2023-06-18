@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nix ❄️
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v22
         with:
           extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
@@ -56,7 +56,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nix ❄️
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v22
         with:
           extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
@@ -91,7 +91,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install nix ❄️
-        uses: cachix/install-nix-action@v18
+        uses: cachix/install-nix-action@v22
         with:
           extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
 
