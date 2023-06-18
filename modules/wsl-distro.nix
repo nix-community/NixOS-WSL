@@ -4,8 +4,7 @@ with lib;
 
 let
   bashWrapper = pkgs.writeShellScriptBin "sh" ''
-    export PATH=/bin:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}
-    . ${config.system.build.etc}/etc/set-environment
+    export PATH="$PATH:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}"
     exec ${pkgs.bashInteractive}/bin/sh "$@"
   '';
 
@@ -117,8 +116,8 @@ in
       services = {
         firewall.enable = false;
         systemd-resolved.enable = lib.mkDefault false;
-        # system clock cannot be changed
-        systemd-timesyncd.enable = false;
+        # systemd-timesyncd actually works in WSL and without it the clock can drift
+        systemd-timesyncd.unitConfig.ConditionVirtualization = "";
       };
 
       # Don't allow emergency mode, because we don't have a console.
