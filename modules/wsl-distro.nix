@@ -103,11 +103,19 @@ in
               stringAfter [ ] ''
                 for x in applications icons; do
                   echo "setting up /usr/share/''${x}..."
-                  if [[ -d $systemConfig/sw/share/$x ]]; then
-                    mkdir -p /usr/share/$x
-                    ${pkgs.rsync}/bin/rsync -ar --delete $systemConfig/sw/share/$x/. /usr/share/$x
+                  targets=()
+                  if [[ -d "$systemConfig/sw/share/$x" ]]; then
+                    targets+=("$systemConfig/sw/share/$x/.")
+                  fi
+                  if [[ -d "/etc/profiles/per-user/${cfg.defaultUser}/share/$x" ]]; then
+                    targets+=("/etc/profiles/per-user/${cfg.defaultUser}/share/$x/.")
+                  fi
+
+                  if (( ''${#targets[@]} != 0 )); then
+                    mkdir -p "/usr/share/$x"
+                    ${pkgs.rsync}/bin/rsync -ar --delete-after "''${targets[@]}" "/usr/share/$x"
                   else
-                    rm -rf /usr/share/$x
+                    rm -rf "/usr/share/$x"
                   fi
                 done
               ''
@@ -137,8 +145,8 @@ in
             services = {
               firewall.enable = false;
               systemd-resolved.enable = lib.mkDefault false;
-              # system clock cannot be changed
-              systemd-timesyncd.enable = false;
+              # systemd-timesyncd actually works in WSL and without it the clock can drift
+              systemd-timesyncd.unitConfig.ConditionVirtualization = "";
             };
 
             # Don't allow emergency mode, because we don't have a console.

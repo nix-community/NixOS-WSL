@@ -31,6 +31,7 @@
           })
         ];
       };
+      nixosModules.default = self.nixosModules.wsl;
 
       nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
