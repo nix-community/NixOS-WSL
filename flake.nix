@@ -22,6 +22,7 @@
           ./modules/docker-native.nix
           ./modules/installer.nix
           ./modules/interop.nix
+          ./modules/systemd-tarball.nix
           ./modules/version.nix
           ./modules/wsl-conf.nix
           ./modules/wsl-distro.nix
