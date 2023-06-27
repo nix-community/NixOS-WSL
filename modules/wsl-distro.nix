@@ -66,8 +66,6 @@ in
         automountPath = cfg.wslConf.automount.root;
         defaultUser = config.users.users.${cfg.defaultUser};
       };
-
-      nativeUtils = pkgs.callPackage ../scripts/native-utils { };
     in
     mkIf cfg.enable (
       mkMerge [
@@ -97,6 +95,12 @@ in
               })
             ];
           };
+
+          nixpkgs.overlays = [
+            (_: prev: {
+              wslNativeUtils = prev.callPackage ../scripts/native-utils { };
+            })
+          ];
 
           # dhcp is handled by windows
           networking.dhcpcd.enable = false;
@@ -218,7 +222,7 @@ in
             shimSystemd = stringAfter [ ] ''
               echo "setting up /sbin/init shim..."
               mkdir -p /sbin
-              ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
+              ln -sf ${pkgs.wslNativeUtils}/bin/systemd-shim /sbin/init
             '';
             setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
               echo "setting up /bin/login..."
@@ -231,7 +235,7 @@ in
             # preserve $PATH from parent
             variables.PATH = [ "$PATH" ];
             extraInit = ''
-              eval $(${nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
+              eval $(${pkgs.wslNativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
             '';
           };
         })
