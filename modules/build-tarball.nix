@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 with builtins; with lib;
 let
+  cfg = config.wsl.tarball;
+
   pkgs2storeContents = l: map (x: { object = x; symlink = "none"; }) l;
 
   nixpkgs = lib.cleanSource pkgs.path;
@@ -19,7 +21,7 @@ let
       echo ${toString config.system.nixos.versionSuffix} | sed -e s/pre// > $out/nixos/svn-revision
     '';
 
-  preparer = pkgs.writeShellScriptBin "wsl-prepare" ''
+  preparer = pkgs.writeShellScriptBin "wsl-prepare" (''
     set -e
 
     mkdir -m 0755 ./bin ./etc
@@ -49,15 +51,20 @@ let
     # Write wsl.conf so that it is present when NixOS is started for the first time
     cp ${config.environment.etc."wsl.conf".source} ./etc/wsl.conf
 
-    ${lib.optionalString config.wsl.tarball.includeConfig ''
+  '' + lib.optionalString cfg.includeConfig ''
+    ${if cfg.configPath == null then ''
       # Copy the system configuration
       mkdir -p ./etc/nixos/nixos-wsl
       cp -R ${lib.cleanSource ../.}/. ./etc/nixos/nixos-wsl
       mv ./etc/nixos/nixos-wsl/configuration.nix ./etc/nixos/configuration.nix
       # Patch the import path to avoid having a flake.nix in /etc/nixos
       sed -i 's|import \./default\.nix|import \./nixos-wsl|' ./etc/nixos/configuration.nix
+    '' else ''
+      mkdir -p ./etc/nixos
+      cp -R ${lib.cleanSource cfg.configPath}/. ./etc/nixos
     ''}
-  '';
+    chmod -R u+w etc/nixos
+  '');
 
 in
 {
@@ -67,6 +74,12 @@ in
       type = types.bool;
       default = true;
       description = "Whether or not to copy the system configuration into the tarball";
+    };
+
+    configPath = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to system configuration which is copied into the tarball";
     };
   };
 
