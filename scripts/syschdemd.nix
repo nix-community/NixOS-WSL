@@ -3,7 +3,7 @@
 , lib
 , coreutils
 , daemonize
-, glibc
+, getent
 , gnugrep
 , systemd
 , util-linux
@@ -43,7 +43,7 @@ mkWrappedScript {
     "/run/wrappers" # mount
     coreutils
     daemonize
-    glibc # getent
+    getent
     gnugrep
     systemd # machinectl
     util-linux # nsenter, runuser
