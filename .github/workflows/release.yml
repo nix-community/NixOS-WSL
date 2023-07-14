@@ -1,4 +1,4 @@
-name: 'Release'
+name: "Release"
 
 on:
   push:
@@ -14,10 +14,10 @@ jobs:
     name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
-      - name: Download installer 📥
+      - name: Download tarball 📥
         uses: actions/download-artifact@v3
         with:
-          name: installer
+          name: tarball
 
       - name: Generate checksums 🔑
         run: |
@@ -29,7 +29,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            nixos-wsl-installer.tar.gz
-            nixos-wsl-installer.tar.gz.sha256
+            nixos-wsl-x86_64-linux.tar.gz
+            nixos-wsl-x86_64-linux.tar.gz.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

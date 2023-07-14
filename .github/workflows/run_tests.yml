@@ -42,10 +42,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download installer 📥
+      - name: Download tarball 📥
         uses: actions/download-artifact@v3
         with:
-          name: installer
+          name: tarball
 
       - name: Execute test 🧪
         shell: pwsh
