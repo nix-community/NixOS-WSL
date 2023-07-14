@@ -89,7 +89,7 @@ with builtins; with lib;
             { source = config.environment.etc."wsl.conf".source; target = "/etc/wsl.conf"; }
             { source = config.environment.etc."fstab".source; target = "/etc/fstab"; }
             { source = pkgs.callPackage (import ./passwd.nix) { inherit config; inherit (utils) toShellPath; }; target = "/etc/passwd"; }
-            { source = config.users.users.root.shell; target = "/bin/sh"; } # TODO: Replace with bash?
+            { source = "${pkgs.bashInteractive}/bin/bash"; target = "/bin/sh"; }
             { source = "${pkgs.util-linux}/bin/mount"; target = "/bin/mount"; }
             { source = config.wsl.tarball.entrypoint; target = "/nix/nixos-wsl/entrypoint"; }
           ];
