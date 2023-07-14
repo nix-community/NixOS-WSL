@@ -4,14 +4,6 @@ with lib; {
   config =
     let
       cfg = config.wsl;
-
-      syschdemd = pkgs.callPackage ./syschdemd.nix {
-        inherit utils;
-
-        automountPath = cfg.wslConf.automount.root;
-        defaultUser = config.users.users.${cfg.defaultUser};
-      };
-
     in
     mkIf (cfg.enable && (!cfg.nativeSystemd)) {
 
@@ -19,7 +11,10 @@ with lib; {
       security.sudo.extraConfig = ''
         Defaults env_keep+=INSIDE_NAMESPACE
       '';
-      # wsl.wslConf.user.default = "root";
+
+      wsl.wslConf.user.default = "root";
+
+      wsl.tarball.entrypoint = "${pkgs.nixos-wsl-utils}/bin/systemd-container";
 
       systemd.services.system-ready = rec {
         wantedBy = [ "multi-user.target" ];
