@@ -79,7 +79,7 @@ class DockerDistro : Distro {
       # Build docker image from the installer tarball
       $tmpdir = $(mktemp -d)
       Copy-Item $PSScriptRoot/Dockerfile $tmpdir
-      Copy-Item $tarball $tmpdir
+      Copy-Item $tarball $tmpdir/nixos-wsl-tarball.tar.gz
       docker build -t $([DockerDistro]::imageName) $tmpdir | Write-Host
       Remove-Item $tmpdir -Recurse -Force
 

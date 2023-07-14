@@ -1,2 +1,2 @@
 FROM scratch
-ADD nixos-wsl-installer.tar.gz /
+ADD nixos-wsl-tarball.tar.gz /
