@@ -164,13 +164,12 @@ fn enter_namespace() -> Result<()> {
 }
 
 fn real_main() -> Result<i32> {
-    // get the UID of the user who started this program (when running with suid)
-    // let user = getuid();
-    let pwd = env::current_dir()?;
+    let target_user =
+        option_env!("defaultUser").context("When getting defaultUser build variable")?;
 
     // check that the effective UID is 0, crash if it isn't
     if geteuid() != Uid::from_raw(0) {
-        panic!("This program must be run as root or the setuid bit must be set");
+        panic!("This program must be run as root");
     }
 
     // create the rundir if it doesn't exist
@@ -181,7 +180,7 @@ fn real_main() -> Result<i32> {
     if is_init_systemd() {
         // we are already inside the container, just run the command
         // TODO: implement this
-        unimplemented!()
+        todo!()
     }
 
     if !is_systemd_alive() {
@@ -210,6 +209,7 @@ fn real_main() -> Result<i32> {
 
     let shell = "/run/current-system/sw/bin/bash"; // TODO: Get the user's shell instead
 
+    let pwd = env::current_dir()?;
     let arg_pwd = format!("--working-directory={}", pwd.to_str().unwrap_or("/"));
     let mut args = vec![
         "--quiet",
@@ -233,7 +233,7 @@ fn real_main() -> Result<i32> {
         "/nix/var/nix/profiles/system/sw/bin/runuser",
         "--pty",
         "-u",
-        "nixos",
+        target_user,
         "--",
         shell,
         "-l",
@@ -253,16 +253,20 @@ fn real_main() -> Result<i32> {
         .args(args)
         .env_clear()
         .status()
-        .context("When running {}")? // insert command
+        .context(format!("When running {:#?}", env::args().skip(1)))?
         .code()
     {
         Some(code) => Ok(code),
-        None => Err(Error::msg("command exited unexpectedly")), // insert command
+        None => Err(Error::msg(format!(
+            "command {:#?} exited unexpectedly",
+            env::args().skip(1)
+        ))),
     }
 }
 
 fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
+
     kernlog::init().context("When setting up logger...")?;
 
     exit(real_main()?);

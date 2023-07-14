@@ -4,8 +4,6 @@ with lib; {
   config =
     let
       cfg = config.wsl;
-
-      nativeUtils = pkgs.callPackage ../../utils { };
     in
     mkIf (cfg.enable && cfg.nativeSystemd) {
       wsl.wslConf = {
@@ -17,7 +15,7 @@ with lib; {
         shimSystemd = stringAfter [ ] ''
           echo "setting up /sbin/init shim..."
           mkdir -p /sbin
-          ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
+          ln -sf ${pkgs.nixos-wsl-utils}/bin/systemd-shim /sbin/init
         '';
         setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
           echo "setting up /bin/login..."
@@ -30,7 +28,7 @@ with lib; {
         # preserve $PATH from parent
         variables.PATH = [ "$PATH" ];
         extraInit = ''
-          eval $(${nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
+          eval $(${pkgs.nixos-wsl-utils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
         '';
       };
     };

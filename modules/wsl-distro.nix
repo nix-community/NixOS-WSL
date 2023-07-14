@@ -40,6 +40,15 @@ in
   };
 
   config = mkIf cfg.enable {
+    nixpkgs.overlays = [
+      (_: prev: {
+        nixos-wsl-utils = prev.callPackage ../utils {
+          defaultUser = config.users.users.${cfg.defaultUser}.name;
+        };
+      })
+    ];
+
+
     # WSL uses its own kernel and boot loader
     boot = {
       initrd.enable = false;
@@ -47,6 +56,7 @@ in
       loader.grub.enable = false;
       modprobeConfig.enable = false;
     };
+
     system.build.installBootLoader = "${pkgs.coreutils}/bin/true";
 
     # WSL does not support virtual consoles

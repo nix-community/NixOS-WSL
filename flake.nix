@@ -63,8 +63,8 @@
             };
 
           packages = {
-            utils = pkgs.callPackage ./utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
+            utils = pkgs.callPackage ./utils { defaultUser = "nixos"; };
+            staticUtils = pkgs.pkgsStatic.callPackage ./utils { defaultUser = "nixos"; };
           };
 
           devShell = pkgs.mkShell {
