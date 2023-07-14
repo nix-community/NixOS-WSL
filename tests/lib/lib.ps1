@@ -88,7 +88,7 @@ class DockerDistro : Distro {
 
     $this.id = $(New-Guid).ToString()
 
-    docker run -di --privileged --volume "/:$([DockerDistro]::hostMount)" --name $this.id $([DockerDistro]::imageName) "/bin/sh" | Out-Null
+    docker run -di --privileged --volume "/:$([DockerDistro]::hostMount)" --name $this.id $([DockerDistro]::imageName) | Out-Null
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to launch container"
     }

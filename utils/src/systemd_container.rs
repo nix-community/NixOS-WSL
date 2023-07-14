@@ -267,7 +267,7 @@ fn real_main() -> Result<i32> {
 fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
-    kernlog::init().context("When setting up logger...")?;
+    let _ = kernlog::init(); // This might fail, but that's okay. Just log to stdout in that case
 
     exit(real_main()?);
 }

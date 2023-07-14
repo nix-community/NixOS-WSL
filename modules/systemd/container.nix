@@ -18,7 +18,10 @@ with lib; {
         wants = [ "basic.target" "systemd-logind.service" ]; # logind is needed for user-sessions
         after = config.systemd.services.system-ready.wants;
         serviceConfig.Type = "oneshot";
-        serviceConfig.ExecStart = "${pkgs.coreutils}/bin/touch /run/nixos-wsl/system-ready";
+        serviceConfig.ExecStart = pkgs.writeShellScript "system-ready" ''
+          ${pkgs.coreutils}/bin/mkdir -p /run/nixos-wsl
+          ${pkgs.coreutils}/bin/touch /run/nixos-wsl/system-ready
+        '';
       };
 
       # Start a systemd user session when starting a command through runuser
