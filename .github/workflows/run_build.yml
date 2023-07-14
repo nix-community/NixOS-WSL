@@ -48,12 +48,12 @@ jobs:
           echo ${{ needs.prepare.outputs.version }} > ./VERSION
           echo $(git rev-parse HEAD) >> ./VERSION
 
-      - name: Build installer 🛠️
+      - name: Build tarball 🛠️
         run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
+          nix build '.#nixosConfigurations.mysystem.config.system.build.tarball'
 
-      - name: Upload installer 📤
+      - name: Upload tarball 📤
         uses: actions/upload-artifact@v3
         with:
-          name: installer
-          path: result/tarball/nixos-wsl-installer.tar.gz
+          name: tarball
+          path: result/tarball/nixos-wsl-x86_64-linux.tar.gz

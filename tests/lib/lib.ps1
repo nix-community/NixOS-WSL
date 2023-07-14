@@ -26,9 +26,10 @@ class Distro {
 
   [string]FindTarball() {
     # Check if a fresh tarball exists in result, otherwise try one in the current directory
-    $tarball = "./result/tarball/nixos-wsl-installer.tar.gz"
+    $tarFileName = "nixos-wsl-x86_64-linux.tar.gz"
+    $tarball = "./result/tarball/$tarFileName"
     if (!(Test-Path $tarball)) {
-      $tarball = "./nixos-wsl-installer.tar.gz"
+      $tarball = "./$tarFileName"
       if (!(Test-Path $tarball)) {
         throw "Could not find the installer tarball! Run nix build first, or place one in the current directory."
       }
