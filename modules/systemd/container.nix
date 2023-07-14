@@ -8,9 +8,6 @@ with lib; {
     mkIf (cfg.enable && (!cfg.nativeSystemd)) {
 
       users.users.root.shell = "${pkgs.nixos-wsl-utils}/bin/systemd-container";
-      security.sudo.extraConfig = ''
-        Defaults env_keep+=INSIDE_NAMESPACE
-      '';
 
       wsl.wslConf.user.default = "root";
 
