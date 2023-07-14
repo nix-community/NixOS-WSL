@@ -192,8 +192,8 @@ fn real_main() -> Result<i32> {
 
     enter_namespace()?;
 
-    let env_out = Command::new("/run/current-system/sw/bin/bash")
-        .arg0("/run/current-system/sw/bin/bash")
+    let env_out = Command::new("/bin/sh")
+        .arg0("/bin/sh")
         .args(&[
             "-c",
             "source /etc/set-environment && exec /run/current-system/sw/bin/env",

@@ -22,6 +22,11 @@ Describe "Basic Functionality" {
     $LASTEXITCODE | Should -Be 0
   }
 
+  It "is possible to run a shell through sudo" {
+    $distro.Launch("echo 'whoami' | sudo -i") | Select-Object -Last 1 | Should -BeExactly "root"
+    $LASTEXITCODE | Should -Be 0
+  }
+
   It "is possible to run a command after restarting the container" {
     $distro.Shutdown()
     $distro.Launch("true")
