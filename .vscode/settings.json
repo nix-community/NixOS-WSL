@@ -1,14 +1,38 @@
 {
-    "rust-analyzer.linkedProjects": [
-        "scripts/native-utils/Cargo.toml"
-    ],
-    "workbench.colorCustomizations": {
-        "commandCenter.border": "#e7e7e799",
-        "sash.hoverBorder": "#6194da",
-        "titleBar.activeBackground": "#3878d0",
-        "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveBackground": "#3878d099",
-        "titleBar.inactiveForeground": "#e7e7e799"
-    },
-    "peacock.remoteColor": "#3878d0"
+  "rust-analyzer.linkedProjects": [
+    "utils/Cargo.toml"
+  ],
+  "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
+  "rust-analyzer.check.allTargets": true,
+  "cSpell.words": [
+    "binfmt",
+    "ECHILD",
+    "errno",
+    "Errno",
+    "geteuid",
+    "getuid",
+    "kmsg",
+    "libc",
+    "NEWNS",
+    "NEWPID",
+    "POSIX",
+    "RDONLY",
+    "sched",
+    "setns",
+    "setsid",
+    "setuid",
+    "SIGCHLD",
+    "waitid",
+    "waitpid",
+    "WEXITED"
+  ],
+  "workbench.colorCustomizations": {
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#6194da",
+    "titleBar.activeBackground": "#3878d0",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#3878d099",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.remoteColor": "#3878d0"
 }
