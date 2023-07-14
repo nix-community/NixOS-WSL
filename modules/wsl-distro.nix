@@ -80,6 +80,10 @@ in
           "resolv.conf".enable = false;
         })
       ];
+      variables.PATH = [ "$PATH" ]; # preserve $PATH from parent
+      extraInit = ''
+        eval $(${pkgs.nixos-wsl-utils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
+      '';
     };
 
     # dhcp is handled by windows

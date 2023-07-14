@@ -23,14 +23,6 @@ with lib; {
           ln -sf ${pkgs.shadow}/bin/login /bin/login
         '');
       };
-
-      environment = {
-        # preserve $PATH from parent
-        variables.PATH = [ "$PATH" ];
-        extraInit = ''
-          eval $(${pkgs.nixos-wsl-utils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
-        '';
-      };
     };
 
 }
