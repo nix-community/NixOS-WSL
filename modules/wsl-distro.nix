@@ -126,10 +126,6 @@ in
         ln -sf ${cfg.binShPkg}/bin/sh /bin/sh
         ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
       '');
-      update-entrypoint.text = ''
-        mkdir -p /nix/nixos-wsl
-        ln -sfn ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
-      '';
     };
 
     # useful for usbip but adds a dependency on various firmwares which are combined over 300 MB big
