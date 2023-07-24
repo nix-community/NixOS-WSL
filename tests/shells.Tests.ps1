@@ -9,11 +9,16 @@ Describe "Shells" {
     function Add-ShellTest([string]$package, [string]$executable) {
       $temp = New-TemporaryFile
       @"
-        { pkgs, config, ... }:
-        {
-        imports = [ ./base.nix ];
+        { pkgs, lib, config, options, ... }:
+        with lib; {
+          imports = [ ./base.nix ];
 
-        users.users.`${config.wsl.defaultUser}.shell = pkgs.$package;
+          config = mkMerge [
+            { users.users.`${config.wsl.defaultUser}.shell = pkgs.$package; }
+            (optionalAttrs (hasAttrByPath ["programs" "$package" "enable"] options) {
+              programs.$package.enable = true;
+            })
+          ];
         }
 "@ >  $temp
       $distro.InstallConfig($temp)

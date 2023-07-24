@@ -80,6 +80,13 @@ in
                 "resolv.conf".enable = false;
               })
             ];
+
+            systemPackages = [
+              (pkgs.runCommand "wslpath" { } ''
+                mkdir -p $out/bin
+                ln -s /init $out/bin/wslpath
+              '')
+            ];
           };
 
           # dhcp is handled by windows
