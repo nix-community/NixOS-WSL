@@ -40,6 +40,26 @@ If you want to make NixOS your default distribution, you can do so with
 wsl -s NixOS
 ```
 
+## Troubleshooting
+
+A recovery shell can be started with
+
+```sh
+wsl -d NixOS --system --user root -- /mnt/wslg/distro/bin/nixos-wsl-recovery
+```
+
+This will load the WSL "system" distribution, activate your configuration,
+then chroot into your NixOS system, similar to what `nixos-enter` would do
+on a normal NixOS install.
+
+You can choose an older generation to load with
+
+```sh
+wsl -d NixOS --system --user root -- /mnt/wslg/distro/bin/nixos-wsl-recovery --system /nix/var/nix/profiles/system-42-link
+```
+
+(note that the path is relative to the new root)
+
 ## Building your own system tarball
 
 This requires access to a system that already has Nix installed. Please refer to the [Nix installation guide](https://nixos.org/guides/install-nix.html) if that\'s not the case.
