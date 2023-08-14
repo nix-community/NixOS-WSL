@@ -65,12 +65,6 @@ in
     hardware.opengl.enable = true; # Enable GPU acceleration
 
     environment = {
-      systemPackages = [
-        (pkgs.runCommand "wslpath" { } ''
-          mkdir -p $out/bin
-          ln -s /init $out/bin/wslpath
-        '')
-      ];
       # Only set the options if the files are managed by WSL
       etc = mkMerge [
         (mkIf config.wsl.wslConf.network.generateHosts {
