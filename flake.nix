@@ -17,10 +17,7 @@
 
       nixosModules.wsl = {
         imports = [
-          ./modules/build-tarball.nix
           ./modules/docker-desktop.nix
-          ./modules/docker-native.nix
-          ./modules/installer.nix
           ./modules/interop.nix
           ./modules/systemd-tarball.nix
           ./modules/version.nix
@@ -55,7 +52,6 @@
             in
             {
               nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
-              shfmt = pkgs.callPackage ./checks/shfmt.nix args;
               rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
               username = pkgs.callPackage ./checks/username.nix args;
@@ -63,8 +59,8 @@
             };
 
           packages = {
-            utils = pkgs.callPackage ./scripts/native-utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+            utils = pkgs.callPackage ./native-utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./native-utils { };
           };
 
           devShell = pkgs.mkShell {
@@ -72,7 +68,6 @@
 
             nativeBuildInputs = with pkgs; [
               nixpkgs-fmt
-              shfmt
               rustc
               cargo
               rustfmt

@@ -38,8 +38,8 @@ with lib; {
       };
       systemd = mkOption {
         type = bool;
-        default = false;
-        description = "Use systemd as init. There's no need to enable this manually, use the wsl.nativeSystemd option instead";
+        default = true;
+        description = "Use systemd as init. Setting this to false will probably break your system.";
       };
     };
     interop = {
@@ -85,9 +85,7 @@ with lib; {
 
     environment.etc."wsl.conf".text = generators.toINI { } config.wsl.wslConf;
 
-    warnings = optional (config.wsl.wslConf.boot.systemd && !config.wsl.nativeSystemd)
-      "systemd is enabled in wsl.conf, but wsl.nativeSystemd is not enabled. Unless you did this on purpose, this WILL make your system UNBOOTABLE!"
-    ++ optional (config.wsl.wslConf.network.generateHosts && config.networking.extraHosts != "")
+    warnings = optional (config.wsl.wslConf.network.generateHosts && config.networking.extraHosts != "")
       "networking.extraHosts has no effect if wsl.wslConf.network.generateHosts is true.";
 
   };

@@ -34,7 +34,7 @@ let
     mkdir -m 0700 -p ./root/.nix-defexpr
     ln -s /nix/var/nix/profiles/per-user/root/channels ./root/.nix-defexpr/channels
 
-    mkdir -p sbin nix/nixos-wsl/entrypoint
+    mkdir -p sbin
     ln -s ${pkgs.wslNativeUtils}/bin/systemd-shim ./sbin/init
 
     ${lib.optionalString config.wsl.tarball.includeConfig ''
@@ -50,13 +50,7 @@ in
 {
 
   config = mkIf config.wsl.enable {
-    assertions = [{
-      assertion = config.wsl.nativeSystemd;
-      message = "config.wsl.nativeSystemd must be true in order to build a systemd-tarball!";
-    }];
-
-    system.build.systemd-tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
-
+    system.build.tarball = pkgs.callPackage "${nixpkgs}/nixos/lib/make-system-tarball.nix" {
       contents = [
         # WSL needs this before first activation
         { inherit (config.environment.etc."wsl.conf") source; target = "/etc/wsl.conf"; }
@@ -71,7 +65,6 @@ in
       ];
 
       extraCommands = "${preparer}/bin/wsl-prepare";
-      extraArgs = "--hard-dereference";
 
       # Use gzip
       compressCommand = "gzip";
