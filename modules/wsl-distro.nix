@@ -3,11 +3,6 @@
 with lib;
 
 let
-  bashWrapper = pkgs.writeShellScriptBin "sh" ''
-    export PATH="$PATH:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}"
-    exec ${pkgs.bashInteractive}/bin/sh "$@"
-  '';
-
   nixos-enter' = config.system.build.nixos-enter.overrideAttrs (_: {
     runtimeShell = "/bin/bash";
   });
@@ -176,7 +171,7 @@ in
 
           # require people to use lib.mkForce to make it harder to brick their installation
           wsl = {
-            binShPkg = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;
+            binShPkg = pkgs.bashInteractive;
             populateBin = true;
           };
 
@@ -211,15 +206,20 @@ in
         (mkIf cfg.nativeSystemd {
           wsl.wslConf = {
             user.default = config.users.users.${cfg.defaultUser}.name;
-            boot.systemd = true;
+            boot = {
+              systemd = true;
+              initPath = "${nativeUtils}/bin/systemd-shim";
+              initShutdownCommand = pkgs.writeShellScript "nixos-wsl-init-shutdown" ''
+                ${pkgs.systemd}/bin/systemctl reboot
+              '';
+              initWaitCommand = pkgs.writeShellScript "nixos-wsl-init-wait" ''
+                ${pkgs.systemd}/bin/systemctl is-system-running | ${pkgs.gnugrep}/bin/grep -E "(running|degraded)"
+                exit $?
+              '';
+            };
           };
 
           system.activationScripts = {
-            shimSystemd = stringAfter [ ] ''
-              echo "setting up /sbin/init shim..."
-              mkdir -p /sbin
-              ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
-            '';
             setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
               echo "setting up /bin/login..."
               mkdir -p /bin

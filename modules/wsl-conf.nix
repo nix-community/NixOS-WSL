@@ -41,6 +41,21 @@ with lib; {
         default = false;
         description = "Use systemd as init. There's no need to enable this manually, use the wsl.nativeSystemd option instead";
       };
+      initPath = mkOption {
+        type = path;
+        default = null;
+        internal = true;
+      };
+      initShutdownCommand = mkOption {
+        type = path;
+        default = null;
+        internal = true;
+      };
+      initWaitCommand = mkOption {
+        type = path;
+        default = null;
+        internal = true;
+      };
     };
     interop = {
       enabled = mkOption {
