@@ -1,6 +1,6 @@
 { lib, pkgs, config, options, ... }:
 
-with lib;
+with builtins; with lib;
 
 let
   bashWrapper = pkgs.writeShellScriptBin "sh" ''
@@ -31,9 +31,30 @@ in
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
     binShPkg = mkOption {
-      type = lib.types.package;
+      type = package;
       internal = true;
       description = "Package to be linked to /bin/sh. Mainly useful to be re-used by other modules like envfs.";
+    };
+    extraBin = mkOption {
+      type = listOf (submodule ({ config, ... }: {
+        options = {
+          src = mkOption {
+            type = str;
+            description = "Path of the file that should be added";
+          };
+          name = mkOption {
+            type = str;
+            description = "The name the file should be created as in /bin";
+            default = baseNameOf config.src;
+          };
+          copy = mkOption {
+            type = bool;
+            default = false;
+            description = "Whether or not the file should be copied instead of symlinked";
+          };
+        };
+      }));
+      description = "Additional files to be added to /bin";
     };
     nativeSystemd = mkOption {
       type = bool;
@@ -138,12 +159,14 @@ in
             );
             populateBin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
               echo "setting up /bin..."
-              ln -sf /init /bin/wslpath
-              ln -sf ${cfg.binShPkg}/bin/sh /bin/sh
-              ln -sf ${pkgs.util-linux}/bin/mount /bin/mount
-
-              # needs to be a copy, not a symlink, to be executable from outside
-              cp -f ${recovery}/bin/nixos-wsl-recovery /bin/nixos-wsl-recovery
+              ${concatStringsSep "\n" (map
+                (entry:
+                  if entry.copy
+                  then "cp -f ${entry.src} /bin/${entry.name}"
+                  else "ln -sf ${entry.src} /bin/${entry.name}"
+                )
+                config.wsl.extraBin
+              )}
             '');
             update-entrypoint.text = ''
               mkdir -p /nix/nixos-wsl
@@ -178,6 +201,11 @@ in
           wsl = {
             binShPkg = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;
             populateBin = true;
+            extraBin = [
+              { src = "/init"; name = "wslpath"; }
+              { src = "${cfg.binShPkg}/bin/sh"; name = "sh"; }
+              { src = "${pkgs.util-linux}/bin/mount"; }
+            ];
           };
 
           warnings = flatten [
