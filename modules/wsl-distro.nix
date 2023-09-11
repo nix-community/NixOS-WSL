@@ -19,6 +19,23 @@ in
       internal = true;
       description = "Package to be linked to /bin/sh. Mainly useful to be re-used by other modules like envfs.";
     };
+    defaultUser = mkOption {
+      type = str;
+      default = "nixos";
+      description = "The name of the default user";
+    };
+    populateBin = mkOption {
+      type = bool;
+      default = true;
+      internal = true;
+      description = ''
+        Dangerous! Things might break. Use with caution!
+
+        Do not populate /bin.
+
+        This is mainfly useful if another module populates /bin like envfs.
+      '';
+    };
     extraBin = mkOption {
       type = listOf (submodule ({ config, ... }: {
         options = {
@@ -44,23 +61,6 @@ in
       type = bool;
       default = false;
       description = "Use native WSL systemd support";
-    };
-    defaultUser = mkOption {
-      type = str;
-      default = "nixos";
-      description = "The name of the default user";
-    };
-    populateBin = mkOption {
-      type = bool;
-      default = true;
-      internal = true;
-      description = ''
-        Dangerous! Things might break. Use with caution!
-
-        Do not populate /bin.
-
-        This is mainfly useful if another module populates /bin like envfs.
-      '';
     };
     startMenuLaunchers = mkEnableOption "shortcuts for GUI applications in the windows start menu";
   };
