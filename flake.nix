@@ -17,14 +17,7 @@
 
       nixosModules.wsl = {
         imports = [
-          ./modules/build-tarball.nix
-          ./modules/docker-desktop.nix
-          ./modules/docker-native.nix
-          ./modules/installer.nix
-          ./modules/interop.nix
-          ./modules/version.nix
-          ./modules/wsl-conf.nix
-          ./modules/wsl-distro.nix
+          ./modules
 
           ({ ... }: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
