@@ -24,7 +24,7 @@ in
   config = {
     wsl.extraBin = [
       # needs to be a copy, not a symlink, to be executable from outside
-      { src = "${recovery}/bin/nixos-wsl-recovery"; copy = true;}
+      { src = "${recovery}/bin/nixos-wsl-recovery"; copy = true; }
     ];
   };
 
