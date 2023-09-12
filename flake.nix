@@ -59,7 +59,7 @@
             staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
           };
 
-          devShell = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
             nativeBuildInputs = with pkgs; [
