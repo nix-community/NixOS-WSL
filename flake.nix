@@ -17,14 +17,7 @@
 
       nixosModules.wsl = {
         imports = [
-          ./modules/build-tarball.nix
-          ./modules/docker-desktop.nix
-          ./modules/docker-native.nix
-          ./modules/installer.nix
-          ./modules/interop.nix
-          ./modules/version.nix
-          ./modules/wsl-conf.nix
-          ./modules/wsl-distro.nix
+          ./modules
 
           ({ ... }: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
@@ -62,11 +55,11 @@
             };
 
           packages = {
-            utils = pkgs.callPackage ./scripts/native-utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+            utils = pkgs.callPackage ./utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
           };
 
-          devShell = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
             nativeBuildInputs = with pkgs; [
