@@ -14,11 +14,15 @@ with lib; {
     in
     mkIf (cfg.enable && !cfg.nativeSystemd) {
 
+      wsl = {
+        binShPkg = pkgs.bashInteractive;
+        wslConf.user.default = "root";
+      };
+
       users.users.root.shell = "${syschdemd}/bin/syschdemd";
       security.sudo.extraConfig = ''
         Defaults env_keep+=INSIDE_NAMESPACE
       '';
-      wsl.wslConf.user.default = "root";
 
       # Start a systemd user session when starting a command through runuser
       security.pam.services.runuser.startSession = true;

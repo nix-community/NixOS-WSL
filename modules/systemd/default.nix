@@ -20,8 +20,6 @@ with lib; {
     in
     mkIf (cfg.enable) {
 
-      wsl.binShPkg = if cfg.nativeSystemd then bashWrapper else pkgs.bashInteractive;
-
       # systemd-oomd requires cgroup pressure info which WSL doesn't have
       systemd.oomd.enable = false;
 

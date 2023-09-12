@@ -3,11 +3,6 @@
 with builtins; with lib;
 
 let
-  bashWrapper = pkgs.writeShellScriptBin "sh" ''
-    export PATH="$PATH:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}"
-    exec ${pkgs.bashInteractive}/bin/sh "$@"
-  '';
-
   cfg = config.wsl;
 in
 {
