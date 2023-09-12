@@ -55,8 +55,8 @@
             };
 
           packages = {
-            utils = pkgs.callPackage ./scripts/native-utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./scripts/native-utils { };
+            utils = pkgs.callPackage ./utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
           };
 
           devShells.default = pkgs.mkShell {

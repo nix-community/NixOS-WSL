@@ -4,6 +4,6 @@
 , ...
 }:
 runCommand "check-rustfmt" { nativeBuildInputs = [ cargo rustfmt ]; } ''
-  cargo fmt --manifest-path=${./../scripts/native-utils}/Cargo.toml --check
+  cargo fmt --manifest-path=${./../utils}/Cargo.toml --check
   touch $out
 ''
