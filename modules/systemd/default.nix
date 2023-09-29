@@ -9,7 +9,7 @@ with lib; {
   options.wsl = with types; {
     nativeSystemd = mkOption {
       type = bool;
-      default = false;
+      default = true;
       description = "Use native WSL systemd support";
     };
   };
