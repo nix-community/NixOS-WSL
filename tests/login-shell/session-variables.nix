@@ -1,12 +1,14 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, lib, ... }:
 let
   ver = with lib; substring 0 5 version;
 in
 {
   imports = [
-    ./base.nix
+    <nixos-wsl/modules>
     "${builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-${ver}.tar.gz"}/nixos"
   ];
+
+  wsl.enable = true;
 
   home-manager.users.nixos = { ... }: {
     home = {

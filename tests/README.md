@@ -46,6 +46,6 @@ BeforeAll {
 - A Distro object has the following methods:
   - `Launch($command)`: Runs the specified command inside the container. Returns the command output
   - `GetPath($path)`: Returns the path inside the container, that points to the specified file on the host.
-  - `InstallConfig($path)`: Installs a nix-file as the systems `configuration.nix`. The default configuration is moved to `base.nix`, so that it can be imported by the new config
+  - `InstallConfig($path)`: Installs a nix-file as the systems `configuration.nix`.
   - `Shutdown()`: End all processes running in the container
   - `Uninstall()`: Stop and then delete the container from the system. This should be called in an AfterEach or AfterAll block, so that the test does not leave it on the system.

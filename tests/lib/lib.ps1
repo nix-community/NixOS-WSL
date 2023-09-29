@@ -37,10 +37,6 @@ class Distro {
   [void]InstallConfig([string]$path) {
     Write-Host "Installing config: $path"
 
-    # Move config out of the way
-    $this.Launch("/bin/sh -c 'test -f /etc/nixos/base.nix || sudo mv /etc/nixos/configuration.nix /etc/nixos/base.nix'")
-    $LASTEXITCODE | Should -Be 0
-
     # Copy the new config
     $this.Launch("sudo cp $($this.GetPath($path)) /etc/nixos/configuration.nix")
     $LASTEXITCODE | Should -Be 0

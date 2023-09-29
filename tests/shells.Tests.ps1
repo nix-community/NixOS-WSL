@@ -11,10 +11,15 @@ Describe "Shells" {
       @"
         { pkgs, lib, config, options, ... }:
         with lib; {
-          imports = [ ./base.nix ];
+          imports = [
+            <nixos-wsl/modules>
+          ];
 
           config = mkMerge [
-            { users.users.`${config.wsl.defaultUser}.shell = pkgs.$package; }
+            {
+              wsl.enable = true;
+              users.users.nixos.shell = pkgs.$package;
+            }
             (optionalAttrs (hasAttrByPath ["programs" "$package" "enable"] options) {
               programs.$package.enable = true;
             })
