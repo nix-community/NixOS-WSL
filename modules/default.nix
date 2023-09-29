@@ -1,8 +1,7 @@
 { ... }: {
   imports = [
     ./build-tarball.nix
-    ./docker
-    ./installer.nix
+    ./docker-desktop.nix
     ./interop.nix
     ./recovery.nix
     ./systemd
