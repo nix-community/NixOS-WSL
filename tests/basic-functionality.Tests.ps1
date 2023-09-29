@@ -34,7 +34,7 @@ Describe "Basic Functionality" {
   }
 
   It "is possible to run a command through nix run" {
-    $distro.Launch("nix run nixpkgs#neofetch")
+    $distro.Launch("nix --extra-experimental-features 'nix-command flakes' run nixpkgs#neofetch")
     $LASTEXITCODE | Should -Be 0
   }
 
