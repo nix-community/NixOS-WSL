@@ -88,6 +88,8 @@ class DockerDistro : Distro {
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to launch container"
     }
+
+    $this.Launch("sudo nix-channel --update")
   }
 
   [Array]Launch([string]$command) {
@@ -132,6 +134,8 @@ class WslDistro : Distro {
       throw "Failed to import distro"
     }
     & wsl.exe --list | Should -Contain $this.id
+
+    $this.Launch("sudo nix-channel --update")
   }
 
   [Array]Launch([string]$command) {
