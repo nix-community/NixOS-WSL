@@ -7,7 +7,7 @@ Describe "Basic Functionality" {
     $distro = Install-Distro
   }
 
-  It "is possible to run a command through the installer" {
+  It "is possible to run a command in the container" {
     $distro.Launch("nixos-version")
     $LASTEXITCODE | Should -Be 0
   }

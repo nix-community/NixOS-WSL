@@ -26,12 +26,9 @@ class Distro {
 
   [string]FindTarball() {
     # Check if a fresh tarball exists in result, otherwise try one in the current directory
-    $tarball = "./result/tarball/nixos-wsl-installer.tar.gz"
+    $tarball = "./nixos-wsl.tar.gz"
     if (!(Test-Path $tarball)) {
-      $tarball = "./nixos-wsl-installer.tar.gz"
-      if (!(Test-Path $tarball)) {
-        throw "Could not find the installer tarball! Run nix build first, or place one in the current directory."
-      }
+      throw "Could not find the tarball! Run nix build first, or place one in the current directory."
     }
     Write-Host "Using tarball: $tarball"
     return $tarball
@@ -75,7 +72,7 @@ class DockerDistro : Distro {
     $tarball = $this.FindTarball()
 
     if (!([DockerDistro]::imageCreated)) {
-      # Build docker image from the installer tarball
+      # Build docker image from the tarball
       $tmpdir = $(mktemp -d)
       Copy-Item $PSScriptRoot/Dockerfile $tmpdir
       Copy-Item $tarball $tmpdir
@@ -96,7 +93,7 @@ class DockerDistro : Distro {
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    docker exec -t $this.id /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
+    docker exec -t $this.id /bin/syschdemd -c $command | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 
@@ -140,7 +137,7 @@ class WslDistro : Distro {
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    & wsl.exe -d $this.id -e /nix/nixos-wsl/entrypoint -c $command | Tee-Object -Variable result | Write-Host
+    & wsl.exe -d $this.id -e /bin/syschdemd -c $command | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 

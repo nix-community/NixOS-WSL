@@ -132,11 +132,6 @@ in
             config.wsl.extraBin
           )}
         '');
-        # TODO: This is only needed for the docker tests, it can be removed when they are moved to something else
-        update-entrypoint.text = ''
-          mkdir -p /nix/nixos-wsl
-          ln -sfn ${config.users.users.root.shell} /nix/nixos-wsl/entrypoint
-        '';
       };
 
       # require people to use lib.mkForce to make it harder to brick their installation

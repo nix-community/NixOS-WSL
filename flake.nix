@@ -26,11 +26,41 @@
       };
       nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./configuration.nix
-        ];
+      nixosConfigurations = {
+        modern = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            { wsl.enable = true; }
+          ];
+        };
+
+        legacy = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            {
+              wsl.enable = true;
+              wsl.nativeSystemd = false;
+            }
+          ];
+        };
+
+        test = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            ({ config, ... }: {
+              wsl.enable = true;
+              wsl.nativeSystemd = false;
+
+              system.activationScripts.create-test-entrypoint.text = ''
+                mkdir -p /bin
+                ln -sfn ${config.users.users.root.shell} /bin/syschdemd
+              '';
+            })
+          ];
+        };
       };
 
     } //
