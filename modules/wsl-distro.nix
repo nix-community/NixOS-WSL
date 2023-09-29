@@ -1,4 +1,4 @@
-{ lib, pkgs, config, options, ... }:
+{ lib, pkgs, config, ... }:
 
 with builtins; with lib;
 
