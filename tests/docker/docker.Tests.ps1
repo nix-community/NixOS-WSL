@@ -27,7 +27,6 @@ Describe "Docker (native)" {
 
   It "should be possible to connect to the internet from a container" {
     $distro.Launch("docker run --rm -it alpine wget -qO- http://www.msftconnecttest.com/connecttest.txt") | Select-Object -Last 1 | Should -BeExactly "Microsoft Connect Test"
-    # docker exec -it $distro.id /nix/nixos-wsl/entrypoint -c "docker run --rm -it alpine wget -qO- http://www.msftconnecttest.com/connecttest.txt" | Select-Object -Last 1 | Should -BeExactly "Microsoft Connect Test"
     $LASTEXITCODE | Should -Be 0
   }
 

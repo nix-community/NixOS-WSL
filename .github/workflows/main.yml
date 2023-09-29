@@ -50,6 +50,12 @@ jobs:
     needs:
       - prepare
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - modern
+          - legacy
+          - test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,15 +72,17 @@ jobs:
           echo ${{ needs.prepare.outputs.version }} > ./VERSION
           echo $(git rev-parse HEAD) >> ./VERSION
 
-      - name: Build installer 🛠️
+      - name: Build tarballs 🛠️
+        # We can't just nix run here because nix is not on root's PATH in the container
         run: |
-          nix build '.#nixosConfigurations.mysystem.config.system.build.installer'
+          nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.tarballBuilder
+          sudo ./result/bin/nixos-wsl-tarball-builder nixos-wsl.tar.gz
 
-      - name: Upload installer 📤
+      - name: Upload tarball 📤
         uses: actions/upload-artifact@v3
         with:
-          name: installer
-          path: result/tarball/nixos-wsl-installer.tar.gz
+          name: tarball-${{ matrix.config }}
+          path: nixos-wsl.tar.gz
 
   checks:
     name: Flake Check 📋
@@ -117,10 +125,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download installer 📥
+      - name: Download tarball 📥
         uses: actions/download-artifact@v3
         with:
-          name: installer
+          name: tarball-test
 
       - name: Execute test 🧪
         shell: pwsh

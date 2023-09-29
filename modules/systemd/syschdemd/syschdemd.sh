@@ -38,6 +38,8 @@ run_in_namespace() {
 }
 
 start_systemd() {
+  mount --bind --make-private $rundir $rundir
+
   daemonize \
     -o $rundir/stdout \
     -e $rundir/stderr \

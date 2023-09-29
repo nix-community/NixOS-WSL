@@ -26,11 +26,48 @@
       };
       nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./configuration.nix
-        ];
+      nixosConfigurations = {
+        modern = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            { wsl.enable = true; }
+          ];
+        };
+
+        legacy = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            {
+              wsl.enable = true;
+              wsl.nativeSystemd = false;
+            }
+          ];
+        };
+
+        test = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            ({ config, pkgs, ... }: {
+              wsl.enable = true;
+              wsl.nativeSystemd = false;
+
+              system.activationScripts.create-test-entrypoint.text =
+                let
+                  syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
+                    shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                    exec $shell $@
+                  '';
+                in
+                ''
+                  mkdir -p /bin
+                  ln -sfn ${syschdemdProxy} /bin/syschdemd
+                '';
+            })
+          ];
+        };
       };
 
     } //

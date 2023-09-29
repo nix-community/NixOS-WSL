@@ -7,7 +7,7 @@ Describe "Basic Functionality" {
     $distro = Install-Distro
   }
 
-  It "is possible to run a command through the installer" {
+  It "is possible to run a command in the container" {
     $distro.Launch("nixos-version")
     $LASTEXITCODE | Should -Be 0
   }
@@ -34,7 +34,7 @@ Describe "Basic Functionality" {
   }
 
   It "is possible to run a command through nix run" {
-    $distro.Launch("nix run nixpkgs#neofetch")
+    $distro.Launch("nix --extra-experimental-features 'nix-command flakes' run nixpkgs#neofetch")
     $LASTEXITCODE | Should -Be 0
   }
 

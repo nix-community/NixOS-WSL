@@ -1,7 +1,5 @@
-{ config, pkgs, lib, ... }:
-with lib;
+{ config, pkgs, ... }:
 let
-
   nixos-enter' = config.system.build.nixos-enter.overrideAttrs (_: {
     runtimeShell = "/bin/bash";
   });
