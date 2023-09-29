@@ -50,14 +50,21 @@
           system = "x86_64-linux";
           modules = [
             self.nixosModules.default
-            ({ config, ... }: {
+            ({ config, pkgs, ... }: {
               wsl.enable = true;
               wsl.nativeSystemd = false;
 
-              system.activationScripts.create-test-entrypoint.text = ''
-                mkdir -p /bin
-                ln -sfn ${config.users.users.root.shell} /bin/syschdemd
-              '';
+              system.activationScripts.create-test-entrypoint.text =
+                let
+                  syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
+                    shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                    exec $shell $@
+                  '';
+                in
+                ''
+                  mkdir -p /bin
+                  ln -sfn ${syschdemdProxy} /bin/syschdemd
+                '';
             })
           ];
         };
