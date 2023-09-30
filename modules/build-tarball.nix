@@ -21,7 +21,7 @@ let
 
       wsl.enable = true;
       wsl.defaultUser = "nixos";
-      ${cfg.extraTarballConfig}
+      ${lib.optionalString (!cfg.nativeSystemd) "wsl.nativeSystemd = false;"}
 
       # This value determines the NixOS release from which the default
       # settings for stateful data, like file locations and database versions
@@ -34,12 +34,6 @@ let
   '';
 in
 {
-  options.wsl.extraTarballConfig = mkOption {
-    type = types.str;
-    internal = true;
-    default = "";
-  };
-
   # These options make no sense without the wsl-distro module anyway
   config = mkIf cfg.enable {
     system.build.tarballBuilder = pkgs.writeShellApplication {

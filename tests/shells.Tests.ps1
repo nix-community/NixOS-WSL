@@ -18,6 +18,7 @@ Describe "Shells" {
           config = mkMerge [
             {
               wsl.enable = true;
+              wsl.nativeSystemd = false;
               users.users.nixos.shell = pkgs.$package;
             }
             (optionalAttrs (hasAttrByPath ["programs" "$package" "enable"] options) {
