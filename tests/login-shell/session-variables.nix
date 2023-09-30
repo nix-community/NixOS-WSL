@@ -9,6 +9,7 @@ in
   ];
 
   wsl.enable = true;
+  wsl.nativeSystemd = false;
 
   home-manager.users.nixos = { ... }: {
     home = {
