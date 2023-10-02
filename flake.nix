@@ -26,49 +26,55 @@
       };
       nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations = {
-        modern = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            self.nixosModules.default
-            { wsl.enable = true; }
-          ];
-        };
+      nixosConfigurations =
+        let
+          initialConfig = {
+            wsl.enable = true;
 
-        legacy = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            self.nixosModules.default
-            {
-              wsl.enable = true;
-              wsl.nativeSystemd = false;
-            }
-          ];
-        };
+            programs.bash.loginShellInit = "nixos-wsl-welcome";
+          };
+        in
+        {
+          modern = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              initialConfig
+            ];
+          };
 
-        test = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            self.nixosModules.default
-            ({ config, pkgs, ... }: {
-              wsl.enable = true;
-              wsl.nativeSystemd = false;
+          legacy = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              initialConfig
+              { wsl.nativeSystemd = false; }
+            ];
+          };
 
-              system.activationScripts.create-test-entrypoint.text =
-                let
-                  syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                    shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
-                    exec $shell $@
+          test = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              ({ config, pkgs, ... }: {
+                wsl.enable = true;
+                wsl.nativeSystemd = false;
+
+                system.activationScripts.create-test-entrypoint.text =
+                  let
+                    syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
+                      shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                      exec $shell $@
+                    '';
+                  in
+                  ''
+                    mkdir -p /bin
+                    ln -sfn ${syschdemdProxy} /bin/syschdemd
                   '';
-                in
-                ''
-                  mkdir -p /bin
-                  ln -sfn ${syschdemdProxy} /bin/syschdemd
-                '';
-            })
-          ];
+              })
+            ];
+          };
         };
-      };
 
     } //
     flake-utils.lib.eachSystem

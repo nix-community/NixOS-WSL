@@ -6,6 +6,7 @@
     ./recovery.nix
     ./systemd
     ./version.nix
+    ./welcome.nix
     ./wsl-conf.nix
     ./wsl-distro.nix
 
