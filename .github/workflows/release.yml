@@ -14,10 +14,8 @@ jobs:
     name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
-      - name: Download installer 📥
+      - name: Download tarball 📥
         uses: actions/download-artifact@v3
-        with:
-          name: installer
 
       - name: Download appx 📥
         uses: actions/download-artifact@v3
@@ -29,6 +27,8 @@ jobs:
 
       - name: Generate checksums 🔑
         run: |
+          mv tarball-modern/nixos-wsl.tar.gz nixos-wsl.tar.gz
+          mv tarball-legacy/nixos-wsl.tar.gz nixos-wsl-legacy.tar.gz
           for x in *.tar.gz NixOS-WSL.msixbundle; do
             sha256sum $x > ${x}.sha256
           done
@@ -37,8 +37,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            nixos-wsl-installer.tar.gz
-            nixos-wsl-installer.tar.gz.sha256
+            nixos-wsl.tar.gz
+            nixos-wsl.tar.gz.sha256
+            nixos-wsl-legacy.tar.gz
+            nixos-wsl-legacy.tar.gz.sha256
             NixOS-WSL.msixbundle
             NixOS-WSL.msixbundle.sha256
         env:

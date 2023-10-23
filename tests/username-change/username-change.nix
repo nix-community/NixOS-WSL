@@ -1,6 +1,9 @@
-{ pkgs, lib, ... }:
 {
-  imports = [ ./base.nix ];
+  imports = [
+    <nixos-wsl/modules>
+  ];
 
-  wsl.defaultUser = lib.mkForce "different-name";
+  wsl.enable = true;
+  wsl.nativeSystemd = false;
+  wsl.defaultUser = "different-name";
 }

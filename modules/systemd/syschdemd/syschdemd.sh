@@ -38,6 +38,8 @@ run_in_namespace() {
 }
 
 start_systemd() {
+  mount --bind --make-private $rundir $rundir
+
   daemonize \
     -o $rundir/stdout \
     -e $rundir/stderr \
@@ -104,9 +106,9 @@ main() {
   if [ $# -gt 1 ]; then # Ignore just -c without a command
     # wsl seems to prefix with "-c"
     shift
-    command="$*"
+    command="$(get_shell @username@) -l -c \"$*\""
   else
-    command="$(get_shell @username@)"
+    command="$(get_shell @username@) -l"
   fi
 
   # If we're executed from inside the container, e.g. sudo

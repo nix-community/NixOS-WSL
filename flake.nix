@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -17,27 +17,64 @@
 
       nixosModules.wsl = {
         imports = [
-          ./modules/build-tarball.nix
-          ./modules/docker-desktop.nix
-          ./modules/docker-native.nix
-          ./modules/installer.nix
-          ./modules/interop.nix
-          ./modules/version.nix
-          ./modules/wsl-conf.nix
-          ./modules/wsl-distro.nix
+          ./modules
 
           ({ ... }: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
           })
         ];
       };
+      nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations.mysystem = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./configuration.nix
-        ];
-      };
+      nixosConfigurations =
+        let
+          initialConfig = {
+            wsl.enable = true;
+
+            programs.bash.loginShellInit = "nixos-wsl-welcome";
+          };
+        in
+        {
+          modern = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              initialConfig
+            ];
+          };
+
+          legacy = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              initialConfig
+              { wsl.nativeSystemd = false; }
+            ];
+          };
+
+          test = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              ({ config, pkgs, ... }: {
+                wsl.enable = true;
+                wsl.nativeSystemd = false;
+
+                system.activationScripts.create-test-entrypoint.text =
+                  let
+                    syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
+                      shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                      exec $shell $@
+                    '';
+                  in
+                  ''
+                    mkdir -p /bin
+                    ln -sfn ${syschdemdProxy} /bin/syschdemd
+                  '';
+              })
+            ];
+          };
+        };
 
     } //
     flake-utils.lib.eachSystem
@@ -54,13 +91,18 @@
             {
               nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
               shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+              rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
               side-effects = pkgs.callPackage ./checks/side-effects.nix args;
               username = pkgs.callPackage ./checks/username.nix args;
+              test-native-utils = self.packages.${system}.utils;
             };
 
-          packages.staticShim = pkgs.pkgsStatic.callPackage ./scripts/native-systemd-shim/shim.nix { };
+          packages = {
+            utils = pkgs.callPackage ./utils { };
+            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
+          };
 
-          devShell = pkgs.mkShell {
+          devShells.default = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
             nativeBuildInputs = with pkgs; [

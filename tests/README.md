@@ -1,7 +1,7 @@
 # Tests
 
-This directory contains tests that are executed against a built installer tarball.
-The test are written using the [Pester](https://pester.dev/) testing framework
+This directory contains tests that are executed against a built NixOS-WSL "legacy" tarball.
+The tests are written using the [Pester](https://pester.dev/) testing framework.
 
 ## Execute Tests
 
@@ -19,7 +19,9 @@ Running the tests requires Docker and PowerShell to be installed on your system.
 ### Running the Tests
 
 If you haven't already, [install Pester](https://pester.dev/docs/introduction/installation/).  
-The tests require a `nixos-wsl-installer.tar.gz` to be present in the current working directory or in `./result/tarball`. Refer to the top-level readme on how to build it.  
+The tests require a "legacy" `nixos-wsl.tar.gz` to be present in the current working directory, which can be built with
+`sudo nix run .#nixosConfigurations.legacy.config.system.build.tarballBuilder -- nixos-wsl.tar.gz`.
+
 Once everything is in place, run the test by running the following in PowerShell at the root of this repo:
 
 ```powershell
@@ -44,6 +46,6 @@ BeforeAll {
 - A Distro object has the following methods:
   - `Launch($command)`: Runs the specified command inside the container. Returns the command output
   - `GetPath($path)`: Returns the path inside the container, that points to the specified file on the host.
-  - `InstallConfig($path)`: Installs a nix-file as the systems `configuration.nix`. The default configuration is moved to `base.nix`, so that it can be imported by the new config
+  - `InstallConfig($path)`: Installs a nix-file as the systems `configuration.nix`.
   - `Shutdown()`: End all processes running in the container
   - `Uninstall()`: Stop and then delete the container from the system. This should be called in an AfterEach or AfterAll block, so that the test does not leave it on the system.
