@@ -1,8 +1,8 @@
-name: 'CI'
+name: "CI"
 
 on:
   push:
-    branches: [main]
+    branches: [main, distro-launcher]
   pull_request: {}
   workflow_call: {}
 
@@ -23,7 +23,7 @@ jobs:
       - name: Install nix ❄️
         uses: cachix/install-nix-action@6a9a9e84a173d90b3ffb42c5ddaf9ea033fad011 # v23
         with:
-          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
+          extra_nix_config: "access-tokens = github.com=${{ github.token }}"
 
       - name: Find tests 🔍
         id: tests
@@ -65,14 +65,14 @@ jobs:
       - name: Install nix ❄️
         uses: cachix/install-nix-action@6a9a9e84a173d90b3ffb42c5ddaf9ea033fad011 # v23
         with:
-          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
+          extra_nix_config: "access-tokens = github.com=${{ github.token }}"
 
       - name: Set version 🏷️
         run: |
           echo ${{ needs.prepare.outputs.version }} > ./VERSION
           echo $(git rev-parse HEAD) >> ./VERSION
 
-      - name: Build tarballs 🛠️
+      - name: Build tarball 🛠️
         # We can't just nix run here because nix is not on root's PATH in the container
         run: |
           nix build .#nixosConfigurations.${{ matrix.config }}.config.system.build.tarballBuilder
@@ -84,27 +84,21 @@ jobs:
           name: tarball-${{ matrix.config }}
           path: nixos-wsl.tar.gz
 
-  launcher:
+  launcher-build:
     name: Build Launcher 🛠️
     needs:
       - prepare
-      - build
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Download installer
-        uses: actions/download-artifact@v3
-        with:
-          name: installer
-
-      - name: Setup MSBuild
+      - name: Setup MSBuild 🧰
         uses: microsoft/setup-msbuild@v1.1
         with:
-          vs-version: '[17.2,'
+          vs-version: "[17.2,"
 
-      - name: Set Versions
+      - name: Set Versions 🏷️
         env:
           NIXOS_WSL_VERSION: ${{ needs.prepare.outputs.version }}
         run: |
@@ -115,20 +109,91 @@ jobs:
           cd Launcher
           dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\pkg Launcher
 
-      - name: Bundle installer with Launcher
-        run: |
-          Copy-Item nixos-wsl-installer.tar.gz Launcher\Launcher\pkg\
-          Copy-Item nixos-wsl-installer.tar.gz Launcher\Launcher-Appx\
-      - name: Upload Launcher
+      - name: Upload Launcher 📤
         uses: actions/upload-artifact@v3
         with:
-          name: launcher
+          name: launcher-bin
+          path: |
+            Launcher/Launcher/obj
+            Launcher/Launcher/pkg
+
+  launcher-bundle:
+    name: Package Launcher (bundle) 📦
+    needs:
+      - prepare
+      - build
+      - launcher-build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download tarball 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: tarball-modern
+
+      - name: Download launcher binaries 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: launcher-bin
+          path: Launcher/Launcher/
+
+      - name: Bundle tarball with launcher 📦
+        run: |
+          Copy-Item nixos-wsl.tar.gz Launcher\Launcher\pkg\
+
+      - name: Upload Launcher 📤
+        uses: actions/upload-artifact@v3
+        with:
+          name: launcher-bundle
           path: Launcher/Launcher/pkg
 
-      - name: Build AppX package
-        run: cd Launcher; msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
+  launcher-msix:
+    name: Package Launcher (MSIX) 📦
+    needs:
+      - prepare
+      - build
+      - launcher-build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Sign package
+      - name: Download tarball 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: tarball-modern
+
+      - name: Download launcher binaries 📥
+        uses: actions/download-artifact@v3
+        with:
+          name: launcher-bin
+          path: Launcher/Launcher/
+
+      - name: Bundle tarball with launcher 📦
+        run: |
+          Copy-Item nixos-wsl.tar.gz Launcher\Launcher-Appx\
+
+      - name: Setup MSBuild 🧰
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: "[17.2,"
+
+      - name: Set Versions 🏷️
+        env:
+          NIXOS_WSL_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ((Get-Content -path .\Launcher\Launcher\Launcher.csproj -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher\Launcher.csproj
+          ((Get-Content -path .\Launcher\Launcher-Appx\Package.appxmanifest -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher-Appx\Package.appxmanifest
+
+      - name: Build MSIX package 📦
+        run: |
+          cd Launcher
+          nuget restore
+          msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
+
+      - name: Sign package ✒️
         env:
           APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
           CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
@@ -137,10 +202,12 @@ jobs:
           Write-Output $env:APPX_SIGNING_CERT > appx-cert.b64
           certutil -decode appx-cert.b64 appx-cert.pfx
           &"C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" sign /fd $env:CERT_ALGORITHM /a /f appx-cert.pfx $(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].FullName
-      - name: Upload AppX
+          Get-PfxCertificate appx-cert.pfx | Export-Certificate -FilePath "$($(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].Directory.FullName)\certificate.cer" -Type CERT
+
+      - name: Upload MSIX 📤
         uses: actions/upload-artifact@v3
         with:
-          name: appx
+          name: launcher-msix
           path: Launcher/Launcher-Appx/AppPackages/
 
   checks:
@@ -161,7 +228,7 @@ jobs:
       - name: Install nix ❄️
         uses: cachix/install-nix-action@6a9a9e84a173d90b3ffb42c5ddaf9ea033fad011 # v23
         with:
-          extra_nix_config: 'access-tokens = github.com=${{ github.token }}'
+          extra_nix_config: "access-tokens = github.com=${{ github.token }}"
 
       - name: Run check 📋
         run: |
