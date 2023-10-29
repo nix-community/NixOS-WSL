@@ -33,13 +33,6 @@ public static class InstallationHelper {
             return e.HResult;
         }
 
-        Console.WriteLine("Performing first-time setup...");
-
-        if (!StartupHelper.BootDistro()) {
-            Console.Error.WriteLine("An error occured during first-time setup");
-            return 1;
-        }
-
         Console.WriteLine("Installation finished successfully");
         return 0;
     }
