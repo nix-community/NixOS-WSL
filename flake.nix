@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
+    nix-ld-rs.url = "github:nix-community/nix-ld-rs";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -11,7 +12,7 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
+  outputs = inputs@{ self, nixpkgs, flake-utils, nix-ld-rs, ... }:
     with nixpkgs.lib;
     {
 
@@ -21,6 +22,7 @@
 
           ({ ... }: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
+            wsl.vscodeRemoteWslExtensionWorkaround.nix-ld-rs = nix-ld-rs;
           })
         ];
       };
