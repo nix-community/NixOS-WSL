@@ -27,6 +27,10 @@ with lib; {
       };
 
       system.activationScripts = {
+        createBootedSystemSymlink = ''
+          echo "setting up /run/booted-system..."
+          [[ -e /run/booted-system ]] || ln -sfn "$(readlink -f "$systemConfig")" /run/booted-system
+        '';
         shimSystemd = stringAfter [ ] ''
           echo "setting up /sbin/init shim..."
           mkdir -p /sbin
