@@ -1,0 +1,20 @@
+inputs:
+  config:
+    description: 'System configuration to build'
+    required: true
+  filename:
+    description: 'Filename to save the image as'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build tarball builder 🛠️
+      id: buildBuilder
+      uses: ./.github/actions/build-nix-expression
+      with:
+        expression: '.#nixosConfigurations.${{ inputs.config }}.config.system.build.tarballBuilder'
+
+    - name: Build tarball 📦
+      shell: bash
+      run: sudo ${{ steps.buildBuilder.outputs.derivation }}/bin/nixos-wsl-tarball-builder ${{ inputs.filename }}
