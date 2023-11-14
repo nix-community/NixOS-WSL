@@ -56,7 +56,7 @@ in
 
         root=$(mktemp -p "''${TMPDIR:-/tmp}" -d nixos-wsl-tarball.XXXXXXXXXX)
         # FIXME: fails in CI for some reason, but we don't really care because it's CI
-        trap 'rm -rf "$root" || true' INT TERM EXIT
+        trap 'chattr -Rf -i "$root" || true && rm -rf "$root" || true' INT TERM EXIT
 
         chmod o+rx "$root"
 
