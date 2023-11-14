@@ -42,6 +42,7 @@ in
             type = str;
             description = "The name the file should be created as in /bin";
             default = baseNameOf config.src;
+            defaultText = literalExpression "baseNameOf src";
           };
           copy = mkOption {
             type = bool;
