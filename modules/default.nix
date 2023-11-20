@@ -5,6 +5,7 @@
     ./interop.nix
     ./recovery.nix
     ./systemd
+    ./usbip.nix
     ./version.nix
     ./welcome.nix
     ./wsl-conf.nix
