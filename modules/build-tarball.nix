@@ -56,7 +56,7 @@ in
 
         root=$(mktemp -p "''${TMPDIR:-/tmp}" -d nixos-wsl-tarball.XXXXXXXXXX)
         # FIXME: fails in CI for some reason, but we don't really care because it's CI
-        trap 'rm -rf "$root" || true' INT TERM EXIT
+        trap 'chattr -Rf -i "$root" || true && rm -rf "$root" || true' INT TERM EXIT
 
         chmod o+rx "$root"
 
@@ -68,7 +68,7 @@ in
           --substituters ""
 
         echo "[NixOS-WSL] Adding channel..."
-        nixos-enter --root "$root" --command 'nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
+        nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
 
         echo "[NixOS-WSL] Adding default config..."
         install -Dm644 ${defaultConfig} "$root/etc/nixos/configuration.nix"
