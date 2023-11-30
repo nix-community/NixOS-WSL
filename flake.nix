@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -63,7 +63,7 @@
                 system.activationScripts.create-test-entrypoint.text =
                   let
                     syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                      shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                      shell=$(${pkgs.getent}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
                       exec $shell $@
                     '';
                   in
