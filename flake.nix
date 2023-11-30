@@ -19,7 +19,7 @@
         imports = [
           ./modules
 
-          ({ ... }: {
+          (_: {
             wsl.version.rev = mkIf (self ? rev) self.rev;
           })
         ];

@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 with builtins; with lib;
 let
-  cfg = config.wsl;
+  cfg = config.wsl.tarball;
 
   defaultConfig = pkgs.writeText "default-configuration.nix" ''
     # Edit this configuration file to define what should be installed on
@@ -21,7 +21,7 @@ let
 
       wsl.enable = true;
       wsl.defaultUser = "nixos";
-      ${lib.optionalString (!cfg.nativeSystemd) "wsl.nativeSystemd = false;"}
+      ${lib.optionalString (!config.wsl.nativeSystemd) "wsl.nativeSystemd = false;"}
 
       # This value determines the NixOS release from which the default
       # settings for stateful data, like file locations and database versions
@@ -34,8 +34,16 @@ let
   '';
 in
 {
+  options.wsl.tarball = {
+    configPath = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = "Path to system configuration which is copied into the tarball";
+    };
+  };
+
   # These options make no sense without the wsl-distro module anyway
-  config = mkIf cfg.enable {
+  config = mkIf config.wsl.enable {
     system.build.tarballBuilder = pkgs.writeShellApplication {
       name = "nixos-wsl-tarball-builder";
 
@@ -56,7 +64,7 @@ in
 
         root=$(mktemp -p "''${TMPDIR:-/tmp}" -d nixos-wsl-tarball.XXXXXXXXXX)
         # FIXME: fails in CI for some reason, but we don't really care because it's CI
-        trap 'rm -rf "$root" || true' INT TERM EXIT
+        trap 'chattr -Rf -i "$root" || true && rm -rf "$root" || true' INT TERM EXIT
 
         chmod o+rx "$root"
 
@@ -68,10 +76,16 @@ in
           --substituters ""
 
         echo "[NixOS-WSL] Adding channel..."
-        nixos-enter --root "$root" --command 'nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
+        nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
 
         echo "[NixOS-WSL] Adding default config..."
-        install -Dm644 ${defaultConfig} "$root/etc/nixos/configuration.nix"
+        ${if cfg.configPath == null then ''
+          install -Dm644 ${defaultConfig} "$root/etc/nixos/configuration.nix"
+        '' else ''
+          mkdir -p "$root/etc/nixos"
+          cp -R ${lib.cleanSource cfg.configPath}/. "$root/etc/nixos"
+          chmod -R u+w "$root/etc/nixos"
+        ''}
 
         echo "[NixOS-WSL] Compressing..."
         tar -C "$root" \
