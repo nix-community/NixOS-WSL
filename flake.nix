@@ -63,7 +63,7 @@
                 system.activationScripts.create-test-entrypoint.text =
                   let
                     syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                      shell=$(${pkgs.glibc.bin}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
+                      shell=$(${pkgs.getent}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
                       exec $shell $@
                     '';
                   in
