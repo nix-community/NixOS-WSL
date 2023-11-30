@@ -62,6 +62,10 @@ Describe "Shells" {
     }
   }
   It "should be possible to use nushell" {
+    $distro.Launch("mkdir -p /home/nixos/.config/nushell")
+    $LASTEXITCODE | Should -Be 0
+    $distro.Launch("touch /home/nixos/.config/nushell/env.nu /home/nixos/.config/nushell/config.nu")
+    $LASTEXITCODE | Should -Be 0
     Add-ShellTest "nushell" "nu"
   }
   It "should be possible to use xonsh" {
