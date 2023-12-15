@@ -8,4 +8,5 @@
   nix: {
     enabled: true,
   },
+  labels: ["release-exclude"],
 }
