@@ -42,7 +42,7 @@ jobs:
           filename: nixos-wsl.tar.gz
 
       - name: Upload Tarball 📤
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tarball-${{ matrix.config }}
           path: nixos-wsl.tar.gz
