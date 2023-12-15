@@ -24,13 +24,12 @@ jobs:
 
       - name: Generate Version 🏷️
         id: version
+        shell: pwsh
         run: |
-          TAG_COUNT=$(git rev-list --tags --no-walk --count)                                                                 # Count all tags
-          COMMIT_COUNT=$(git rev-list --use-bitmap-index --count $(git rev-list --tags --no-walk --max-count=1)..HEAD)       # Count all commits since the last tag
-          NIXOS_VERSION=$(nix-instantiate --eval -E '(import ./.).inputs.nixpkgs.lib.version' | sed -E 's/"(.+\...).*"/\1/') # Get NixOS version from nixpkgs
-          NIXOS_VERSION_MS=$(echo $NIXOS_VERSION | sed -E 's/\.0*(.+)/\.\1/')                                                # Remove the leading 0 from the minor version (if it exists)
-          NIXOS_WSL_VERSION=${NIXOS_VERSION_MS}.${TAG_COUNT}.${COMMIT_COUNT}                                                 # Compose the NixOS-WSL version number
-          echo "version=$NIXOS_WSL_VERSION" >> $GITHUB_OUTPUT
+          $LATEST_TAG = git describe --tags --abbrev=0                                                                 # Get the latest tag name
+          $COMMIT_COUNT = git rev-list --use-bitmap-index --count $(git rev-list --tags --no-walk --max-count=1)..HEAD # Count all commits since the last tag
+          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"            # Compose the NixOS-WSL version number
+          echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
 
           echo $NIXOS_WSL_VERSION > ./VERSION
           echo $(git rev-parse HEAD) >> ./VERSION
