@@ -41,6 +41,14 @@ with lib; {
         # Link the X11 socket into place. This is a no-op on a normal setup,
         # but helps if /tmp is a tmpfs or mounted from some other location.
         tmpfiles.rules = [ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ];
+
+        # Link *.desktop files and icons where WSLg expects them so that GUI apps show up in Start menu
+        tmpfiles.settings.wslg_integration = {
+          "/usr/share/applications".L.argument =
+            "/etc/profiles/per-user/${cfg.defaultUser}/share/applications";
+          "/usr/share/icons".L.argument =
+            "/etc/profiles/per-user/${cfg.defaultUser}/share/icons";
+        };
       };
 
     };
