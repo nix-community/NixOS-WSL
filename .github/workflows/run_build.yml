@@ -26,9 +26,9 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $LATEST_TAG = git describe --tags --abbrev=0                                                                 # Get the latest tag name
-          $COMMIT_COUNT = git rev-list --use-bitmap-index --count $(git rev-list --tags --no-walk --max-count=1)..HEAD # Count all commits since the last tag
-          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"            # Compose the NixOS-WSL version number
+          $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
+          $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
+          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
           echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
 
           echo $NIXOS_WSL_VERSION > ./VERSION
