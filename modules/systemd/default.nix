@@ -44,10 +44,8 @@ with lib; {
 
         # Link *.desktop files and icons where WSLg expects them so that GUI apps show up in Start menu
         tmpfiles.settings.wslg_integration = {
-          "/usr/share/applications".L.argument =
-            "/etc/profiles/per-user/${cfg.defaultUser}/share/applications";
-          "/usr/share/icons".L.argument =
-            "/etc/profiles/per-user/${cfg.defaultUser}/share/icons";
+          "/usr/share/applications".L.argument = "/etc/profiles/per-user/${cfg.defaultUser}/share/applications";
+          "/usr/share/icons".L.argument = "/etc/profiles/per-user/${cfg.defaultUser}/share/icons";
         };
       };
 
