@@ -109,8 +109,8 @@ in
             if [[ -d "$systemConfig/sw/share/$x" ]]; then
               targets+=("$systemConfig/sw/share/$x/.")
             fi
-            if [[ -d "/etc/profiles/per-user/${cfg.defaultUser}/share/$x" ]]; then
-              targets+=("/etc/profiles/per-user/${cfg.defaultUser}/share/$x/.")
+            if [[ -d "/etc/profiles/per-user/${config.users.users.${cfg.defaultUser}.name}/share/$x" ]]; then
+              targets+=("/etc/profiles/per-user/${config.users.users.${cfg.defaultUser}.name}/share/$x/.")
             fi
 
             if (( ''${#targets[@]} != 0 )); then
