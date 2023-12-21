@@ -12,6 +12,11 @@ with lib; {
       default = true;
       description = "Use native WSL systemd support";
     };
+    wslgMountX11 = mkOption {
+      type = bool;
+      default = true;
+      description = "Mount the WSLg .X11-unix directory into /tmp";
+    };
   };
 
   config =
@@ -40,7 +45,7 @@ with lib; {
 
         # Link the X11 socket into place. This is a no-op on a normal setup,
         # but helps if /tmp is a tmpfs or mounted from some other location.
-        tmpfiles.rules = [ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ];
+        tmpfiles.rules = mkIf cfg.wslgMountX11 ([ "L /tmp/.X11-unix - - - - ${cfg.wslConf.automount.root}/wslg/.X11-unix" ]);
       };
 
     };
