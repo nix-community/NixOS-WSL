@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  workflow_call: {}
+
+jobs:
+  prepare:
+    name: Find Tests 🔍
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.tests.outputs.tests }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Find Tests 🔍
+        id: tests
+        run: |
+          find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
+
+  tests:
+    name: Test 🧪
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.prepare.outputs.tests) }}
+        os:
+          - ubuntu-20.04
+          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Tarball 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball-test
+
+      - name: Execute Test 🧪
+        shell: pwsh
+        run: |
+          Invoke-Pester -Output Detailed ${{ matrix.test }}

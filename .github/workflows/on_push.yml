@@ -1,0 +1,21 @@
+name: "Push"
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  build:
+    name: Build Tarballs 🛠️
+    uses: ./.github/workflows/run_build.yml
+
+  checks:
+    name: Flake Checks 📋
+    uses: ./.github/workflows/run_checks.yml
+
+  tests:
+    name: Tests 🧪
+    uses: ./.github/workflows/run_tests.yml
+    needs:
+      - build

@@ -1,0 +1,47 @@
+name: Build Tarballs
+
+on:
+  workflow_call: {}
+
+jobs:
+  build:
+    name: Build 🛠️
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        config:
+          - modern
+          - legacy
+          - test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Generate Version 🏷️
+        id: version
+        shell: pwsh
+        run: |
+          $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
+          $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
+          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
+          echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
+
+          echo $NIXOS_WSL_VERSION > ./VERSION
+          echo $(git rev-parse HEAD) >> ./VERSION
+
+      - name: Build Tarball 🛠️
+        uses: ./.github/actions/build-wsl-tarball
+        with:
+          config: ${{ matrix.config }}
+          filename: nixos-wsl.tar.gz
+
+      - name: Upload Tarball 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarball-${{ matrix.config }}
+          path: nixos-wsl.tar.gz

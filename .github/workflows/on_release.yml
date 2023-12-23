@@ -1,4 +1,4 @@
-name: 'Release'
+name: "Release"
 
 on:
   push:
@@ -6,16 +6,17 @@ on:
 
 jobs:
   build:
-    name: Build 🛠️
-    uses: nix-community/nixos-wsl/.github/workflows/main.yml@main
+    name: Build Tarballs 🛠️
+    uses: ./.github/workflows/run_build.yml
+
   release:
     needs:
       - build
     name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
-      - name: Download tarball 📥
-        uses: actions/download-artifact@v3
+      - name: Download Tarball 📥
+        uses: actions/download-artifact@v4
 
       - name: Download appx 📥
         uses: actions/download-artifact@v3
@@ -25,7 +26,7 @@ jobs:
       - name: Rename appx ✏️
         run: mv */*.msixbundle NixOS-WSL.msixbundle
 
-      - name: Generate checksums 🔑
+      - name: Generate Checksums 🔑
         run: |
           mv tarball-modern/nixos-wsl.tar.gz nixos-wsl.tar.gz
           mv tarball-legacy/nixos-wsl.tar.gz nixos-wsl-legacy.tar.gz
@@ -33,7 +34,7 @@ jobs:
             sha256sum $x > ${x}.sha256
           done
 
-      - name: Attach to release 📦
+      - name: Attach to Release 📎
         uses: softprops/action-gh-release@v1
         with:
           files: |

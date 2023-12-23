@@ -1,0 +1,19 @@
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for nix ✅
+      id: check-nix
+      shell: bash
+      run: |
+        if command -v nix &> /dev/null
+        then
+          echo "nix-found=true" | tee -a $GITHUB_OUTPUT
+        else
+          echo "nix-found=false" | tee -a $GITHUB_OUTPUT
+        fi
+
+    - name: Install Nix ❄️
+      if: ${{ steps.check-nix.outputs.nix-found != 'true' }}
+      uses: cachix/install-nix-action@v24
+      with:
+        github_access_token: ${{ github.token }}

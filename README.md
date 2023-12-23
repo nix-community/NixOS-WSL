@@ -1,13 +1,11 @@
 <h1 align=center>
   NixOS on WSL<br />
-  <a href="https://matrix.to/#/#wsl:nixos.org"><img src="https://img.shields.io/matrix/wsl:nixos.org?server_fqdn=nixos.ems.host&logo=matrix" alt="Matrix Chat" /></a>
-  <a href="https://github.com/NixOS/nixpkgs/tree/nixos-23.05"><img src="https://img.shields.io/badge/nixpkgs-23.05-brightgreen" alt="nixpkgs 23.05" /></a>
+  <a href="https://matrix.to/#/#wsl:nixos.org"><img src="https://img.shields.io/matrix/wsl:nixos.org?server_fqdn=matrix.org&logo=matrix" alt="Matrix Chat" /></a>
+  <a href="https://github.com/NixOS/nixpkgs/tree/nixos-23.11"><img src="https://img.shields.io/badge/nixpkgs-23.11-brightgreen" alt="nixpkgs 23.11" /></a>
   <a href="https://github.com/nix-community/NixOS-WSL/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nix-community/NixOS-WSL/total"></a>
 </h1>
 
-A minimal root filesystem for running NixOS on WSL. It can be used with
-[DistroLauncher](https://github.com/microsoft/WSL-DistroLauncher) as
-`install.tar.gz` or as input to `wsl --import --version 2`.
+A minimal root filesystem for running NixOS on the Windows Subsystem for Linux
 
 ## System requirements
 
@@ -20,7 +18,7 @@ First, [download the latest release](https://github.com/nix-community/NixOS-WSL/
 
 Then open up a Terminal, PowerShell or Command Prompt and run:
 
-```sh
+```powershell
 wsl --import NixOS .\NixOS\ nixos-wsl.tar.gz --version 2
 ```
 
@@ -30,13 +28,19 @@ downloaded earlier. You might need to change this path or change to the download
 
 You can now run NixOS:
 
-```sh
+```powershell
 wsl -d NixOS
+```
+
+After the initial installation, you need to update your channels once, to be able to use `nixos-rebuild`:
+
+```sh
+nix-channel --update
 ```
 
 If you want to make NixOS your default distribution, you can do so with
 
-```sh
+```powershell
 wsl -s NixOS
 ```
 
@@ -44,7 +48,7 @@ wsl -s NixOS
 
 A recovery shell can be started with
 
-```sh
+```powershell
 wsl -d NixOS --system --user root -- /mnt/wslg/distro/bin/nixos-wsl-recovery
 ```
 
@@ -54,7 +58,7 @@ on a normal NixOS install.
 
 You can choose an older generation to load with
 
-```sh
+```powershell
 wsl -d NixOS --system --user root -- /mnt/wslg/distro/bin/nixos-wsl-recovery --system /nix/var/nix/profiles/system-42-link
 ```
 
@@ -67,19 +71,19 @@ This requires access to a system that already has Nix installed. Please refer to
 If you have a flakes-enabled Nix, you can use the following command to
 build your own tarball instead of relying on a prebuilt one:
 
-```cmd
+```sh
 sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.modern.config.system.build.tarballBuilder
 ```
 
 Or, if you want to build with local changes, run inside your checkout:
 
-```cmd
+```sh
 sudo nix run .#nixosConfigurations.your-hostname.config.system.build.tarballBuilder
 ```
 
 Without a flakes-enabled Nix, you can build a tarball using:
 
-```cmd
+```sh
 nix-build -A nixosConfigurations.mysystem.config.system.build.tarballBuilder && sudo ./result/bin/nixos-wsl-tarball-builder
 
 ```
