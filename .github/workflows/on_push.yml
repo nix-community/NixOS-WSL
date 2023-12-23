@@ -10,6 +10,12 @@ jobs:
     name: Build 🛠️
     uses: ./.github/workflows/run_build.yml
 
+  package:
+    name: Package 📦
+    uses: ./.github/workflows/run_package.yml
+    needs:
+      - build
+
   checks:
     name: Flake Checks 📋
     uses: ./.github/workflows/run_checks.yml
