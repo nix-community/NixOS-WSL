@@ -24,6 +24,10 @@ jobs:
 
       - name: Set Version 🏷️
         uses: ./.github/actions/version
+        id: version
+
+      - name: Summary Headline 📝
+        run: echo '## NixOS-WSL ${{ steps.version.outputs.version }}' >> $GITHUB_STEP_SUMMARY
 
       - name: Build Tarball 🛠️
         uses: ./.github/actions/build-wsl-tarball
