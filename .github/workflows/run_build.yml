@@ -1,11 +1,33 @@
-name: Build Tarballs
+name: Build
 
 on:
   workflow_call: {}
 
 jobs:
-  build:
-    name: Build 🛠️
+  prepare:
+    name: Prepare 🚀
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Version 🏷️
+        id: version
+        shell: pwsh
+        run: |
+          $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
+          $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
+          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
+          echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
+
+  build-tar:
+    name: Build Tarball 🛠️
+    needs:
+      - prepare
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,16 +44,10 @@ jobs:
       - name: Install Nix ❄️
         uses: ./.github/actions/install-nix
 
-      - name: Generate Version 🏷️
+      - name: Set Version 🏷️
         id: version
-        shell: pwsh
         run: |
-          $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
-          $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
-          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
-          echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
-
-          echo $NIXOS_WSL_VERSION > ./VERSION
+          echo ${{ needs.prepare.outputs.version }} > ./VERSION
           echo $(git rev-parse HEAD) >> ./VERSION
 
       - name: Build Tarball 🛠️
@@ -45,3 +61,132 @@ jobs:
         with:
           name: tarball-${{ matrix.config }}
           path: nixos-wsl.tar.gz
+
+  build-launcher:
+    name: Build Launcher 🛠️
+    needs:
+      - prepare
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild 🧰
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: "[17.2,"
+
+      - name: Set Versions 🏷️
+        env:
+          NIXOS_WSL_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ((Get-Content -path .\Launcher\Launcher\Launcher.csproj -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher\Launcher.csproj
+          ((Get-Content -path .\Launcher\Launcher-Appx\Package.appxmanifest -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher-Appx\Package.appxmanifest
+      - name: Build Launcher
+        run: |
+          cd Launcher
+          dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\pkg Launcher
+
+      - name: Upload Launcher 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-bin
+          path: |
+            Launcher/Launcher/obj
+            Launcher/Launcher/pkg
+
+  launcher-bundle:
+    name: Package Launcher (bundle) 📦
+    needs:
+      - build-tar
+      - build-launcher
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download tarball 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball-modern
+
+      - name: Download launcher binaries 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: launcher-bin
+          path: Launcher/Launcher/
+
+      - name: Bundle tarball with launcher 📦
+        run: |
+          Copy-Item nixos-wsl.tar.gz Launcher\Launcher\pkg\
+
+      - name: Upload Launcher 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-bundle
+          path: Launcher/Launcher/pkg
+
+  launcher-msix:
+    name: Package Launcher (MSIX) 📦
+    needs:
+      - prepare
+      - build-tar
+      - build-launcher
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download tarball 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball-modern
+
+      - name: Download launcher binaries 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: launcher-bin
+          path: Launcher/Launcher/
+
+      - name: Bundle tarball with launcher 📦
+        run: |
+          Copy-Item nixos-wsl.tar.gz Launcher\Launcher-Appx\
+
+      - name: Setup MSBuild 🧰
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: "[17.2,"
+
+      - name: Set Versions 🏷️
+        env:
+          NIXOS_WSL_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          ((Get-Content -path .\Launcher\Launcher\Launcher.csproj -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher\Launcher.csproj
+          ((Get-Content -path .\Launcher\Launcher-Appx\Package.appxmanifest -Raw) -replace '1.3.3.7',$env:NIXOS_WSL_VERSION) | Set-Content -Path .\Launcher\Launcher-Appx\Package.appxmanifest
+
+      - name: Build MSIX package 📦
+        run: |
+          cd Launcher
+          nuget restore
+          msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
+
+      - name: Sign package ✒️
+        env:
+          APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
+          CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
+        if: env.APPX_SIGNING_CERT != ''
+        run: |
+          Write-Output $env:APPX_SIGNING_CERT > appx-cert.b64
+          certutil -decode appx-cert.b64 appx-cert.pfx
+          &"C:\Program Files (x86)\Windows Kits\10\bin\10.0.22000.0\x64\signtool.exe" sign /fd $env:CERT_ALGORITHM /a /f appx-cert.pfx $(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].FullName
+          Get-PfxCertificate appx-cert.pfx | Export-Certificate -FilePath "$($(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].Directory.FullName)\certificate.cer" -Type CERT
+
+      - name: Upload MSIX 📤
+        uses: actions/upload-artifact@v3
+        with:
+          name: launcher-msix
+          path: Launcher/Launcher-Appx/AppPackages/
