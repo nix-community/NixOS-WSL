@@ -16,7 +16,7 @@ public static class Run {
         command.AddArgument(argCmd);
 
         command.SetHandler((string? cmd) => {
-            ulong exitCode;
+            uint exitCode;
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
                 Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");

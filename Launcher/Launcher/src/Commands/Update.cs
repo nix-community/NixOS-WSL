@@ -21,7 +21,7 @@ public static class Update {
                 if (path == null) return 1;
                 Directory.SetCurrentDirectory(path);
 
-                var tmpDir = $"/tmp/nixos-wsl-{VersionHelper.LauncherVersion.ToString()}";
+                var tmpDir = $"/tmp/nixos-wsl-{VersionHelper.LauncherVersion?.ToString() ?? "unknown"}";
 
                 Console.WriteLine("Unpacking installer...\n");
                 WslApiLoader.WslLaunchInteractive(
