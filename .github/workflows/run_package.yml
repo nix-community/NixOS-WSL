@@ -85,7 +85,7 @@ jobs:
           Get-PfxCertificate appx-cert.pfx | Export-Certificate -FilePath "$($(Get-ChildItem -Recurse -Filter "*.msixbundle")[0].Directory.FullName)\certificate.cer" -Type CERT
 
       - name: Upload MSIX 📤
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: launcher-msix
           path: Launcher/Launcher-Appx/AppPackages/
