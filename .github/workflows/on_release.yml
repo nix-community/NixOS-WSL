@@ -14,6 +14,9 @@ jobs:
     uses: ./.github/workflows/run_package.yml
     needs:
       - build
+    secrets:
+      APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
+      CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
 
   release:
     needs:

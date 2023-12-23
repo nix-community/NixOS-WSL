@@ -1,7 +1,10 @@
 name: Build Tarball
 
 on:
-  workflow_call: {}
+  workflow_call:
+    secrets:
+      APPX_SIGNING_CERT: {}
+      CERT_ALGORITHM: {}
 
 jobs:
   launcher-bundle:
