@@ -9,6 +9,7 @@ in
 
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
+    useWindowsDriver = mkEnableOption "OpenGL driver from the Windows host";
     binShPkg = mkOption {
       type = package;
       internal = true;
@@ -70,7 +71,16 @@ in
     # WSL does not support virtual consoles
     console.enable = false;
 
-    hardware.opengl.enable = true; # Enable GPU acceleration
+    hardware.opengl = {
+      enable = true; # Enable GPU acceleration
+
+      extraPackages = mkIf cfg.useWindowsDriver [
+        (pkgs.runCommand "wsl-lib" { } ''
+          mkdir "$out"
+          ln -s /usr/lib/wsl/lib "$out/lib"
+        '')
+      ];
+    };
 
     environment = {
       # Only set the options if the files are managed by WSL
