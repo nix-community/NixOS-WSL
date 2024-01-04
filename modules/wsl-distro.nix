@@ -76,8 +76,11 @@ in
 
       extraPackages = mkIf cfg.useWindowsDriver [
         (pkgs.runCommand "wsl-lib" { } ''
-          mkdir "$out"
-          ln -s /usr/lib/wsl/lib "$out/lib"
+          mkdir -p "$out/lib"
+          # we cannot just symlink the lib directory because it breaks merging with other drivers that provide the same directory
+          for so in libcuda.so libd3d12.so libd3d12core.so libdxcore.so; do
+            ln -s "/usr/lib/wsl/lib/$so" "$out/lib/$so"
+          done
         '')
       ];
     };
