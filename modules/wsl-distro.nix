@@ -125,7 +125,7 @@ in
 
             if (( ''${#targets[@]} != 0 )); then
               mkdir -p "/usr/share/$x"
-              ${pkgs.rsync}/bin/rsync -ar --delete-after "''${targets[@]}" "/usr/share/$x"
+              ${pkgs.rsync}/bin/rsync --archive --copy-dirlinks --delete-after --recursive "''${targets[@]}" "/usr/share/$x"
             else
               rm -rf "/usr/share/$x"
             fi
