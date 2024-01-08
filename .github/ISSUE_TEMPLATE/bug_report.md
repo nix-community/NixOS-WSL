@@ -15,12 +15,16 @@ assignees: ''
 ## To Reproduce
 Steps to reproduce the behavior:
 
-**Expected behavior**
-<!-- A clear and concise description of what you expected to happen. -->
-
 ## Logs
 ```
 Include relevant console logs
+```
+
+## WSL version
+<!-- Only WSL 2 version 2.0.0 or newer is supported -->
+
+```
+Please paste zhe output of wsl --version here
 ```
 
 <!-- If your issue is related to the installation process, please include the SHA256 checksum of the tarball you used to install NixOS-WSL -->
