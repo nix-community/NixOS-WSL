@@ -25,7 +25,6 @@ internal static class Program {
             Install.GetCommand(),
             Registered.GetCommand(),
             Uninstall.GetCommand(),
-            Update.GetCommand()
         };
 
         var distroNameOption = new Option<string>("--distro-name") {
@@ -53,7 +52,6 @@ internal static class Program {
             }
 
             try {
-                VersionHelper.CheckForUpdate();
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
                 result = (int)exitCode;
             } catch (WslApiException e) {
