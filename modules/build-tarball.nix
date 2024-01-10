@@ -49,8 +49,10 @@ in
 
       runtimeInputs = [
         pkgs.coreutils
+        pkgs.e2fsprogs
         pkgs.gnutar
         pkgs.nixos-install-tools
+        pkgs.pigz
         config.nix.package
       ];
 
@@ -89,14 +91,14 @@ in
 
         echo "[NixOS-WSL] Compressing..."
         tar -C "$root" \
-          -cz \
+          -c \
           --sort=name \
           --mtime='@1' \
           --owner=0 \
           --group=0 \
           --numeric-owner \
           . \
-          > "$out"
+        | pigz > "$out"
       '';
     };
   };

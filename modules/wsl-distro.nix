@@ -9,6 +9,7 @@ in
 
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
+    useWindowsDriver = mkEnableOption "OpenGL driver from the Windows host";
     binShPkg = mkOption {
       type = package;
       internal = true;
@@ -70,7 +71,34 @@ in
     # WSL does not support virtual consoles
     console.enable = false;
 
-    hardware.opengl.enable = true; # Enable GPU acceleration
+    hardware.opengl = {
+      enable = true; # Enable GPU acceleration
+
+      extraPackages = mkIf cfg.useWindowsDriver [
+        (pkgs.runCommand "wsl-lib" { } ''
+          mkdir "$out"
+          # # we cannot just symlink the lib directory because it breaks merging with other drivers that provide the same directory
+          ln -s /usr/lib/wsl/lib/libcudadebugger.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libcuda.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libcuda.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libcuda.so.1.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libd3d12core.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libd3d12.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libdxcore.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvcuvid.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvcuvid.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvdxdlkernels.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvidia-encode.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvidia-encode.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvidia-ml.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvidia-opticalflow.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvidia-opticalflow.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvoptix.so.1 "$out/lib"
+          ln -s /usr/lib/wsl/lib/libnvwgf2umx.so "$out/lib"
+          ln -s /usr/lib/wsl/lib/nvidia-smi "$out/lib"
+        '')
+      ];
+    };
 
     environment = {
       # Only set the options if the files are managed by WSL
@@ -109,13 +137,13 @@ in
             if [[ -d "$systemConfig/sw/share/$x" ]]; then
               targets+=("$systemConfig/sw/share/$x/.")
             fi
-            if [[ -d "/etc/profiles/per-user/${cfg.defaultUser}/share/$x" ]]; then
-              targets+=("/etc/profiles/per-user/${cfg.defaultUser}/share/$x/.")
+            if [[ -d "/etc/profiles/per-user/${config.users.users.${cfg.defaultUser}.name}/share/$x" ]]; then
+              targets+=("/etc/profiles/per-user/${config.users.users.${cfg.defaultUser}.name}/share/$x/.")
             fi
 
             if (( ''${#targets[@]} != 0 )); then
               mkdir -p "/usr/share/$x"
-              ${pkgs.rsync}/bin/rsync -ar --delete-after "''${targets[@]}" "/usr/share/$x"
+              ${pkgs.rsync}/bin/rsync --archive --copy-dirlinks --delete-after --recursive "''${targets[@]}" "/usr/share/$x"
             else
               rm -rf "/usr/share/$x"
             fi
