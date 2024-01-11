@@ -13,7 +13,7 @@ public static class VersionHelper {
                 if (StartupHelper.BootDistro()) {
                     var output = WslApiLoader.WslLaunchGetOutput(
                         DistributionInfo.Name,
-                        "nixos-wsl-version --json",
+                        "/bin/sh --login -c \"nixos-wsl-version --json\"",
                         false,
                         out var exitCode,
                         true
