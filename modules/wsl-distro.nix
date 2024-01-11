@@ -76,7 +76,7 @@ in
 
       extraPackages = mkIf cfg.useWindowsDriver [
         (pkgs.runCommand "wsl-lib" { } ''
-          mkdir "$out"
+          mkdir -p "$out/lib"
           # # we cannot just symlink the lib directory because it breaks merging with other drivers that provide the same directory
           ln -s /usr/lib/wsl/lib/libcudadebugger.so.1 "$out/lib"
           ln -s /usr/lib/wsl/lib/libcuda.so "$out/lib"
