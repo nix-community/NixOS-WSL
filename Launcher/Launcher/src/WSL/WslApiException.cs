@@ -1,4 +1,4 @@
-﻿namespace WSL; 
+namespace WSL;
 
 public class WslApiException : Exception {
 

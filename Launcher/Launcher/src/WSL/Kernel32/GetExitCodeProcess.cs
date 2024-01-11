@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WSL.Kernel32; 
+namespace WSL.Kernel32;
 
 public static partial class Kernel32Loader {
     [DllImport("kernel32.dll", SetLastError = true)]

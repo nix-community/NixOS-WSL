@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace WSL.Kernel32;
 
@@ -12,7 +12,7 @@ public static partial class Kernel32Loader {
         [DllImport("kernel32.dll", SetLastError = true)]
         // ReSharper disable once LocalFunctionHidesMethod
         static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
-        
+
         var result = WaitForSingleObject(hHandle, dwMilliseconds);
         if (result == WAIT_OBJECT_0) {
             return;

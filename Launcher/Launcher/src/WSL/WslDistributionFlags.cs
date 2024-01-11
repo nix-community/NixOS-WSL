@@ -1,4 +1,4 @@
-﻿namespace WSL;
+namespace WSL;
 
 public static partial class WslApiLoader {
     [Flags]

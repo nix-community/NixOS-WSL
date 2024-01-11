@@ -5,7 +5,7 @@ using WSL.Kernel32;
 namespace WSL;
 
 public static partial class WslApiLoader {
-    
+
     // Contains code from https://github.com/wslhub/wsl-sdk-dotnet/blob/892e8b5564170eae9944649cf8ab424ce0fbce52/src/Wslhub.Sdk/Wsl.cs#L364
     public static unsafe string WslLaunchGetOutput(
         string distributionName,
@@ -33,7 +33,7 @@ public static partial class WslApiLoader {
                 throw new Exception("Cannot create stderr pipe");
             stderr = stderrWrite;
         }
-        
+
         try {
             WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, writePipe, stderr,
                 out var hProcess);
@@ -65,7 +65,7 @@ public static partial class WslApiLoader {
                     break;
                 }
 
-                outputContents.Append(encoding.GetString((byte*) bufferPointer.ToPointer(), read));
+                outputContents.Append(encoding.GetString((byte*)bufferPointer.ToPointer(), read));
             } while (read == bufferLength);
 
             Marshal.FreeHGlobal(bufferPointer);
@@ -80,5 +80,5 @@ public static partial class WslApiLoader {
             }
         }
     }
-    
+
 }
