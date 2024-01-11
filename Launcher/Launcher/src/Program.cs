@@ -88,8 +88,8 @@ internal static class Program {
                 var vl = VersionHelper.LauncherVersion?.ToString();
                 var vi = VersionHelper.InstalledVersion?.ToString() ?? "UNKNOWN";
 
-                context.Console.Out.WriteLine($"Launcher:  {vl}");
-                context.Console.Out.WriteLine($"Installed: {vi}");
+                context.Console.Out.WriteLine($"Launcher: {vl}");
+                context.Console.Out.WriteLine($"Module:   {vi}");
             } else {
                 await next(context);
             }
