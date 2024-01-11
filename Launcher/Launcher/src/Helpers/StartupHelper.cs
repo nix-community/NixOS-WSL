@@ -10,7 +10,7 @@ public static class StartupHelper {
         try {
             WslApiLoader.WslLaunchInteractive(
                 DistributionInfo.Name,
-                "sh -c \"exit\"", // Don't run anything, exit after we get a shell
+                "/bin/sh -c \"exit\"", // Don't run anything, exit after we get a shell
                 false,
                 out var exitCode
             );
