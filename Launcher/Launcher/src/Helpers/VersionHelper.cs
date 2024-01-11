@@ -5,7 +5,7 @@ using WSL;
 namespace Launcher.Helpers;
 
 public static class VersionHelper {
-    public static Version? LauncherVersion => Assembly.GetEntryAssembly()?.GetName().Version;
+    public static Version? LauncherVersion => type(VersionHelper).Assembly.GetName().Version;
 
     public static NixosWslVersion? InstalledVersion {
         get {
