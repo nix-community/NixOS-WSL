@@ -1,0 +1,12 @@
+bin/
+*.dll
+*.exe
+*.appx
+*.cache
+.vs/
+.idea/
+*.DotSettings.user
+obj/
+AppPackages/
+BundleArtifacts/
+*.pfx

@@ -1,11 +1,11 @@
-name: Build Tarballs
+name: Build Tarball
 
 on:
   workflow_call: {}
 
 jobs:
-  build:
-    name: Build 🛠️
+  tar:
+    name: Tarball 🛠️
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,17 +22,12 @@ jobs:
       - name: Install Nix ❄️
         uses: ./.github/actions/install-nix
 
-      - name: Generate Version 🏷️
+      - name: Set Version 🏷️
+        uses: ./.github/actions/version
         id: version
-        shell: pwsh
-        run: |
-          $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
-          $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
-          $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
-          echo "version=$NIXOS_WSL_VERSION" >> $env:GITHUB_OUTPUT
 
-          echo $NIXOS_WSL_VERSION > ./VERSION
-          echo $(git rev-parse HEAD) >> ./VERSION
+      - name: Summary Headline 📝
+        run: echo '## NixOS-WSL ${{ steps.version.outputs.version }}' >> $GITHUB_STEP_SUMMARY
 
       - name: Build Tarball 🛠️
         uses: ./.github/actions/build-wsl-tarball
@@ -45,3 +40,31 @@ jobs:
         with:
           name: tarball-${{ matrix.config }}
           path: nixos-wsl.tar.gz
+
+  launcher:
+    name: Launcher 🛠️
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild 🧰
+        uses: ./.github/actions/setup-msbuild
+
+      - name: Set Versions 🏷️
+        uses: ./.github/actions/version
+
+      - name: Build Launcher
+        run: |
+          cd Launcher
+          dotnet publish --self-contained -r win-x64 -c Release -p:ContinuousIntegrationBuild=true -p:Deterministic=true --output Launcher\pkg Launcher
+
+      - name: Upload Launcher 📤
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-bin
+          path: |
+            Launcher/Launcher/obj
+            Launcher/Launcher/pkg

@@ -1,0 +1,21 @@
+outputs:
+  version:
+    description: 'The generated version number'
+    value: ${{ steps.version.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate/Set Version 🏷️
+      id: version
+      shell: pwsh
+      run: |
+        $LATEST_TAG = git describe --tags --abbrev=0                                                                   # Get the latest tag name
+        $COMMIT_COUNT = git rev-list --use-bitmap-index --count "$(git rev-list --tags --no-walk --max-count=1)..HEAD" # Count all commits since the last tag
+        $NIXOS_WSL_VERSION = "$($LATEST_TAG -replace '(.+)\.(.+)\.(.+)\..+', '$1.$2.$3').${COMMIT_COUNT}"              # Compose the NixOS-WSL version number
+        Write-Output "version=${NIXOS_WSL_VERSION}" >> $env:GITHUB_OUTPUT
+
+        Write-Output $NIXOS_WSL_VERSION > ./VERSION
+        Write-Output $(git rev-parse HEAD) >> ./VERSION
+        ((Get-Content -path ./Launcher/Launcher/Launcher.csproj -Raw) -replace '1.3.3.7',$NIXOS_WSL_VERSION) | Set-Content -Path ./Launcher/Launcher/Launcher.csproj
+        ((Get-Content -path ./Launcher/Launcher-Appx/Package.appxmanifest -Raw) -replace '1.3.3.7',$NIXOS_WSL_VERSION) | Set-Content -Path ./Launcher/Launcher-Appx/Package.appxmanifest

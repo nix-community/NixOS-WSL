@@ -89,6 +89,7 @@
               args = { inherit inputs; };
             in
             {
+              dotnet-format = pkgs.callPackage ./checks/dotnet-format.nix args;
               nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
               shfmt = pkgs.callPackage ./checks/shfmt.nix args;
               rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;

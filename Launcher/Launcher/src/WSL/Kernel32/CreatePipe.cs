@@ -1,0 +1,13 @@
+using System.Runtime.InteropServices;
+
+namespace WSL.Kernel32;
+
+public static partial class Kernel32Loader {
+    [DllImport("kernel32.dll")]
+    public static extern bool CreatePipe(
+        out IntPtr hReadPipe,
+        out IntPtr hWritePipe,
+        ref SECURITY_ATTRIBUTES lpPipeAttributes,
+        uint nSize
+    );
+}

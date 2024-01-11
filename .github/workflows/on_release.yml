@@ -6,23 +6,41 @@ on:
 
 jobs:
   build:
-    name: Build Tarballs 🛠️
+    name: Build 🛠️
     uses: ./.github/workflows/run_build.yml
+
+  package:
+    name: Package 📦
+    uses: ./.github/workflows/run_package.yml
+    needs:
+      - build
+    secrets:
+      APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
+      CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
 
   release:
     needs:
       - build
+      - package
     name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
 
+      - name: Download appx 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: appx
+
+      - name: Rename appx ✏️
+        run: mv */*.msixbundle NixOS-WSL.msixbundle
+
       - name: Generate Checksums 🔑
         run: |
           mv tarball-modern/nixos-wsl.tar.gz nixos-wsl.tar.gz
           mv tarball-legacy/nixos-wsl.tar.gz nixos-wsl-legacy.tar.gz
-          for x in *.tar.gz; do
+          for x in *.{tar.gz,msixbundle}; do
             sha256sum $x > ${x}.sha256
           done
 
@@ -34,5 +52,7 @@ jobs:
             nixos-wsl.tar.gz.sha256
             nixos-wsl-legacy.tar.gz
             nixos-wsl-legacy.tar.gz.sha256
+            NixOS-WSL.msixbundle
+            NixOS-WSL.msixbundle.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
