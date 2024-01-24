@@ -41,7 +41,7 @@ stdenv.mkDerivation rec {
     optionsDoc = nixosOptionsDoc {
       options = eval.options.wsl;
     };
-    optionsMD = runCommand "options.md" {} ''
+    optionsMD = runCommand "options.md" { } ''
       set -euo pipefail
       cat ${passthru.optionsDoc.optionsCommonMark} \
       | ${gnused}/bin/sed 's|\[${toString (../.)}|\[\&lt\;nixos-wsl\&gt\;|;s|file://${toString (../.)}|https://github.com/nix-community/NixOS-WSL/blob/main|' \
