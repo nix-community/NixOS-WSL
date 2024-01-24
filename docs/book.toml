@@ -1,0 +1,9 @@
+[book]
+language = "en"
+multilingual = false
+src = "src"
+title = "NixOS-WSL"
+
+[output.html]
+edit-url-template = "https://github.com/nix-community/nixos-wsl/tree/main/docs/{path}"
+git-repository-url = "https://github.com/NixOS/nix"
