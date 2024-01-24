@@ -101,18 +101,20 @@
           packages = {
             utils = pkgs.callPackage ./utils { };
             staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
+            docs = pkgs.callPackage ./docs { };
           };
 
           devShells.default = pkgs.mkShell {
             RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
             nativeBuildInputs = with pkgs; [
-              nixpkgs-fmt
-              shfmt
-              rustc
               cargo
-              rustfmt
               clippy
+              mdbook
+              nixpkgs-fmt
+              rustc
+              rustfmt
+              shfmt
             ];
           };
         }

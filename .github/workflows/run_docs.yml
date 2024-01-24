@@ -1,0 +1,42 @@
+name: Documentation
+
+on:
+  workflow_call: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Documentation 📕
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix ❄️
+        uses: ./.github/actions/install-nix
+
+      - name: Build documentation 🛠️
+        id: build
+        uses: ./.github/actions/build-nix-expression
+        with:
+          expression: ".#docs"
+
+      - name: Upload documentation 📥
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.build.outputs.derivation }}
+
+      - name: Deploy to GitHub Pages 🚀
+        if: github.ref == 'refs/heads/main'
+        id: deployment
+        uses: actions/deploy-pages@v4
