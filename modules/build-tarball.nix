@@ -19,8 +19,37 @@ let
         <nixos-wsl/modules>
       ];
 
+      # Enable NixOS as a WSL distribution
       wsl.enable = true;
-      wsl.defaultUser = "ryzengrind";
+
+      # Set the default user
+      wsl.defaultUser = "nixos";
+
+      # Enable Docker Desktop integration
+      wsl.docker-desktop.enable = true;
+
+      # Interop settings
+      wsl.interop.includePath = true;
+
+      # Automount settings
+      wsl.wslConf.automount = {
+        enabled = true;
+        options = "metadata,umask=22,fmask=11,uid=1000,gid=100";
+        root = "/mnt";
+      };
+    
+      # Use native systemd
+      wsl.nativeSystemd = true;
+    
+      # Networking configuration
+      wsl.wslConf.network = {
+        generateHosts = true;
+        generateResolvConf = true;
+        hostname = "nixos-wsl";
+      };
+
+      wsl.wslConf.user.default = "nixos";
+      wsl.wslConf.boot.command = "Welcome to NixOS-WSL";
       ${lib.optionalString (!config.wsl.nativeSystemd) "wsl.nativeSystemd = false;"}
 
       # This value determines the NixOS release from which the default
