@@ -23,7 +23,7 @@ let
       wsl.enable = true;
 
       # Set the default user
-      wsl.defaultUser = "nixos";
+      wsl.defaultUser = "ryzengrind";
 
       # Enable Docker Desktop integration
       wsl.docker-desktop.enable = true;
@@ -45,11 +45,11 @@ let
       wsl.wslConf.network = {
         generateHosts = true;
         generateResolvConf = true;
-        hostname = "nixos-wsl";
+        hostname = "shogun-nix";
       };
 
-      wsl.wslConf.user.default = "nixos";
-      wsl.wslConf.boot.command = "Welcome to NixOS-WSL";
+      wsl.wslConf.user.default = "ryzengrind";
+      wsl.wslConf.boot.command = "Welcome to NixOS-WSL " + wsl.defaultUser + "@" + wsl.wslConf.network.hostname; #"echo 'nameserver 1.1.1.1\nnameserver 8.8.8.8' > /etc/resolv.conf"
       ${lib.optionalString (!config.wsl.nativeSystemd) "wsl.nativeSystemd = false;"}
 
       # This value determines the NixOS release from which the default
