@@ -73,6 +73,8 @@
                     mkdir -p /bin
                     ln -sfn ${syschdemdProxy} /bin/syschdemd
                   '';
+
+                system.stateVersion = "${config.system.nixos.release}";
               })
             ];
           };
