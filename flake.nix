@@ -32,6 +32,8 @@
             wsl.enable = true;
 
             programs.bash.loginShellInit = "nixos-wsl-welcome";
+
+            system.stateVersion = "${config.system.nixos.release}";
           };
         in
         {
