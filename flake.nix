@@ -74,7 +74,7 @@
                     ln -sfn ${syschdemdProxy} /bin/syschdemd
                   '';
 
-                system.stateVersion = "${config.system.nixos.release}";
+                system.stateVersion = config.system.nixos.release;
               })
             ];
           };
