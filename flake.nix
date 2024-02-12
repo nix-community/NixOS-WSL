@@ -33,7 +33,7 @@
 
             programs.bash.loginShellInit = "nixos-wsl-welcome";
 
-            system.stateVersion = "${config.system.nixos.release}";
+            system.stateVersion = config.system.nixos.release;
           };
         in
         {
