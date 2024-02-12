@@ -28,7 +28,7 @@
 
       nixosConfigurations =
         let
-          initialConfig = {
+          initialConfig = { config, ... }: {
             wsl.enable = true;
 
             programs.bash.loginShellInit = "nixos-wsl-welcome";
