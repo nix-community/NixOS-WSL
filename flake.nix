@@ -28,10 +28,12 @@
 
       nixosConfigurations =
         let
-          initialConfig = {
+          initialConfig = { config, ... }: {
             wsl.enable = true;
 
             programs.bash.loginShellInit = "nixos-wsl-welcome";
+
+            system.stateVersion = config.system.nixos.release;
           };
         in
         {
@@ -71,6 +73,8 @@
                     mkdir -p /bin
                     ln -sfn ${syschdemdProxy} /bin/syschdemd
                   '';
+
+                system.stateVersion = config.system.nixos.release;
               })
             ];
           };
