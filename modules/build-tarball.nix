@@ -23,6 +23,19 @@ let
       wsl.defaultUser = "nixos";
       ${lib.optionalString (!config.wsl.nativeSystemd) "wsl.nativeSystemd = false;"}
 
+      system.activationScripts.NixOS-WSL-Permissions-Fixer.text =
+      '''
+        if [ -f /etc/nixos/.permissions-fixer-needed ]; then
+          echo "[NixOS-WSL-Permissions-Fixer] Making /etc/nixos writable to current user..."
+          ${pkgs.acl}/bin/setfacl -R -m u:nixos:rwx /etc/nixos
+          if [ "$?" -eq 0 ]; then
+            rm /etc/nixos/.permissions-fixer-needed
+          fi
+        else
+          echo "[NixOS-WSL-Permissions-Fixer] Permissions don't need to be fixed."
+        fi
+      ''';
+
       # This value determines the NixOS release from which the default
       # settings for stateful data, like file locations and database versions
       # on your system were taken. It's perfectly fine and recommended to leave
@@ -86,6 +99,7 @@ in
           cp -R ${lib.cleanSource cfg.configPath}/. "$root/etc/nixos"
           chmod -R u+w "$root/etc/nixos"
         ''}
+        touch "$root/etc/nixos/.permissions-fixer-needed"
 
         echo "[NixOS-WSL] Compressing..."
         tar -C "$root" \
