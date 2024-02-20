@@ -3,6 +3,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.ComponentModel;
 using Launcher.Commands;
 using Launcher.Helpers;
 using WSL;
@@ -54,8 +55,10 @@ internal static class Program {
             try {
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
                 result = (int)exitCode;
-            } catch (WslApiException e) {
+            } catch (Win32Exception e) {
                 Console.Error.WriteLine("An error occured when starting the shell");
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine(e.StackTrace);
                 result = e.HResult;
             }
         });

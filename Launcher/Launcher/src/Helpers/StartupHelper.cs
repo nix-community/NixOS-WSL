@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using WSL;
 
 namespace Launcher.Helpers;
@@ -18,8 +19,10 @@ public static class StartupHelper {
                 Console.Error.WriteLine("An error occured during the distro's startup process");
                 return false;
             }
-        } catch (WslApiException) {
+        } catch (Win32Exception e) {
             Console.Error.WriteLine("An error occured while trying to run a command in the distro");
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
             return false;
         }
 

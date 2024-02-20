@@ -1,5 +1,6 @@
 using System.Data;
 using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
 
 namespace WSL;
 
@@ -9,16 +10,16 @@ public static partial class WslApiLoader {
         string distributionName,
         out ulong distributionVersion,
         out ulong defaultUID,
-        out WslApiLoader.WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+        out WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
         out string[] defaultEnvironmentVariables
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslGetDistributionConfiguration(
+        static extern HRESULT WslGetDistributionConfiguration(
             string distributionName,
             out ulong distributionVersion,
             out ulong defaultUID,
-            out WslApiLoader.WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+            out WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
             out byte** defaultEnvironmentVariables,
             out ulong defaultEnvironmentVariableCount
         );
@@ -26,7 +27,7 @@ public static partial class WslApiLoader {
         byte** envv;
         ulong envc;
 
-        WslApiException.checkResult(
+        CheckResult(
             WslGetDistributionConfiguration(
                 distributionName,
                 out distributionVersion,

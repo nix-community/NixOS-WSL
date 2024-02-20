@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Windows.Win32.Foundation;
 
 namespace WSL;
 
@@ -11,14 +12,14 @@ public static partial class WslApiLoader {
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, ExactSpelling = true, PreserveSig = true)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslLaunchInteractive(
+        static extern HRESULT WslLaunchInteractive(
             [In] string distributionName,
             [In] string? command,
             [In] bool useCurrentWorkingDirectory,
             [Out, MarshalAs(UnmanagedType.U4)] out uint exitCode
         );
 
-        WslApiException.checkResult(
+        CheckResult(
             WslLaunchInteractive(
                 distributionName,
                 command,

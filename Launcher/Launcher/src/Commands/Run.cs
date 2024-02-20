@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.ComponentModel;
 using Launcher.Helpers;
 using WSL;
 
@@ -26,8 +27,10 @@ public static class Run {
 
             try {
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode);
-            } catch (WslApiException e) {
+            } catch (Win32Exception e) {
                 Console.Error.WriteLine("An error occured when starting the command!");
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 Program.result = e.HResult;
                 return;
             }
