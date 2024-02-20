@@ -28,6 +28,5 @@ public static partial class WslApiLoader {
                 out exitCode
             )
         );
-        Console.WriteLine(exitCode);
     }
 }
