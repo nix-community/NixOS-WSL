@@ -4,7 +4,6 @@ GetExitCodeProcess
 GetProcessId
 GetStdHandle
 ReadFile
-SecurityAttributes
 WaitForSingleObject
 STD_HANDLE
 INFINITE
