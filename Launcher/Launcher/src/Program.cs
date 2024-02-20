@@ -25,7 +25,7 @@ internal static class Program {
             Run.GetCommand(),
             Install.GetCommand(),
             Registered.GetCommand(),
-            Uninstall.GetCommand(),
+            Uninstall.GetCommand()
         };
 
         var distroNameOption = new Option<string>("--distro-name") {

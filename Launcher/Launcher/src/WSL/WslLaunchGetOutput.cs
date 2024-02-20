@@ -2,7 +2,6 @@
 
 using System.Runtime.InteropServices;
 using System.Text;
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.System.Console;
@@ -12,7 +11,6 @@ using static Windows.Win32.PInvoke;
 namespace WSL;
 
 public static partial class WslApiLoader {
-
     // Contains code from https://github.com/wslhub/wsl-sdk-dotnet/blob/892e8b5564170eae9944649cf8ab424ce0fbce52/src/Wslhub.Sdk/Wsl.cs#L364
     public static unsafe string WslLaunchGetOutput(
         string distributionName,
@@ -26,11 +24,11 @@ public static partial class WslApiLoader {
 
         var attributes = new SECURITY_ATTRIBUTES {
             lpSecurityDescriptor = null,
-            bInheritHandle = true,
+            bInheritHandle = true
         };
         attributes.nLength = (uint)Marshal.SizeOf(attributes);
 
-        if (!CreatePipe(out SafeFileHandle readPipe, out SafeFileHandle writePipe, attributes, 0))
+        if (!CreatePipe(out var readPipe, out var writePipe, attributes, 0))
             throw new Exception("Cannot create stdout pipe");
 
         SafeFileHandle? stderrRead = null;
@@ -61,7 +59,8 @@ public static partial class WslApiLoader {
             var read = 0U;
 
             do {
-                if (!ReadFile(new HANDLE(readPipe.DangerousGetHandle()), (byte*) bufferPointer, bufferLength, &read, null)) {
+                if (!ReadFile(new HANDLE(readPipe.DangerousGetHandle()), (byte*)bufferPointer, bufferLength, &read,
+                        null)) {
                     var lastError = Marshal.GetLastWin32Error();
 
                     if (lastError != 0) {
@@ -87,5 +86,4 @@ public static partial class WslApiLoader {
             }
         }
     }
-
 }

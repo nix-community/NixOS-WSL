@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 using Microsoft.Win32.SafeHandles;
@@ -39,6 +38,6 @@ public static partial class WslApiLoader {
 
         CheckResult(hresult);
 
-        process = new(_process, true);
+        process = new SafeProcessHandle(_process, true);
     }
 }

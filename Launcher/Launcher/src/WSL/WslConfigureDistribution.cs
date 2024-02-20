@@ -16,6 +16,7 @@ public static partial class WslApiLoader {
             ulong defaultUID,
             WSL_DISTRIBUTION_FLAGS wslDistributionFlags
         );
+
         CheckResult(WslConfigureDistribution(distributionName, defaultUID, wslDistributionFlags));
     }
 }

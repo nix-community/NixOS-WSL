@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.ComponentModel;
-using Launcher.Helpers;
 using WSL;
 
 namespace Launcher.Commands;
@@ -16,7 +15,7 @@ public static class Run {
         };
         command.AddArgument(argCmd);
 
-        command.SetHandler((string? cmd) => {
+        command.SetHandler(cmd => {
             uint exitCode;
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {

@@ -13,7 +13,7 @@ public static class Registered {
         };
         command.Add(quietOpt);
 
-        command.SetHandler((bool quiet) => {
+        command.SetHandler(quiet => {
             var registered = WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name);
 
             if (!quiet) {
