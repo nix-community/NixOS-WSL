@@ -7,7 +7,7 @@ rust-version = "1.69.0"
 
 [dependencies]
 anyhow = { version = "1.0.80", features = ["backtrace"] }
-nix = { version = "0.27.1", features = ["mount", "process"] }
+nix = { version = "0.28.0", features = ["mount", "process"] }
 log = "0.4.20"
 kernlog = "0.3.1"
 
