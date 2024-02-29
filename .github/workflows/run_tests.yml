@@ -33,7 +33,7 @@ jobs:
         test: ${{ fromJSON(needs.prepare.outputs.tests) }}
         os:
           - ubuntu-20.04
-          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
+          - windows-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -44,7 +44,14 @@ jobs:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-test
+          name: ${{ runner.os == 'Windows' && 'tarball-test-windows' || 'tarball-test-docker' }}
+
+      - name: Update WSL to enable support of WSL2
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          wsl --update
+          wsl --version
 
       - name: Execute Test 🧪
         shell: pwsh
