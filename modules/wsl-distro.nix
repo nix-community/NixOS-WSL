@@ -167,6 +167,14 @@ in
           config.wsl.extraBin
         )}
       '');
+      nixos-wsl-migration-x11mount = stringAfter [ ] ''
+        # Removes symlink created by NixOS-WSL up to 2024-02-24.
+        # See issue https://github.com/nix-community/NixOS-WSL/issues/427
+        if [ -L /tmp/.X11-unix ]; then
+          echo "deleting obsolete symlink at /tmp/.X11-unix to avoid conflict with new system configuration"
+          rm /tmp/.X11-unix
+        fi
+      '';
     };
 
     # require people to use lib.mkForce to make it harder to brick their installation
