@@ -42,7 +42,7 @@ class Distro {
     $LASTEXITCODE | Should -Be 0
 
     # Rebuild
-    $this.Launch("sudo nixos-rebuild switch --verbose")
+    $this.Launch("sudo nixos-rebuild switch --verbose < /dev/null")
     $LASTEXITCODE | Should -Be 0
 
     Write-Host "Config installed successfully"

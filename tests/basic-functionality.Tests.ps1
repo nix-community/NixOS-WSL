@@ -24,7 +24,7 @@ Describe "Basic Functionality" {
   }
 
   It "is possible to use nixos-rebuild" {
-    $distro.Launch("sudo nixos-rebuild switch --verbose")
+    $distro.Launch("sudo nixos-rebuild switch --verbose < /dev/null")
     $LASTEXITCODE | Should -Be 0
   }
 
