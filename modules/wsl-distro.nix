@@ -117,6 +117,15 @@ in
       device = "${cfg.wslConf.automount.root}/wslg/.X11-unix/X0";
       options = [ "bind" ];
     };
+    # Remove symbolic link for WSLg X11 socket, which was created by NixOS-WSL until 2024-02-24
+    systemd.services.nixos-wsl-migration-x11mount = {
+      description = "Remove /tmp/.X11-unix symlink if present";
+      before = [ "tmp-.X11\x2dunix-X0.mount" ];
+      unitConfig.ConditionPathIsSymbolicLink = "/tmp/.X11-unix";
+      serviceConfig.Type = "oneshot";
+      serviceConfig.RemainAfterExit = true;
+      serviceConfig.ExecStart = "${pkgs.coreutils}/bin/rm /tmp/.X11-unix";
+    };
 
     # dhcp is handled by windows
     networking.dhcpcd.enable = false;
