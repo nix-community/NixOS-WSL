@@ -28,11 +28,10 @@
 
       nixosConfigurations =
         let
-          initialConfig = { config, ... }: {
+          config = { test ? false, legacy ? false }: { config, lib, ... }: {
             wsl.enable = true;
-
-            programs.bash.loginShellInit = "nixos-wsl-welcome";
-
+            wsl.nativeSystemd = lib.mkIf legacy false;
+            programs.bash.loginShellInit = lib.mkIf (!test) "nixos-wsl-welcome";
             system.stateVersion = config.system.nixos.release;
           };
         in
@@ -41,7 +40,7 @@
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
-              initialConfig
+              (config { })
             ];
           };
 
@@ -49,19 +48,24 @@
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
-              initialConfig
-              { wsl.nativeSystemd = false; }
+              (config { legacy = true; })
             ];
           };
 
-          test = nixpkgs.lib.nixosSystem {
+          test-windows = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
-              ({ config, pkgs, ... }: {
-                wsl.enable = true;
-                wsl.nativeSystemd = false;
+              (config { test = true; })
+            ];
+          };
 
+          test-docker = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              self.nixosModules.default
+              (config { test = true; legacy = true; })
+              ({ config, pkgs, ... }: {
                 system.activationScripts.create-test-entrypoint.text =
                   let
                     syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
@@ -73,8 +77,6 @@
                     mkdir -p /bin
                     ln -sfn ${syschdemdProxy} /bin/syschdemd
                   '';
-
-                system.stateVersion = config.system.nixos.release;
               })
             ];
           };
