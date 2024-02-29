@@ -129,7 +129,7 @@ class WslDistro : Distro {
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to import distro"
     }
-    & wsl.exe --list | Should -Contain $this.id
+    & wsl.exe --list -q | Should -Contain $this.id
 
     $this.Launch("sudo nix-channel --update")
   }
@@ -137,7 +137,10 @@ class WslDistro : Distro {
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    & wsl.exe -d $this.id -e /bin/syschdemd -c $command | Tee-Object -Variable result | Write-Host
+    # Must explicitly use `bash -l` because otherwise WSL does not source /etc/profile.
+    # Interestingly, it works when using the interactive `wsl -d <distro>` without further arguments.
+    # Might be related: https://github.com/microsoft/WSL/issues/11152
+    & wsl.exe -d $this.id -e /run/current-system/sw/bin/bash -lc $command | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 
