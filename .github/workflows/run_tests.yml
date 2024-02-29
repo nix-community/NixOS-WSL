@@ -23,7 +23,7 @@ jobs:
         run: |
           find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
-  tests:
+  tests-docker:
     name: Test (Docker) 🐳
     needs:
       - prepare
@@ -48,7 +48,7 @@ jobs:
         run: |
           Invoke-Pester -Output Detailed ${{ matrix.test }}
 
-  tests:
+  tests-wsl:
     name: Test (WSL) 🧪
     needs:
       - prepare
