@@ -12,7 +12,7 @@ First, [download the latest release](https://github.com/nix-community/NixOS-WSL/
 Then open up a Terminal, PowerShell or Command Prompt and run:
 
 ```powershell
-wsl --import NixOS .\NixOS\ nixos-wsl.tar.gz --version 2
+wsl --import NixOS %userprofile%\NixOS\ nixos-wsl.tar.gz
 ```
 
 This sets up a new WSL distribution `NixOS` that is installed under
