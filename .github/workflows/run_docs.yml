@@ -31,10 +31,16 @@ jobs:
         with:
           expression: ".#docs"
 
+      - name: Patch 404.html 🩹
+        run: |
+          cp -r ${{ steps.build.outputs.derivation }}/. dist
+          chmod -R +w dist
+          sed -i 's|<base href="/">|<base href="/NixOS-WSL">|' dist/404.html
+
       - name: Upload documentation 📥
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.build.outputs.derivation }}
+          path: dist
 
       - name: Deploy to GitHub Pages 🚀
         if: github.ref == 'refs/heads/main'
