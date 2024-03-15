@@ -21,9 +21,8 @@ Or for Command Prompt:
 wsl --import NixOS %USERPROFILE%\NixOS\ nixos-wsl.tar.gz
 ```
 
-This sets up a new WSL distribution `NixOS` that is installed under
-`.\NixOS`. `nixos-wsl.tar.gz` is the path to the file you
-downloaded earlier.
+This sets up a new WSL distribution `NixOS` that is installed in a directory called `NixOS` inside your user directory.
+`nixos-wsl.tar.gz` is the path to the file you downloaded earlier.
 You can adjust the installation path and distribution name to your liking.
 
 To get a shell in your NixOS environment, use:
