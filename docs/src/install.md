@@ -9,10 +9,16 @@ Support for older "inbox" versions is best-effort.
 
 First, [download the latest release](https://github.com/nix-community/NixOS-WSL/releases/latest).
 
-Then open up a Terminal, PowerShell or Command Prompt and run:
+Then open up a PowerShell and run:
 
 ```powershell
-wsl --import NixOS %userprofile%\NixOS\ nixos-wsl.tar.gz
+wsl --import NixOS $env:USERPROFILE\NixOS\ nixos-wsl.tar.gz
+```
+
+Or for Command Prompt:
+
+```cmd
+wsl --import NixOS %USERPROFILE%\NixOS\ nixos-wsl.tar.gz
 ```
 
 This sets up a new WSL distribution `NixOS` that is installed under
