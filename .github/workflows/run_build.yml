@@ -12,7 +12,8 @@ jobs:
         config:
           - modern
           - legacy
-          - test
+          - test-docker
+          - test-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v4

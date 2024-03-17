@@ -23,18 +23,15 @@ jobs:
         run: |
           find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
-  tests:
-    name: Test 🧪
+  tests-docker:
+    name: Test (Docker) 🐳
     needs:
       - prepare
     strategy:
       fail-fast: false
       matrix:
         test: ${{ fromJSON(needs.prepare.outputs.tests) }}
-        os:
-          - ubuntu-20.04
-          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,9 +41,41 @@ jobs:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-test
+          name: tarball-test-docker
 
       - name: Execute Test 🧪
         shell: pwsh
         run: |
           Invoke-Pester -Output Detailed ${{ matrix.test }}
+
+  tests-wsl:
+    name: Test (WSL) 🧪
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        test: ${{ fromJSON(needs.prepare.outputs.tests) }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Tarball 📥
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball-test-windows
+
+      - name: Update WSL to enable support of WSL2
+        run: |
+          wsl --update
+          wsl --version
+
+      - name: Execute Test 🧪
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          wsl dmesg -w &
+          pwsh -c "Invoke-Pester -Output Detailed ${{ matrix.test }}"
