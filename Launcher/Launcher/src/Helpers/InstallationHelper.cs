@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Reflection;
 using WSL;
 
@@ -10,6 +11,8 @@ public static class InstallationHelper {
     /// <returns>0 on success, an error code otherwise</returns>
     public static int Install() {
         Console.WriteLine($"Registering {DistributionInfo.DisplayName}...");
+
+        // TODO: Check if WSL is installed
 
         if (WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
             Console.Error.WriteLine($"{DistributionInfo.DisplayName} is already installed!");
@@ -28,8 +31,10 @@ public static class InstallationHelper {
                 DistributionInfo.Name,
                 tarPath
             );
-        } catch (WslApiException e) {
+        } catch (Win32Exception e) {
             Console.Error.WriteLine("There was an error registering the distribution");
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
             return e.HResult;
         }
 
@@ -50,8 +55,10 @@ public static class InstallationHelper {
 
         try {
             WslApiLoader.WslUnregisterDistribution(DistributionInfo.Name);
-        } catch (WslApiException e) {
+        } catch (Win32Exception e) {
             Console.Error.WriteLine("An error occured when unregistering the distribution!");
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
             return e.HResult;
         }
 

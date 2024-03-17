@@ -13,7 +13,7 @@ public static class Install {
         };
         command.Add(reinstallOpt);
 
-        command.SetHandler((bool reinstall) => {
+        command.SetHandler(reinstall => {
             if (reinstall) {
                 var result = InstallationHelper.Uninstall();
                 if (result != 0) {
