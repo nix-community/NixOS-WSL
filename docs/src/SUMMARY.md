@@ -7,7 +7,7 @@
 - [Installation](./install.md)
 - [Design](./design.md)
 - [Building](./building.md)
-- [How-To]()
+- [How-To](./how-to.md)
 - [Troubleshooting](./troubleshooting/README.md)
   - [Recovery Shell](./troubleshooting/recovery-shell.md)
 
