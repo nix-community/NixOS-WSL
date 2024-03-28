@@ -23,7 +23,7 @@ public static class InstallationHelper {
             return 1;
         }
 
-        ExceptionContext.AddOnCatch(
+        ExceptionContext.AddIfThrown(
             () => WslApiLoader.WslRegisterDistribution(
                 DistributionInfo.Name,
                 tarPath
@@ -46,7 +46,7 @@ public static class InstallationHelper {
             return false;
         }
 
-        ExceptionContext.AddOnCatch(
+        ExceptionContext.AddIfThrown(
             () => WslApiLoader.WslUnregisterDistribution(DistributionInfo.Name),
             "when unregistering the distribution"
         );

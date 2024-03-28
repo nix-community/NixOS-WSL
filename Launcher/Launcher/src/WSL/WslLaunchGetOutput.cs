@@ -1,5 +1,5 @@
-#pragma warning disable CA1416
-
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using Windows.Win32.Foundation;
@@ -12,6 +12,8 @@ namespace WSL;
 
 public static partial class WslApiLoader {
     // Contains code from https://github.com/wslhub/wsl-sdk-dotnet/blob/892e8b5564170eae9944649cf8ab424ce0fbce52/src/Wslhub.Sdk/Wsl.cs#L364
+    [SuppressMessage("Maintainability", "CA1508")] // Compiler thinks (read == bufferLength) is always false, because read is set through a pointer
+    [SuppressMessage("Maintainability", "CA1416")] // Some methods used here are not available on anything older than Windows XP
     public static unsafe string WslLaunchGetOutput(
         string distributionName,
         string command,
@@ -19,8 +21,10 @@ public static partial class WslApiLoader {
         out uint exitCode,
         bool noStderr = false
     ) {
-        var stdin = new SafeFileHandle(GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE), false);
-        var stderr = new SafeFileHandle(GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE), false);
+        using SafeFileHandle realStdin = new(GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE), false);
+        using SafeFileHandle realStderr = new(GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE), false);
+        var stdin = realStdin;
+        var stderr = realStderr;
 
         var attributes = new SECURITY_ATTRIBUTES {
             lpSecurityDescriptor = null,
@@ -29,28 +33,31 @@ public static partial class WslApiLoader {
         attributes.nLength = (uint)Marshal.SizeOf(attributes);
 
         if (!CreatePipe(out var readPipe, out var writePipe, attributes, 0))
-            throw new Exception("Cannot create stdout pipe");
+            throw new IOException("Cannot create stdout pipe");
 
         SafeFileHandle? stderrRead = null;
         SafeFileHandle? stderrWrite = null;
         if (noStderr) {
             if (!CreatePipe(out stderrRead, out stderrWrite, attributes, 0))
-                throw new Exception("Cannot create stderr pipe");
+                throw new IOException("Cannot create stderr pipe");
             stderr = stderrWrite;
         }
 
         try {
-            WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, writePipe, stderr,
-                out var hProcess);
-            WaitForSingleObject(hProcess, INFINITE);
+            SafeProcessHandle? hProcess = null;
+            try {
+                WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, writePipe, stderr,
+                    out hProcess);
+                WaitForSingleObject(hProcess, INFINITE);
 
-            if (!GetExitCodeProcess(hProcess, out exitCode)) {
-                hProcess.Close();
-                throw new Exception("Could not get exit code of WSL process");
+                if (!GetExitCodeProcess(hProcess, out exitCode)) {
+                    hProcess.Close();
+                    throw new Win32Exception("Could not get exit code of WSL process");
+                }
+            } finally {
+                hProcess?.Close();
+                hProcess?.Dispose();
             }
-
-            hProcess.Close();
-            writePipe.Close(); // Make sure the pipe is closed if the spawned process has not done that
 
             const int bufferLength = 65536;
             var bufferPointer = Marshal.AllocHGlobal(bufferLength);
@@ -65,7 +72,7 @@ public static partial class WslApiLoader {
 
                     if (lastError != 0) {
                         Marshal.FreeHGlobal(bufferPointer);
-                        throw new Exception("Could not read from pipe");
+                        throw new IOException("Could not read from pipe");
                     }
 
                     break;
@@ -79,11 +86,13 @@ public static partial class WslApiLoader {
             return outputContents.ToString();
         } finally {
             readPipe.Close();
-            writePipe.Close();
-            if (noStderr) {
-                stderrRead?.Close();
-                stderrWrite?.Close();
-            }
+            writePipe.Close(); // Make sure the pipe is closed if the spawned process has not done that
+            stderrRead?.Close();
+            stderrWrite?.Close();
+            readPipe.Dispose();
+            writePipe.Dispose();
+            stderrRead?.Dispose();
+            stderrWrite?.Dispose();
         }
     }
 }

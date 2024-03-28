@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using WSL;
 
@@ -18,40 +19,42 @@ public static class VersionHelper {
                 ).Trim();
 
                 var json = JsonSerializer.Deserialize<Dictionary<string, string>>(output);
-                var version = json!["release"];
+                var version = json?["release"];
 
-                if (exitCode == 0) return new NixosWslVersion(version);
-            } catch (Exception) {
+                return version is not null
+                    ? new NixosWslVersion(version)
+                    : null;
+            } catch (COMException) {
                 // ignored
             }
 
             return null;
         }
     }
+}
 
-    public class NixosWslVersion {
-        private readonly Version _version;
-        private readonly string _versionString;
+public class NixosWslVersion {
+    private readonly Version _version;
+    private readonly string _versionString;
 
-        internal NixosWslVersion(string versionString) {
-            _versionString = versionString;
+    internal NixosWslVersion(string versionString) {
+        _versionString = versionString;
 
-            if (Version.TryParse(versionString, out var ver)) {
-                _version = ver;
-                return;
-            }
-
-            _version = versionString == "DEV_BUILD"
-                ? new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)
-                : new Version(0, 0, 0, 0);
+        if (Version.TryParse(versionString, out var ver)) {
+            _version = ver;
+            return;
         }
 
-        public Version AsVersion() {
-            return _version;
-        }
+        _version = versionString == "DEV_BUILD"
+            ? new Version(int.MaxValue, int.MaxValue, int.MaxValue, int.MaxValue)
+            : new Version(0, 0, 0, 0);
+    }
 
-        public override string ToString() {
-            return _versionString;
-        }
+    public Version AsVersion() {
+        return _version;
+    }
+
+    public override string ToString() {
+        return _versionString;
     }
 }

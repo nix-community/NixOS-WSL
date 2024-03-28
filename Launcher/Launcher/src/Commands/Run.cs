@@ -1,5 +1,5 @@
 using System.CommandLine;
-using System.ComponentModel;
+
 using WSL;
 
 namespace Launcher.Commands;
@@ -24,7 +24,7 @@ public static class Run {
                 return;
             }
 
-            ExceptionContext.AddOnCatch(
+            ExceptionContext.AddIfThrown(
                 () => WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode),
                 "when starting the command"
             );

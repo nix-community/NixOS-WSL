@@ -26,6 +26,10 @@ public static partial class WslApiLoader {
             out IntPtr process
         );
 
+        ArgumentNullException.ThrowIfNull(stdIn);
+        ArgumentNullException.ThrowIfNull(stdOut);
+        ArgumentNullException.ThrowIfNull(stdErr);
+
         var hresult = WslLaunch(
             distributionName,
             command,
@@ -33,11 +37,11 @@ public static partial class WslApiLoader {
             stdIn.DangerousGetHandle(),
             stdOut.DangerousGetHandle(),
             stdErr.DangerousGetHandle(),
-            out var _process
+            out var internalProcess
         );
 
         CheckResult(hresult);
 
-        process = new SafeProcessHandle(_process, true);
+        process = new SafeProcessHandle(internalProcess, true);
     }
 }

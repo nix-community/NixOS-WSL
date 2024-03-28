@@ -10,7 +10,7 @@ public static partial class WslApiLoader {
         string distributionName,
         out ulong distributionVersion,
         out ulong defaultUID,
-        out WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+        out WslDistributionFlags wslDistributionFlags,
         out string[] defaultEnvironmentVariables
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
@@ -19,7 +19,7 @@ public static partial class WslApiLoader {
             string distributionName,
             out ulong distributionVersion,
             out ulong defaultUID,
-            out WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+            out WslDistributionFlags wslDistributionFlags,
             out byte** defaultEnvironmentVariables,
             out ulong defaultEnvironmentVariableCount
         );

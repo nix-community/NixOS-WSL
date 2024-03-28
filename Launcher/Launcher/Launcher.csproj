@@ -10,6 +10,7 @@
     <Version>1.3.3.7</Version>
     <ApplicationIcon>nixos.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AnalysisLevel>latest-all</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>

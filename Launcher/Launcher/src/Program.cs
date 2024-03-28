@@ -76,7 +76,7 @@ internal static class Program {
                 result = exception.HResult; //Set exit code
 
                 var unwrapped = exception;
-                while (unwrapped is ExceptionContext.ExceptionWithContext) {
+                while (unwrapped is ContextualizedException) {
                     unwrapped = unwrapped.InnerException;
                 }
 
@@ -108,7 +108,7 @@ internal static class Program {
 
             if (distroNameResult is { Tokens.Count: > 0 }) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
 
-            await next(context);
+            await next(context).ConfigureAwait(false);
         }, (MiddlewareOrder)(-1300)); // Run before --version
 
         // Implement --version option
@@ -122,11 +122,11 @@ internal static class Program {
                 context.Console.Out.WriteLine($"Launcher: {vl}");
                 context.Console.Out.WriteLine($"Module:   {vi}");
             } else {
-                await next(context);
+                await next(context).ConfigureAwait(false);
             }
         }, (MiddlewareOrder)(-1200)); // Internal value for the builtin version option
 
-        await commandLineBuilder.Build().InvokeAsync(args);
+        await commandLineBuilder.Build().InvokeAsync(args).ConfigureAwait(false);
 
         return result;
     }
