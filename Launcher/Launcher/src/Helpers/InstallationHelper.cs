@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Reflection;
+using Windows.Win32.Foundation;
 using WSL;
 
 namespace Launcher.Helpers;
@@ -31,7 +32,16 @@ public static class InstallationHelper {
                 DistributionInfo.Name,
                 tarPath
             );
-        } catch (Win32Exception e) {
+        } catch (Exception e) {
+            // Handle WSL not being enabled with a more user-friendly message
+            var win32Error = e.HResult & 0xFFFF; // Get the lowest 16 bits (the Win32 error code) from the HRESULT
+            if (win32Error == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT) {
+                Console.Error.WriteLine("");
+                Console.Error.WriteLine("Error: The Windows Subsystem for Linux is not enabled!");
+                Console.Error.WriteLine("Please refer to https://aka.ms/wslinstall for details on how to enable it.");
+                return e.HResult;
+            }
+
             Console.Error.WriteLine("There was an error registering the distribution");
             Console.WriteLine(e.Message);
             Console.WriteLine(e.StackTrace);
