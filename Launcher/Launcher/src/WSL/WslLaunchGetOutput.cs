@@ -2,10 +2,13 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
+
+using Microsoft.Win32.SafeHandles;
+
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.System.Console;
-using Microsoft.Win32.SafeHandles;
+
 using static Windows.Win32.PInvoke;
 
 namespace WSL;
@@ -30,7 +33,7 @@ public static partial class WslApiLoader {
             lpSecurityDescriptor = null,
             bInheritHandle = true
         };
-        attributes.nLength = (uint)Marshal.SizeOf(attributes);
+        attributes.nLength = (uint) Marshal.SizeOf(attributes);
 
         if (!CreatePipe(out var readPipe, out var writePipe, attributes, 0))
             throw new IOException("Cannot create stdout pipe");
@@ -66,7 +69,7 @@ public static partial class WslApiLoader {
             var read = 0U;
 
             do {
-                if (!ReadFile(new HANDLE(readPipe.DangerousGetHandle()), (byte*)bufferPointer, bufferLength, &read,
+                if (!ReadFile(new HANDLE(readPipe.DangerousGetHandle()), (byte*) bufferPointer, bufferLength, &read,
                         null)) {
                     var lastError = Marshal.GetLastWin32Error();
 
@@ -78,7 +81,7 @@ public static partial class WslApiLoader {
                     break;
                 }
 
-                outputContents.Append(encoding.GetString((byte*)bufferPointer.ToPointer(), (int)read));
+                outputContents.Append(encoding.GetString((byte*) bufferPointer.ToPointer(), (int) read));
             } while (read == bufferLength);
 
             Marshal.FreeHGlobal(bufferPointer);

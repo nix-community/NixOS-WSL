@@ -20,7 +20,7 @@ public static class Run {
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
                 Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
-                Program.result = 1;
+                Program.Result = 1;
                 return;
             }
 
@@ -29,7 +29,7 @@ public static class Run {
                 "when starting the command"
             );
 
-            Program.result = (int)exitCode;
+            Program.Result = (int) exitCode;
         }, argCmd);
 
         return command;

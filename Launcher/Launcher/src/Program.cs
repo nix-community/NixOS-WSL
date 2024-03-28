@@ -4,15 +4,18 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
-using Windows.Win32.Foundation;
+
 using Launcher.Commands;
 using Launcher.Helpers;
+
+using Windows.Win32.Foundation;
+
 using WSL;
 
 namespace Launcher;
 
 internal static class Program {
-    public static int result;
+    public static int Result;
 
     public static async Task<int> Main(string[] args) {
         // Set title of the console
@@ -49,18 +52,20 @@ internal static class Program {
 
         rootCommand.SetHandler(() => {
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-                result = InstallationHelper.Install();
-                if (result != 0) return;
+                Result = InstallationHelper.Install();
+                if (Result != 0) {
+                    return;
+                }
             }
 
             try {
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
-                result = (int)exitCode;
+                Result = (int) exitCode;
             } catch (Win32Exception e) {
                 Console.Error.WriteLine("An error occured when starting the shell");
                 Console.Error.WriteLine(e.Message);
                 Console.Error.WriteLine(e.StackTrace);
-                result = e.HResult;
+                Result = e.HResult;
             }
         });
 
@@ -73,7 +78,7 @@ internal static class Program {
             .UseTypoCorrections()
             .UseParseErrorReporting()
             .UseExceptionHandler(onException: (exception, _) => {
-                result = exception.HResult; //Set exit code
+                Result = exception.HResult; //Set exit code
 
                 var unwrapped = exception;
                 while (unwrapped is ContextualizedException) {
@@ -82,7 +87,7 @@ internal static class Program {
 
                 switch (unwrapped) {
                     case DllNotFoundException:
-                    case {HResult: var hr} when (hr & 0xFFFF) == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT: { // Only compare the lowest 16 bits (the Win32 error code)
+                    case { HResult: var hr } when (hr & 0xFFFF) == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT: { // Only compare the lowest 16 bits (the Win32 error code)
                         Console.Error.WriteLine("Error: The Windows Subsystem for Linux is not enabled!");
                         Console.Error.WriteLine("Please refer to https://aka.ms/wslinstall for details on how to install it.");
                         break;
@@ -106,10 +111,12 @@ internal static class Program {
         commandLineBuilder.AddMiddleware(async (context, next) => {
             var distroNameResult = context.ParseResult.FindResultFor(distroNameOption);
 
-            if (distroNameResult is { Tokens.Count: > 0 }) DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
+            if (distroNameResult is { Tokens.Count: > 0 }) {
+                DistributionInfo.Name = distroNameResult.Tokens[0].ToString();
+            }
 
             await next(context).ConfigureAwait(false);
-        }, (MiddlewareOrder)(-1300)); // Run before --version
+        }, (MiddlewareOrder) (-1300)); // Run before --version
 
         // Implement --version option
         commandLineBuilder.AddMiddleware(async (context, next) => {
@@ -124,10 +131,10 @@ internal static class Program {
             } else {
                 await next(context).ConfigureAwait(false);
             }
-        }, (MiddlewareOrder)(-1200)); // Internal value for the builtin version option
+        }, (MiddlewareOrder) (-1200)); // Internal value for the builtin version option
 
         await commandLineBuilder.Build().InvokeAsync(args).ConfigureAwait(false);
 
-        return result;
+        return Result;
     }
 }

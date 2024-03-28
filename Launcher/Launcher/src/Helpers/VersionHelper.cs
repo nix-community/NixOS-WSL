@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
+
 using WSL;
 
 namespace Launcher.Helpers;
@@ -50,11 +51,7 @@ public class NixosWslVersion {
             : new Version(0, 0, 0, 0);
     }
 
-    public Version AsVersion() {
-        return _version;
-    }
+    public Version AsVersion() => _version;
 
-    public override string ToString() {
-        return _versionString;
-    }
+    public override string ToString() => _versionString;
 }

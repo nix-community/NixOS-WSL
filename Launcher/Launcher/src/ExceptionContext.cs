@@ -1,4 +1,4 @@
-﻿namespace Launcher;
+namespace Launcher;
 
 public static class ExceptionContext {
     public static void AddContext(this Exception e, string context) => throw new ContextualizedException(context, e);

@@ -1,4 +1,5 @@
 using System.Reflection;
+
 using WSL;
 
 namespace Launcher.Helpers;
@@ -66,19 +67,27 @@ public static class InstallationHelper {
 #if (DEBUG)
         var pwd = Directory.GetCurrentDirectory();
         var debugTarPath = Path.Combine(pwd, tarFileName);
-        if (File.Exists(debugTarPath)) return debugTarPath;
+        if (File.Exists(debugTarPath)) {
+            return debugTarPath;
+        }
 #endif
 
         // Look for the tarball in the same directory as the executable
         var assemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        if (assemblyPath == null) return null;
+        if (assemblyPath == null) {
+            return null;
+        }
 
         var tarPath = Path.Combine(assemblyPath, tarFileName);
-        if (File.Exists(tarPath)) return tarPath;
+        if (File.Exists(tarPath)) {
+            return tarPath;
+        }
 
         // In the APPX package, the tarball is in the parent directory
         var parentDirectory = Directory.GetParent(assemblyPath)?.FullName;
-        if (parentDirectory == null) return null;
+        if (parentDirectory == null) {
+            return null;
+        }
 
         tarPath = Path.Combine(parentDirectory, tarFileName);
         return File.Exists(tarPath)

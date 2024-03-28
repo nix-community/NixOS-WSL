@@ -1,4 +1,5 @@
 using System.CommandLine;
+
 using Launcher.Helpers;
 
 namespace Launcher.Commands;
@@ -16,12 +17,12 @@ public static class Install {
         command.SetHandler(reinstall => {
             if (reinstall) {
                 if (!InstallationHelper.Uninstall()) {
-                    Program.result = 1;
+                    Program.Result = 1;
                     return;
                 }
             }
 
-            Program.result = InstallationHelper.Install();
+            Program.Result = InstallationHelper.Install();
         }, reinstallOpt);
 
         return command;

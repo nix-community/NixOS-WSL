@@ -1,4 +1,5 @@
 using System.CommandLine;
+
 using Launcher.Helpers;
 
 namespace Launcher.Commands;
@@ -9,7 +10,7 @@ public static class Uninstall {
             Description = $"Uninstall {DistributionInfo.DisplayName}"
         };
 
-        command.SetHandler(() => { Program.result = InstallationHelper.Uninstall() ? 0 : 1; });
+        command.SetHandler(() => { Program.Result = InstallationHelper.Uninstall() ? 0 : 1; });
 
         return command;
     }
