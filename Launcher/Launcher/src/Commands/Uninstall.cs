@@ -9,7 +9,7 @@ public static class Uninstall {
             Description = $"Uninstall {DistributionInfo.DisplayName}"
         };
 
-        command.SetHandler(() => { Program.result = InstallationHelper.Uninstall(); });
+        command.SetHandler(() => { Program.result = InstallationHelper.Uninstall() ? 0 : 1; });
 
         return command;
     }

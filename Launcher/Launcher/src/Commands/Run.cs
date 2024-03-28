@@ -16,7 +16,7 @@ public static class Run {
         command.AddArgument(argCmd);
 
         command.SetHandler(cmd => {
-            uint exitCode;
+            uint exitCode = 1;
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
                 Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
@@ -24,15 +24,10 @@ public static class Run {
                 return;
             }
 
-            try {
-                WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode);
-            } catch (Win32Exception e) {
-                Console.Error.WriteLine("An error occured when starting the command!");
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                Program.result = e.HResult;
-                return;
-            }
+            ExceptionContext.AddOnCatch(
+                () => WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode),
+                "when starting the command"
+            );
 
             Program.result = (int)exitCode;
         }, argCmd);

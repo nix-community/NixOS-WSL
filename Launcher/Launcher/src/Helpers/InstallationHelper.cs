@@ -1,6 +1,4 @@
-using System.ComponentModel;
 using System.Reflection;
-using Windows.Win32.Foundation;
 using WSL;
 
 namespace Launcher.Helpers;
@@ -12,8 +10,6 @@ public static class InstallationHelper {
     /// <returns>0 on success, an error code otherwise</returns>
     public static int Install() {
         Console.WriteLine($"Registering {DistributionInfo.DisplayName}...");
-
-        // TODO: Check if WSL is installed
 
         if (WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
             Console.Error.WriteLine($"{DistributionInfo.DisplayName} is already installed!");
@@ -27,26 +23,13 @@ public static class InstallationHelper {
             return 1;
         }
 
-        try {
-            WslApiLoader.WslRegisterDistribution(
+        ExceptionContext.AddOnCatch(
+            () => WslApiLoader.WslRegisterDistribution(
                 DistributionInfo.Name,
                 tarPath
-            );
-        } catch (Exception e) {
-            // Handle WSL not being enabled with a more user-friendly message
-            var win32Error = e.HResult & 0xFFFF; // Get the lowest 16 bits (the Win32 error code) from the HRESULT
-            if (win32Error == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT) {
-                Console.Error.WriteLine("");
-                Console.Error.WriteLine("Error: The Windows Subsystem for Linux is not enabled!");
-                Console.Error.WriteLine("Please refer to https://aka.ms/wslinstall for details on how to enable it.");
-                return e.HResult;
-            }
-
-            Console.Error.WriteLine("There was an error registering the distribution");
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
-            return e.HResult;
-        }
+            ),
+            "when registering the distribution"
+        );
 
         Console.WriteLine("Installation finished successfully");
         return 0;
@@ -55,25 +38,21 @@ public static class InstallationHelper {
     /// <summary>
     ///     Unregister the distribution
     /// </summary>
-    /// <returns>0 on success and an error code otherwise</returns>
-    public static int Uninstall() {
+    /// <returns>true on success</returns>
+    public static bool Uninstall() {
         Console.WriteLine($"Uninstalling {DistributionInfo.DisplayName}...");
         if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
             Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
-            return 1;
+            return false;
         }
 
-        try {
-            WslApiLoader.WslUnregisterDistribution(DistributionInfo.Name);
-        } catch (Win32Exception e) {
-            Console.Error.WriteLine("An error occured when unregistering the distribution!");
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.StackTrace);
-            return e.HResult;
-        }
+        ExceptionContext.AddOnCatch(
+            () => WslApiLoader.WslUnregisterDistribution(DistributionInfo.Name),
+            "when unregistering the distribution"
+        );
 
         Console.WriteLine("Uninstall completed");
-        return 0;
+        return true;
     }
 
     /// <summary>

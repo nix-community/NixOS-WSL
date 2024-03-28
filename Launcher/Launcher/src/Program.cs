@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.ComponentModel;
+using Windows.Win32.Foundation;
 using Launcher.Commands;
 using Launcher.Helpers;
 using WSL;
@@ -71,7 +72,34 @@ internal static class Program {
             .RegisterWithDotnetSuggest()
             .UseTypoCorrections()
             .UseParseErrorReporting()
-            .UseExceptionHandler()
+            .UseExceptionHandler(onException: (exception, _) => {
+                result = exception.HResult; //Set exit code
+
+                var unwrapped = exception;
+                while (unwrapped is ExceptionContext.ExceptionWithContext) {
+                    unwrapped = unwrapped.InnerException;
+                }
+
+                switch (unwrapped) {
+                    case DllNotFoundException:
+                    case {HResult: var hr} when (hr & 0xFFFF) == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT: { // Only compare the lowest 16 bits (the Win32 error code)
+                        Console.Error.WriteLine("Error: The Windows Subsystem for Linux is not enabled!");
+                        Console.Error.WriteLine("Please refer to https://aka.ms/wslinstall for details on how to install it.");
+                        break;
+                    }
+                    default: {
+                        Console.Error.WriteLine("");
+                        Console.Error.WriteLine("===== BEGIN STACK TRACE =====");
+                        Console.Error.WriteLine(exception);
+                        Console.Error.WriteLine("====== END STACK TRACE ======");
+                        Console.Error.WriteLine("");
+                        Console.Error.WriteLine("An error occurred!");
+                        Console.Error.WriteLine("Please report this issue on GitHub and make sure to attach the stack trace above.");
+                        Console.Error.WriteLine("https://github.com/nix-community/NixOS-WSL/issues/new/choose");
+                        break;
+                    }
+                }
+            })
             .CancelOnProcessTermination();
 
         // Implement --distro-name option

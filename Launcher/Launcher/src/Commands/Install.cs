@@ -15,9 +15,8 @@ public static class Install {
 
         command.SetHandler(reinstall => {
             if (reinstall) {
-                var result = InstallationHelper.Uninstall();
-                if (result != 0) {
-                    Program.result = result;
+                if (!InstallationHelper.Uninstall()) {
+                    Program.result = 1;
                     return;
                 }
             }
