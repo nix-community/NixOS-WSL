@@ -9,20 +9,18 @@ public static class VersionHelper {
     public static NixosWslVersion? InstalledVersion {
         get {
             try {
-                if (StartupHelper.BootDistro()) {
-                    var output = WslApiLoader.WslLaunchGetOutput(
-                        DistributionInfo.Name,
-                        "/bin/sh --login -c \"nixos-wsl-version --json\"",
-                        false,
-                        out var exitCode,
-                        true
-                    ).Trim();
+                var output = WslApiLoader.WslLaunchGetOutput(
+                    DistributionInfo.Name,
+                    "/bin/sh --login -c \"nixos-wsl-version --json\"",
+                    false,
+                    out var exitCode,
+                    true
+                ).Trim();
 
-                    var json = JsonSerializer.Deserialize<Dictionary<string, string>>(output);
-                    var version = json!["release"];
+                var json = JsonSerializer.Deserialize<Dictionary<string, string>>(output);
+                var version = json!["release"];
 
-                    if (exitCode == 0) return new NixosWslVersion(version);
-                }
+                if (exitCode == 0) return new NixosWslVersion(version);
             } catch (Exception) {
                 // ignored
             }
