@@ -50,16 +50,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tarball-modern
-
-      - name: Download launcher binaries 📥
-        uses: actions/download-artifact@v4
-        with:
-          name: launcher-bin
-          path: Launcher/Launcher/
-
-      - name: Bundle tarball with launcher 📦
-        run: |
-          Copy-Item nixos-wsl.tar.gz Launcher\Launcher-Appx\
+          path: Launcher/Launcher-Appx
 
       - name: Setup .NET 🧰
         uses: ./.github/actions/setup-dotnet
