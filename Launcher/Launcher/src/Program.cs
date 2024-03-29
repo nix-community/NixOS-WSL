@@ -58,15 +58,10 @@ internal static class Program {
                 }
             }
 
-            try {
+            ExceptionContext.AddIfThrown(() => {
                 WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
                 Result = (int) exitCode;
-            } catch (Win32Exception e) {
-                Console.Error.WriteLine("An error occured when starting the shell");
-                Console.Error.WriteLine(e.Message);
-                Console.Error.WriteLine(e.StackTrace);
-                Result = e.HResult;
-            }
+            }, "when starting the shell");
         });
 
         var commandLineBuilder = new CommandLineBuilder(rootCommand)
