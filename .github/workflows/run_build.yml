@@ -50,8 +50,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup MSBuild 🧰
-        uses: ./.github/actions/setup-msbuild
+      - name: Setup .NET 🧰
+        uses: ./.github/actions/setup-dotnet
 
       - name: Set Versions 🏷️
         uses: ./.github/actions/version

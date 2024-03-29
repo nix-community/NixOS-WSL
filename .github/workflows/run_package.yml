@@ -61,17 +61,15 @@ jobs:
         run: |
           Copy-Item nixos-wsl.tar.gz Launcher\Launcher-Appx\
 
-      - name: Setup MSBuild 🧰
-        uses: ./.github/actions/setup-msbuild
+      - name: Setup .NET 🧰
+        uses: ./.github/actions/setup-dotnet
 
       - name: Set Versions 🏷️
         uses: ./.github/actions/version
 
       - name: Build MSIX package 📦
-        run: |
-          cd Launcher
-          nuget restore
-          msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
+        working-directory: Launcher
+        run: msbuild Launcher-Appx\Launcher-Appx.wapproj /p:Configuration=Release /p:Platform=x64 /p:ContinuousIntegrationBuild=true /p:Deterministic=true
 
       - name: Sign package ✒️
         env:
