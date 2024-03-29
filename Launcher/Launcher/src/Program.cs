@@ -3,12 +3,11 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.ComponentModel;
+
+using Windows.Win32.Foundation;
 
 using Launcher.Commands;
 using Launcher.Helpers;
-
-using Windows.Win32.Foundation;
 
 using WSL;
 
