@@ -59,7 +59,7 @@ internal static class Program {
             }
 
             ExceptionContext.AddIfThrown(() => {
-                WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, true, out var exitCode);
+                WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, null, false, out var exitCode);
                 Result = (int) exitCode;
             }, "when starting the shell");
         });
