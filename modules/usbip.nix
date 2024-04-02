@@ -34,11 +34,14 @@ in
         after = [ "network.target" ];
 
         scriptArgs = "%i";
-        path = [ pkgs.linuxPackages.usbip ];
+        path = with pkgs; [
+          iproute2
+          linuxPackages.usbip
+        ];
 
         script = ''
           busid="$1"
-          ip="$(grep nameserver /etc/resolv.conf | cut -d' ' -f2)"
+          ip="$(ip route list | sed -nE 's/(default)? via (.*) dev eth0 proto kernel/\2/p')"
 
           echo "Starting auto attach for busid $busid on $ip."
           source ${usbipd-win-auto-attach} "$ip" "$busid"
