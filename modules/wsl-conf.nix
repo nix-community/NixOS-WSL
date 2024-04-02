@@ -14,6 +14,14 @@ with lib; {
         default = true;
         description = "Automatically mount windows drives under ${config.wsl.wslConf.automount.root}";
       };
+      ldconfig = mkOption {
+        type = bool;
+        default = false;
+        description = ''
+          Wether to modify `/etc/ld.so.conf.d/ld.wsl.conf` to load OpenGL drivers provided by the Windows host in `/usr/lib/wsl/lib` with `/sbin/ldconfig`.
+          This way of providing OpenGL drivers does not work with NixOS and `wsl.useWindowsDriver` should be used instead.
+        '';
+      };
       mountFsTab = mkOption {
         type = bool;
         default = false;
