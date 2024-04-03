@@ -1,7 +1,5 @@
 { config, lib, pkgs, ... }:
 
-with lib;
-
 let
   usbipd-win-auto-attach = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/dorssel/usbipd-win/v3.1.0/Usbipd/wsl-scripts/auto-attach.sh";
@@ -11,17 +9,17 @@ let
   cfg = config.wsl.usbip;
 in
 {
-  options.wsl.usbip = with types; {
-    enable = mkEnableOption "USB/IP integration";
-    autoAttach = mkOption {
-      type = listOf str;
+  options.wsl.usbip = {
+    enable = lib.mkEnableOption "USB/IP integration";
+    autoAttach = lib.mkOption {
+      type = with lib.types; listOf str;
       default = [ ];
       example = [ "4-1" ];
       description = "Auto attach devices with provided Bus IDs.";
     };
   };
 
-  config = mkIf (config.wsl.enable && cfg.enable) {
+  config = lib.mkIf (config.wsl.enable && cfg.enable) {
     environment.systemPackages = [
       pkgs.linuxPackages.usbip
     ];
