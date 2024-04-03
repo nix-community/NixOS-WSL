@@ -11,11 +11,22 @@ in
 {
   options.wsl.usbip = {
     enable = lib.mkEnableOption "USB/IP integration";
+
     autoAttach = lib.mkOption {
       type = with lib.types; listOf str;
       default = [ ];
       example = [ "4-1" ];
       description = "Auto attach devices with provided Bus IDs.";
+    };
+
+    snippetIpAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "$(ip route list | sed -nE 's/(default)? via (.*) dev eth0 proto kernel/\2/p')";
+      example = "127.0.0.1";
+      description = ''
+        This snippet is used to obtain the address of the Windows host where Usbipd is running.
+        It can also be a plain IP address in case networkingMode=mirrored or wsl-vpnkit is used.
+      '';
     };
   };
 
@@ -39,7 +50,7 @@ in
 
         script = ''
           busid="$1"
-          ip="$(ip route list | sed -nE 's/(default)? via (.*) dev eth0 proto kernel/\2/p')"
+          ip="${cfg.snippetIpAddress}"
 
           echo "Starting auto attach for busid $busid on $ip."
           source ${usbipd-win-auto-attach} "$ip" "$busid"
