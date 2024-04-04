@@ -1,3 +1,7 @@
+outputs:
+  dotnet-version:
+    value: ${{ steps.setup-dotnet.outputs.dotnet-version }}
+
 runs:
   using: 'composite'
   steps:
@@ -6,7 +10,8 @@ runs:
       with:
         vs-version: '[17.2,'
 
-    - name: Setup .NET Core SDK
+    - name: Setup .NET SDK
+      id: setup-dotnet
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8
