@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 using Windows.Win32.Foundation;
 
@@ -25,7 +26,7 @@ internal static class Program {
         // Argparse docs: https://github.com/dotnet/command-line-api
 
         var rootCommand = new RootCommand(
-            string.Format(Translations.Root_Description, DistributionInfo.DisplayName)
+            string.Format(CultureInfo.CurrentCulture, Translations.Root_Description, DistributionInfo.DisplayName)
         ) {
             Run.GetCommand(),
             Install.GetCommand(),
@@ -97,8 +98,8 @@ internal static class Program {
                 var vl = VersionHelper.LauncherVersion?.ToString();
                 var vi = VersionHelper.InstalledVersion?.ToString() ?? "UNKNOWN";
 
-                context.Console.Out.WriteLine(string.Format(Translations.Version_Launcher, vl));
-                context.Console.Out.WriteLine(string.Format(Translations.Version_Module, vi));
+                context.Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, Translations.Version_Launcher, vl));
+                context.Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, Translations.Version_Module, vi));
             } else {
                 await next(context).ConfigureAwait(false);
             }
