@@ -1,16 +1,17 @@
 using System.CommandLine;
 
 using Launcher.Helpers;
+using Launcher.i18n;
 
 namespace Launcher.Commands;
 
 public static class Install {
     public static Command GetCommand() {
         var command = new Command("install") {
-            Description = $"Install {DistributionInfo.DisplayName} if it has not been installed already"
+            Description = string.Format(Translations.Install_Description, DistributionInfo.DisplayName)
         };
         var reinstallOpt = new Option<bool>("--reinstall") {
-            Description = "Delete the existing installation and install a fresh copy"
+            Description = Translations.Install_OptionReinstall
         };
         command.Add(reinstallOpt);
 

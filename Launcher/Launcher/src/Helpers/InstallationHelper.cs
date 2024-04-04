@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using Launcher.i18n;
+
 using WSL;
 
 namespace Launcher.Helpers;
@@ -10,17 +12,17 @@ public static class InstallationHelper {
     /// </summary>
     /// <returns>0 on success, an error code otherwise</returns>
     public static int Install() {
-        Console.WriteLine($"Registering {DistributionInfo.DisplayName}...");
+        Console.WriteLine(Translations.Install_RegisteringDistro, DistributionInfo.DisplayName);
 
         if (WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-            Console.Error.WriteLine($"{DistributionInfo.DisplayName} is already installed!");
+            Console.Error.WriteLine(Translations.Install_AlreadyInstalled, DistributionInfo.DisplayName);
             return 0;
         }
 
         // Determine tarball location
         var tarPath = FindTarball();
         if (tarPath == null) {
-            Console.Error.WriteLine("Could not find distro tarball");
+            Console.Error.WriteLine(Translations.Install_TarballNotFound);
             return 1;
         }
 
@@ -32,7 +34,7 @@ public static class InstallationHelper {
             "when registering the distribution"
         );
 
-        Console.WriteLine("Installation finished successfully");
+        Console.WriteLine(Translations.Install_Success);
         return 0;
     }
 
@@ -41,9 +43,9 @@ public static class InstallationHelper {
     /// </summary>
     /// <returns>true on success</returns>
     public static bool Uninstall() {
-        Console.WriteLine($"Uninstalling {DistributionInfo.DisplayName}...");
+        Console.WriteLine(Translations.Install_Uninstalling, DistributionInfo.DisplayName);
         if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-            Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
+            Console.Error.WriteLine(Translations.Error_NotInstalled, DistributionInfo.DisplayName);
             return false;
         }
 
@@ -52,7 +54,7 @@ public static class InstallationHelper {
             "when unregistering the distribution"
         );
 
-        Console.WriteLine("Uninstall completed");
+        Console.WriteLine(Translations.Install_UninstallSuccess);
         return true;
     }
 

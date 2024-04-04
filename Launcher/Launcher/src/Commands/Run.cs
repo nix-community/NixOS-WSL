@@ -1,5 +1,7 @@
 using System.CommandLine;
 
+using Launcher.i18n;
+
 using WSL;
 
 namespace Launcher.Commands;
@@ -7,8 +9,7 @@ namespace Launcher.Commands;
 public static class Run {
     public static Command GetCommand() {
         var command = new Command("run") {
-            Description =
-                "Run a command in the current directory. If no command is specified, the default shell is launched"
+            Description = Translations.Run_Description
         };
         var argCmd = new Argument<string>("command") {
             Arity = ArgumentArity.ZeroOrOne
@@ -19,7 +20,7 @@ public static class Run {
             uint exitCode = 1;
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-                Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
+                Console.Error.WriteLine(Translations.Error_NotInstalled, DistributionInfo.DisplayName);
                 Program.Result = 1;
                 return;
             }

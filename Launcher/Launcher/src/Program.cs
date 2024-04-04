@@ -3,11 +3,13 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
+using System.Diagnostics.CodeAnalysis;
 
 using Windows.Win32.Foundation;
 
 using Launcher.Commands;
 using Launcher.Helpers;
+using Launcher.i18n;
 
 using WSL;
 
@@ -23,7 +25,7 @@ internal static class Program {
         // Argparse docs: https://github.com/dotnet/command-line-api
 
         var rootCommand = new RootCommand(
-            $"Manage the {DistributionInfo.DisplayName} WSL distribution"
+            string.Format(Translations.Root_Description, DistributionInfo.DisplayName)
         ) {
             Run.GetCommand(),
             Install.GetCommand(),
@@ -32,13 +34,13 @@ internal static class Program {
         };
 
         var distroNameOption = new Option<string>("--distro-name") {
-            Description = "WSL distribution name",
+            Description = Translations.Option_DistroName,
             Arity = ArgumentArity.ZeroOrOne
         };
         distroNameOption.SetDefaultValue(DistributionInfo.Name);
 
         var versionOption = new Option<bool>("--version") {
-            Description = "Show version information"
+            Description = Translations.Option_Version
         };
 
         // Add the global options to the root command and all subcommands
@@ -72,32 +74,7 @@ internal static class Program {
             .UseTypoCorrections()
             .UseParseErrorReporting()
             .UseExceptionHandler(onException: (exception, _) => {
-                Result = exception.HResult; //Set exit code
-
-                var unwrapped = exception;
-                while (unwrapped is ContextualizedException) {
-                    unwrapped = unwrapped.InnerException;
-                }
-
-                switch (unwrapped) {
-                    case DllNotFoundException:
-                    case { HResult: var hr } when (hr & 0xFFFF) == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT: { // Only compare the lowest 16 bits (the Win32 error code)
-                        Console.Error.WriteLine("Error: The Windows Subsystem for Linux is not enabled!");
-                        Console.Error.WriteLine("Please refer to https://aka.ms/wslinstall for details on how to install it.");
-                        break;
-                    }
-                    default: {
-                        Console.Error.WriteLine("");
-                        Console.Error.WriteLine("===== BEGIN STACK TRACE =====");
-                        Console.Error.WriteLine(exception);
-                        Console.Error.WriteLine("====== END STACK TRACE ======");
-                        Console.Error.WriteLine("");
-                        Console.Error.WriteLine("An error occurred!");
-                        Console.Error.WriteLine("Please report this issue on GitHub and make sure to attach the stack trace above.");
-                        Console.Error.WriteLine("https://github.com/nix-community/NixOS-WSL/issues/new/choose");
-                        break;
-                    }
-                }
+                CrashHandler(exception);
             })
             .CancelOnProcessTermination();
 
@@ -120,8 +97,8 @@ internal static class Program {
                 var vl = VersionHelper.LauncherVersion?.ToString();
                 var vi = VersionHelper.InstalledVersion?.ToString() ?? "UNKNOWN";
 
-                context.Console.Out.WriteLine($"Launcher: {vl}");
-                context.Console.Out.WriteLine($"Module:   {vi}");
+                context.Console.Out.WriteLine(string.Format(Translations.Version_Launcher, vl));
+                context.Console.Out.WriteLine(string.Format(Translations.Version_Module, vi));
             } else {
                 await next(context).ConfigureAwait(false);
             }
@@ -130,5 +107,38 @@ internal static class Program {
         await commandLineBuilder.Build().InvokeAsync(args).ConfigureAwait(false);
 
         return Result;
+    }
+
+    [DoesNotReturn]
+    private static void CrashHandler(Exception exception) {
+        var unwrapped = exception;
+        while (unwrapped is ContextualizedException) {
+            unwrapped = unwrapped.InnerException;
+        }
+
+        switch (unwrapped) {
+            case DllNotFoundException:
+            case { HResult: var hr } when (hr & 0xFFFF) == (int) WIN32_ERROR.ERROR_LINUX_SUBSYSTEM_NOT_PRESENT: { // Only compare the lowest 16 bits (the Win32 error code)
+                Console.Error.WriteLine(Translations.Error_WslMissing, "https://aka.ms/wslinstall");
+                break;
+            }
+            default: {
+                Console.Error.WriteLine("");
+                Console.Error.WriteLine("===== BEGIN STACK TRACE =====");
+                Console.Error.WriteLine(exception);
+                Console.Error.WriteLine("====== END STACK TRACE ======");
+                Console.Error.WriteLine("");
+                Console.Error.WriteLine(Translations.Error_Crashed);
+                Console.Error.WriteLine("https://github.com/nix-community/NixOS-WSL/issues/new/choose");
+                break;
+            }
+        }
+
+        var exitCode = exception.HResult;
+        if (exitCode == 0) { // Ensure that the result is non-zero
+            exitCode = 1;
+        }
+
+        Environment.Exit(exitCode);
     }
 }
