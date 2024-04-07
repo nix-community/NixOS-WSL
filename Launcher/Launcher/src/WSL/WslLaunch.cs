@@ -4,7 +4,7 @@ using Microsoft.Win32.SafeHandles;
 
 using Windows.Win32.Foundation;
 
-namespace WSL;
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     public static void WslLaunch(

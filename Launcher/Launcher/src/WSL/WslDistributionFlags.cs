@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace WSL;
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     [Flags]

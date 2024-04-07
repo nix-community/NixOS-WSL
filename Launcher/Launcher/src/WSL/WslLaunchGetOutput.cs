@@ -11,7 +11,7 @@ using Windows.Win32.System.Console;
 
 using static Windows.Win32.PInvoke;
 
-namespace WSL;
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     // Contains code from https://github.com/wslhub/wsl-sdk-dotnet/blob/892e8b5564170eae9944649cf8ab424ce0fbce52/src/Wslhub.Sdk/Wsl.cs#L364

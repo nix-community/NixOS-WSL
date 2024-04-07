@@ -1,8 +1,7 @@
 using System.Reflection;
 
 using Launcher.i18n;
-
-using WSL;
+using Launcher.WSL;
 
 namespace Launcher.Helpers;
 

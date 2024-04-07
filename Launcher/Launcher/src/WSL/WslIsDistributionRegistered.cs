@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace WSL;
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     public static bool WslIsDistributionRegistered(string distributionName) {

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 using Windows.Win32.Foundation;
 
-namespace WSL;
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     public static void WslUnregisterDistribution(

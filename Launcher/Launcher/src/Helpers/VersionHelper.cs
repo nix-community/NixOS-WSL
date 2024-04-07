@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
-using WSL;
+using Launcher.WSL;
 
 namespace Launcher.Helpers;
 
@@ -15,7 +15,7 @@ public static class VersionHelper {
                     DistributionInfo.Name,
                     "/bin/sh --login -c \"nixos-wsl-version --json\"",
                     false,
-                    out var exitCode,
+                    out uint _,
                     true
                 ).Trim();
 

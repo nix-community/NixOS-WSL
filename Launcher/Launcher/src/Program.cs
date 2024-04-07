@@ -11,8 +11,7 @@ using Windows.Win32.Foundation;
 using Launcher.Commands;
 using Launcher.Helpers;
 using Launcher.i18n;
-
-using WSL;
+using Launcher.WSL;
 
 namespace Launcher;
 

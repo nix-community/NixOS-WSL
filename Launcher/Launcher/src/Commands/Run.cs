@@ -1,8 +1,7 @@
 using System.CommandLine;
 
 using Launcher.i18n;
-
-using WSL;
+using Launcher.WSL;
 
 namespace Launcher.Commands;
 

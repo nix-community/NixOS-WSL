@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Launcher;
 
 public static class ExceptionContext {
@@ -13,9 +15,7 @@ public static class ExceptionContext {
     }
 }
 
+[SuppressMessage("Design", "CA1032:Standardausnahmekonstruktoren implementieren")]
 public class ContextualizedException : Exception {
     public ContextualizedException(string context, Exception innerException) : base(context, innerException) { }
-
-    private ContextualizedException() { }
-    private ContextualizedException(string message) : base(message) { }
 }
