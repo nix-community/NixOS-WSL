@@ -6,12 +6,12 @@ using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-using Windows.Win32.Foundation;
-
 using Launcher.Commands;
 using Launcher.Helpers;
 using Launcher.i18n;
 using Launcher.WSL;
+
+using Windows.Win32.Foundation;
 
 namespace Launcher;
 
