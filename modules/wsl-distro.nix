@@ -135,6 +135,12 @@ in
       };
     };
 
+    # Prevent systemd from mounting a tmpfs over the runtime dir (and thus hiding the wayland socket)
+    systemd.services."user-runtime-dir@" = {
+      overrideStrategy = "asDropin";
+      unitConfig.ConditionPathExists = "!/run/user/%i";
+    };
+
     # dhcp is handled by windows
     networking.dhcpcd.enable = false;
 
