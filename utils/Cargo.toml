@@ -24,3 +24,7 @@ path = "src/shim.rs"
 [[bin]]
 name = "split-path"
 path = "src/split_path.rs"
+
+[[bin]]
+name = "shell-wrapper"
+path = "src/shell_wrapper.rs"

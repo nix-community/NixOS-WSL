@@ -1,10 +1,13 @@
 { config, pkgs, lib, ... }:
 with lib; {
 
+  imports = [
+    ./wrap-shell.nix
+  ];
+
   config =
     let
       cfg = config.wsl;
-      nativeUtils = pkgs.callPackage ../../../utils { };
 
       bashWrapper = pkgs.writeShellScriptBin "sh" ''
         export PATH="$PATH:${lib.makeBinPath [ pkgs.systemd pkgs.gnugrep ]}"
@@ -12,6 +15,8 @@ with lib; {
       '';
     in
     mkIf (cfg.enable && cfg.nativeSystemd) {
+
+      system.build.nativeUtils = pkgs.callPackage ../../../utils { };
 
       wsl = {
         binShPkg = bashWrapper;
@@ -25,7 +30,7 @@ with lib; {
         shimSystemd = stringAfter [ ] ''
           echo "setting up /sbin/init shim..."
           mkdir -p /sbin
-          ln -sf ${nativeUtils}/bin/systemd-shim /sbin/init
+          ln -sf ${config.system.build.nativeUtils}/bin/systemd-shim /sbin/init
         '';
         setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
           echo "setting up /bin/login..."
@@ -38,7 +43,7 @@ with lib; {
         # preserve $PATH from parent
         variables.PATH = [ "$PATH" ];
         extraInit = ''
-          eval $(${nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
+          eval $(${config.system.build.nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
         '';
       };
     };
