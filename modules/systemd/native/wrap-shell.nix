@@ -3,6 +3,8 @@
 with lib;
 
 let
+  cfg = config.wsl;
+
   users-groups-module = import "${modulesPath}/config/users-groups.nix" {
     inherit lib utils pkgs;
     config = recursiveUpdate config {
@@ -27,5 +29,7 @@ let
   };
 in
 {
-  system.activationScripts.users = users-groups-module.config.system.activationScripts.users;
+  config = mkIf (cfg.enable && cfg.nativeSystemd) {
+    system.activationScripts.users = users-groups-module.config.system.activationScripts.users;
+  };
 }
