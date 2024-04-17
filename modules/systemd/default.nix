@@ -30,7 +30,6 @@ with lib; {
         # Disable systemd units that don't make sense on WSL
         services = {
           firewall.enable = false;
-          systemd-resolved.enable = lib.mkDefault false;
           # systemd-timesyncd actually works in WSL and without it the clock can drift
           systemd-timesyncd.unitConfig.ConditionVirtualization = "";
         };
