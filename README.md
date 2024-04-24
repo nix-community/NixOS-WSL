@@ -11,7 +11,7 @@ Modules for running NixOS on the Windows Subsystem for Linux
 
 ## Quick Start
 
-1. Enable WSL if you haven’t done so:
+1. Enable WSL if you haven't done already:
 
   - ```powershell
     wsl --install --no-distribution
