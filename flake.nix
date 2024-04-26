@@ -28,10 +28,22 @@
 
       nixosConfigurations =
         let
-          config = { test ? false, legacy ? false }: { config, lib, ... }: {
+          config = { test ? false, legacy ? false }: { config, lib, pkgs, ... }: {
             wsl.enable = true;
             wsl.nativeSystemd = lib.mkIf legacy false;
             programs.bash.loginShellInit = lib.mkIf (!test) "nixos-wsl-welcome";
+            systemd.tmpfiles.rules =
+              let
+                channels = pkgs.runCommand "default-channels" { } ''
+                  mkdir -p $out
+                  ln -s ${pkgs.path} $out/nixos
+                  ln -s ${./.} $out/nixos-wsl
+                '';
+              in
+              [
+                "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
+                "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
+              ];
             system.stateVersion = config.system.nixos.release;
           };
         in
