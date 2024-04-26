@@ -19,8 +19,11 @@ fn real_main() -> anyhow::Result<()> {
     // Skip if environment was already set
     if env::var_os("__NIXOS_SET_ENVIRONMENT_DONE") != Some("1".into()) {
         // Load the environment from /etc/set-environment
-        let output = Command::new("/bin/sh")
-            .args(&["-c", ". /etc/set-environment && /usr/bin/env -0"])
+        let output = Command::new(env!("NIXOS_WSL_SH"))
+            .args(&[
+                "-c",
+                &format!(". /etc/set-environment && {} -0", env!("NIXOS_WSL_ENV")),
+            ])
             .output()
             .context("when reading /etc/set-environment")?;
 
