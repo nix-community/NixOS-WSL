@@ -13,6 +13,9 @@ fn real_main() -> anyhow::Result<()> {
     // Therefore we dereference our symlink to get whatever it was originally.
     let shell = read_link(exe_dir.join("shell")).context("when locating the wrapped shell")?;
 
+    // Set the SHELL environment variable to the wrapped shell instead of the wrapper
+    env::set_var("SHELL", &shell);
+
     // Skip if environment was already set
     if env::var_os("__NIXOS_SET_ENVIRONMENT_DONE") != Some("1".into()) {
         // Load the environment from /etc/set-environment

@@ -16,7 +16,7 @@ let
               wrapper = pkgs.stdenvNoCC.mkDerivation {
                 name = "wrapped-${last (splitString "/" (shellPath))}";
                 buildCommand = ''
-                  mkdir -p $out/bin
+                  mkdir -p $out
                   cp ${config.system.build.nativeUtils}/bin/shell-wrapper $out/wrapper
                   ln -s ${shellPath} $out/shell
                 '';
