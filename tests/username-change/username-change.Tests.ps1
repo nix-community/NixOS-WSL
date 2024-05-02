@@ -2,18 +2,36 @@ BeforeAll {
   . $PSScriptRoot/../lib/lib.ps1
 }
 
-Describe "Login Shell" {
-  BeforeAll {
-    $distro = Install-Distro
-  }
+if ($IsWindows) {
+  Describe "Login Shell" {
+    BeforeAll {
+      $distro = Install-Distro
+    }
 
-  It "should be possible to change the username" {
-    $distro.Launch("whoami") | Select-Object -Last 1 | Should -BeExactly "nixos"
-    $distro.InstallConfig("$PSScriptRoot/username-change.nix")
-    $distro.Launch("whoami") | Select-Object -Last 1 | Should -BeExactly "different-name"
-  }
+    It "should be possible to change the username" {
+      $distro.Launch("whoami") | Select-Object -Last 1 | Should -BeExactly "nixos"
+      $config = "$PSScriptRoot/username-change.nix"
 
-  AfterAll {
-    $distro.Uninstall()
+      # Copy the new config
+      $distro.Launch("sudo cp -v $($distro.GetPath($config)) /etc/nixos/configuration.nix")
+      $LASTEXITCODE | Should -Be 0
+
+      # Rebuild (boot not switch!)
+      $distro.Launch("sh -c 'sudo nixos-rebuild boot < /dev/null'")
+      $LASTEXITCODE | Should -Be 0
+
+      # Shutdown
+      $distro.Shutdown()
+
+      # Run the activation scripts once
+      wsl -d $distro.id --user root exit
+      $distro.Shutdown()
+
+      $distro.Launch("whoami") | Select-Object -Last 1 | Should -BeExactly "different-name"
+    }
+
+    AfterAll {
+      $distro.Uninstall()
+    }
   }
 }
