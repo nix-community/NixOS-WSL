@@ -47,8 +47,27 @@ fn real_main() -> anyhow::Result<()> {
         }
     }
 
+    let shell_exe = &shell
+        .file_name()
+        .ok_or(anyhow!("when trying to get the shell's filename"))?
+        .to_str()
+        .ok_or(anyhow!(
+            "when trying to convert the shell's filename to a string"
+        ))?
+        .to_string();
+
+    let arg0 = if env::args()
+        .next()
+        .map(|arg| arg.starts_with('-'))
+        .unwrap_or(false)
+    {
+        "-".to_string() + shell_exe.as_str() // prepend "-" to the shell's arg0 to make it a login shell
+    } else {
+        shell_exe.clone()
+    };
+
     Err(anyhow!(Command::new(&shell)
-        .arg0(shell)
+        .arg0(arg0)
         .args(env::args_os().skip(1))
         .exec())
     .context("when trying to exec the wrapped shell"))
