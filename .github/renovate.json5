@@ -4,7 +4,7 @@
   lockFileMaintenance: {
     enabled: true,
     extends: ["schedule:weekly"],
-    autoMerge: true,
+    automerge: true,
   },
   nix: {
     enabled: true,
