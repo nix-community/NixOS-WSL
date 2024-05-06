@@ -15,7 +15,7 @@ kernlog = "0.3.1"
 clap = { version = "<4.4", features = ["derive"] }
 clap_lex = "<0.7.0"
 anstyle = "<1.0.7"
-anstyle-parse = "<0.2.4"
+anstyle-parse = "<0.2.5"
 
 [[bin]]
 name = "systemd-shim"
