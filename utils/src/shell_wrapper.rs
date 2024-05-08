@@ -18,32 +18,36 @@ fn real_main() -> anyhow::Result<()> {
 
     // Skip if environment was already set
     if env::var_os("__NIXOS_SET_ENVIRONMENT_DONE") != Some("1".into()) {
-        // Load the environment from /etc/set-environment
-        let output = Command::new(env!("NIXOS_WSL_SH"))
-            .args(&[
-                "-c",
-                &format!(". /etc/set-environment && {} -0", env!("NIXOS_WSL_ENV")),
-            ])
-            .output()
-            .context("when reading /etc/set-environment")?;
+        if !std::path::Path::new("/etc/set-environment").exists() {
+            eprintln!("[shell-wrapper] Warning: /etc/set-environment does not exist");
+        } else {
+            // Load the environment from /etc/set-environment
+            let output = Command::new(env!("NIXOS_WSL_SH"))
+                .args(&[
+                    "-c",
+                    &format!(". /etc/set-environment && {} -0", env!("NIXOS_WSL_ENV")),
+                ])
+                .output()
+                .context("when reading /etc/set-environment")?;
 
-        // Parse the output
-        let output_string =
-            String::from_utf8(output.stdout).context("when decoding the output of env")?;
-        let env = output_string
-            .split('\0')
-            .filter(|entry| !entry.is_empty())
-            .map(|entry| {
-                entry
-                    .split_once("=")
-                    .ok_or(anyhow!("invalid env entry: {}", entry))
-            })
-            .collect::<Result<Vec<_>, _>>()
-            .context("when parsing the output of env")?;
+            // Parse the output
+            let output_string =
+                String::from_utf8(output.stdout).context("when decoding the output of env")?;
+            let env = output_string
+                .split('\0')
+                .filter(|entry| !entry.is_empty())
+                .map(|entry| {
+                    entry
+                        .split_once("=")
+                        .ok_or(anyhow!("invalid env entry: {}", entry))
+                })
+                .collect::<Result<Vec<_>, _>>()
+                .context("when parsing the output of env")?;
 
-        // Apply the environment variables
-        for &(key, val) in &env {
-            env::set_var(key, val);
+            // Apply the environment variables
+            for &(key, val) in &env {
+                env::set_var(key, val);
+            }
         }
     }
 
