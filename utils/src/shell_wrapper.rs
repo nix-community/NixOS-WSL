@@ -77,5 +77,12 @@ fn main() {
     let result = real_main();
 
     env::set_var("RUST_BACKTRACE", "1");
-    eprintln!("[shell-wrapper] Error: {:?}", result.unwrap_err());
+    let err = result.unwrap_err();
+
+    eprintln!("[shell-wrapper] Error: {:?}", &err);
+
+    // Write the result to /tmp/shell-wrapper_crash_<pid>.log
+    let pid = std::process::id();
+    let output_file = format!("/tmp/shell-wrapper_crash_{}.log", pid);
+    std::fs::write(output_file, format!("{:?}", &err)).expect("Failed to write crash log to file");
 }
