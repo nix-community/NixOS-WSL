@@ -1,4 +1,6 @@
 use anyhow::{anyhow, Context};
+use nix::libc::{sigaction, PT_NULL, SIGCHLD, SIG_IGN};
+use std::mem::MaybeUninit;
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 use std::{env, fs::read_link};
@@ -18,9 +20,23 @@ fn real_main() -> anyhow::Result<()> {
 
     // Skip if environment was already set
     if env::var_os("__NIXOS_SET_ENVIRONMENT_DONE") != Some("1".into()) {
-        if !std::path::Path::new("/etc/set-environment").exists() {
-            eprintln!("[shell-wrapper] Warning: /etc/set-environment does not exist");
-        } else {
+        || -> anyhow::Result<()> {
+            if !std::path::Path::new("/etc/set-environment").exists() {
+                eprintln!("[shell-wrapper] Warning: /etc/set-environment does not exist");
+                return Ok(());
+            }
+
+            unsafe {
+                // WSL starts a single shell under login to make sure that a logind session exists.
+                // That shell is started with SIGCHLD ignored
+                // If it is, we are probably that shell and can just skip setting the environment
+                let mut act: sigaction = MaybeUninit::zeroed().assume_init();
+                sigaction(SIGCHLD, PT_NULL as *const sigaction, &mut act);
+                if act.sa_sigaction == SIG_IGN {
+                    return Ok(());
+                }
+            }
+
             // Load the environment from /etc/set-environment
             let output = Command::new(env!("NIXOS_WSL_SH"))
                 .args(&[
@@ -48,7 +64,9 @@ fn real_main() -> anyhow::Result<()> {
             for &(key, val) in &env {
                 env::set_var(key, val);
             }
-        }
+
+            Ok(())
+        }()?;
     }
 
     let shell_exe = &shell
