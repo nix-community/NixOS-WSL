@@ -32,6 +32,7 @@ fn real_main() -> anyhow::Result<()> {
                 // WSL starts a single shell under login to make sure that a logind session exists.
                 // That shell is started with SIGCHLD ignored
                 // If it is, we are probably that shell and can just skip setting the environment
+                // sigaction from libc is used here, because the wrapped version from the nix crate does not accept null
                 let mut act: sigaction = MaybeUninit::zeroed().assume_init();
                 sigaction(SIGCHLD, PT_NULL as *const sigaction, &mut act);
                 if act.sa_sigaction == SIG_IGN {
