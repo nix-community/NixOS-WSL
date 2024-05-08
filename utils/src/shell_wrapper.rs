@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Context};
+use log::{error, info, warn, LevelFilter};
 use nix::libc::{sigaction, PT_NULL, SIGCHLD, SIG_IGN};
 use std::mem::MaybeUninit;
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 use std::{env, fs::read_link};
+use systemd_journal_logger::JournalLog;
 
 fn real_main() -> anyhow::Result<()> {
     let exe = read_link("/proc/self/exe").context("when locating the wrapper binary")?;
@@ -22,7 +24,7 @@ fn real_main() -> anyhow::Result<()> {
     if env::var_os("__NIXOS_SET_ENVIRONMENT_DONE") != Some("1".into()) {
         || -> anyhow::Result<()> {
             if !std::path::Path::new("/etc/set-environment").exists() {
-                eprintln!("[shell-wrapper] Warning: /etc/set-environment does not exist");
+                warn!("/etc/set-environment does not exist");
                 return Ok(());
             }
 
@@ -33,6 +35,7 @@ fn real_main() -> anyhow::Result<()> {
                 let mut act: sigaction = MaybeUninit::zeroed().assume_init();
                 sigaction(SIGCHLD, PT_NULL as *const sigaction, &mut act);
                 if act.sa_sigaction == SIG_IGN {
+                    info!("SIGCHLD is ignored, skipping setting environment");
                     return Ok(());
                 }
             }
@@ -96,15 +99,22 @@ fn real_main() -> anyhow::Result<()> {
 }
 
 fn main() {
+    JournalLog::new()
+        .context("When initializing journal logger")
+        .unwrap()
+        .with_syslog_identifier("shell-wrapper".to_string())
+        .install()
+        .unwrap();
+
+    log::set_max_level(LevelFilter::Info);
+
     let result = real_main();
 
     env::set_var("RUST_BACKTRACE", "1");
     let err = result.unwrap_err();
 
-    eprintln!("[shell-wrapper] Error: {:?}", &err);
+    eprintln!("{:?}", &err);
 
-    // Write the result to /tmp/shell-wrapper_crash_<pid>.log
-    let pid = std::process::id();
-    let output_file = format!("/tmp/shell-wrapper_crash_{}.log", pid);
-    std::fs::write(output_file, format!("{:?}", &err)).expect("Failed to write crash log to file");
+    // Log the error to the journal
+    error!("{:?}", &err);
 }
