@@ -38,11 +38,11 @@ class Distro {
     Write-Host "Installing config: $path"
 
     # Copy the new config
-    $this.Launch("sudo cp $($this.GetPath($path)) /etc/nixos/configuration.nix")
+    $this.Launch("sudo cp -v $($this.GetPath($path)) /etc/nixos/configuration.nix")
     $LASTEXITCODE | Should -Be 0
 
     # Rebuild
-    $this.Launch("sudo nixos-rebuild switch")
+    $this.Launch("sh -c 'sudo nixos-rebuild switch < /dev/null'")
     $LASTEXITCODE | Should -Be 0
 
     Write-Host "Config installed successfully"
@@ -130,17 +130,12 @@ class WslDistro : Distro {
       throw "Failed to import distro"
     }
     & wsl.exe --list -q | Should -Contain $this.id
-
-    $this.Launch("sudo nix-channel --update")
   }
 
   [Array]Launch([string]$command) {
     Write-Host "> $command"
     $result = @()
-    # Must explicitly use `bash -l` because otherwise WSL does not source /etc/profile.
-    # Interestingly, it works when using the interactive `wsl -d <distro>` without further arguments.
-    # Might be related: https://github.com/microsoft/WSL/issues/11152
-    & wsl.exe -d $this.id -e /run/current-system/sw/bin/bash -lc $command | Tee-Object -Variable result | Write-Host
+    Invoke-Expression "wsl.exe -d $($this.id) --% $command" | Tee-Object -Variable result | Write-Host
     return $result | Remove-Escapes
   }
 

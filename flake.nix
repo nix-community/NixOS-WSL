@@ -52,32 +52,11 @@
             ];
           };
 
-          test-windows = nixpkgs.lib.nixosSystem {
+          test = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
               (config { test = true; })
-            ];
-          };
-
-          test-docker = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              (config { test = true; legacy = true; })
-              ({ config, pkgs, ... }: {
-                system.activationScripts.create-test-entrypoint.text =
-                  let
-                    syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                      shell=$(${pkgs.getent}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
-                      exec $shell $@
-                    '';
-                  in
-                  ''
-                    mkdir -p /bin
-                    ln -sfn ${syschdemdProxy} /bin/syschdemd
-                  '';
-              })
             ];
           };
         };
