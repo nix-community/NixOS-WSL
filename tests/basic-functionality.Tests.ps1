@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Basic Functionality" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
   It "is possible to run a command in the container" {

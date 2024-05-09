@@ -4,16 +4,14 @@ BeforeAll {
 
 Describe "Login Shell" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
-  if ($IsWindows) {
-    It "should start commands in a login shell" {
-      # The echo should eat the \r PowerShell appends to stdin
-      Write-Host "> shopt login_shell"
-      Write-Output "shopt login_shell`necho " | wsl -d $distro.id | Tee-Object -Variable output | Write-Host
-      $output | Select-Object -Index ($output.Length - 2) | Should -Match "login_shell\s*on"
-    }
+  It "should start commands in a login shell" {
+    # The echo should eat the \r PowerShell appends to stdin
+    Write-Host "> shopt login_shell"
+    Write-Output "shopt login_shell`necho " | wsl -d $distro.id | Tee-Object -Variable output | Write-Host
+    $output | Select-Object -Index ($output.Length - 2) | Should -Match "login_shell\s*on"
   }
 
   It "should be possible to access home manager sessionVariables" {

@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Docker (native)" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
     try {
       $distro.InstallConfig("$PSScriptRoot/docker-native.nix")
     }

@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Systemd Services" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
   It "should boot" {
