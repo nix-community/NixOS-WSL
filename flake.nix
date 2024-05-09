@@ -28,10 +28,10 @@
 
       nixosConfigurations =
         let
-          config = { test ? false, legacy ? false }: { config, lib, pkgs, ... }: {
+          config = { legacy ? false }: { config, lib, pkgs, ... }: {
             wsl.enable = true;
             wsl.nativeSystemd = lib.mkIf legacy false;
-            programs.bash.loginShellInit = lib.mkIf (!test) "nixos-wsl-welcome";
+            programs.bash.loginShellInit = "nixos-wsl-welcome";
             systemd.tmpfiles.rules =
               let
                 channels = pkgs.runCommand "default-channels" { } ''
@@ -61,14 +61,6 @@
             modules = [
               self.nixosModules.default
               (config { legacy = true; })
-            ];
-          };
-
-          test = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              (config { test = true; })
             ];
           };
         };

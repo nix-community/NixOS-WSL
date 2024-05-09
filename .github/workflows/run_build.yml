@@ -12,7 +12,6 @@ jobs:
         config:
           - modern
           - legacy
-          - test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
