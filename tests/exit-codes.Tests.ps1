@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Exit Codes" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
   It "should return 0 when running true" {

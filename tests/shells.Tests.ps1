@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Shells" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
 
     function Add-ShellTest([string]$package, [string]$executable, [string]$command) {
       $temp = New-TemporaryFile

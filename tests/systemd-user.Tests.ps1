@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Systemd User Daemon" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
   It "should be possible to connect to the user daemon" {
