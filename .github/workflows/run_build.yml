@@ -26,7 +26,7 @@ jobs:
       - name: Build Tarball 🛠️
         uses: ./.github/actions/build-wsl-tarball
         with:
-          config: modern
+          config: default
           filename: nixos-wsl.tar.gz
 
       - name: Upload Tarball 📤
