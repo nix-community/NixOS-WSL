@@ -39,7 +39,7 @@ with lib; {
       warnings = [
         ''
           The old method of running systemd in a container (syschdemd) is deprecated.
-          Legacy WSL support is untested and might be removed in a future release.
+          Legacy WSL support is untested and is scheduled to be removed entirely with the 24.11 release.
           Please migrate to native systemd by removing `wsl.nativeSystemd = false;` from your configuration.
         ''
       ];
