@@ -41,7 +41,7 @@ jobs:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-modern
+          name: tarball
 
       - name: Setup WSL 🐧
         run: |

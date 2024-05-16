@@ -13,8 +13,8 @@ Please note that the tests are not compatible with Windows PowerShell, but requi
 ### Running the Tests
 
 If you haven't already, [install Pester](https://pester.dev/docs/introduction/installation/).  
-The tests require a "modern" `nixos-wsl.tar.gz` to be present in the current working directory, which can be built with
-`sudo nix run .#nixosConfigurations.modern.config.system.build.tarballBuilder -- nixos-wsl.tar.gz`.
+The tests require a "default" (formerly "modern") `nixos-wsl.tar.gz` to be present in the current working directory, which can be built with
+`sudo nix run .#nixosConfigurations.default.config.system.build.tarballBuilder -- nixos-wsl.tar.gz`.
 
 Once everything is in place, run the test by running the following in PowerShell at the root of this repo:
 

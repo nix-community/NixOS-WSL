@@ -47,14 +47,16 @@
             system.stateVersion = config.system.nixos.release;
           };
         in
-        {
-          modern = nixpkgs.lib.nixosSystem {
+        rec {
+          default = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
               (config { })
             ];
           };
+
+          modern = nixpkgs.lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" default;
 
           legacy = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
