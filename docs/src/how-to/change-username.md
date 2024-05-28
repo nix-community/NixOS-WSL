@@ -8,7 +8,7 @@ Follow these instructions to make sure, the change gets applied correctly:
 
 1. Change the `wsl.defaultUser` setting in your configuration to the desired username.
 2. Apply the configuration:\
-   `nixos-rebuild boot`\
+   `sudo nixos-rebuild boot`\
    Do not use `nixos-rebuild switch`! It may lead to the new user account being misconfigured.
 3. Exit the WSL shell and stop your NixOS distro:\
    `wsl -t NixOS`.
