@@ -8,7 +8,7 @@
 - [Design](./design.md)
 - [Building](./building.md)
 - [How-To](./how-to/README.md)
-  - [Setup VSCode Remote]()
+  - [Setup VSCode Remote](./how-to/vscode.md)
   - [Change the username](./how-to/change-username.md)
   - [Setup Nix Flakes](./how-to/nix-flakes.md)
 - [Troubleshooting](./troubleshooting/README.md)
