@@ -6,6 +6,10 @@ rustPlatform.buildRustPackage {
   src = ./.;
   cargoLock.lockFile = ./Cargo.lock;
 
+  preBuild = ''
+    export HOME=$(mktemp -d)
+  '';
+
   env = {
     NIXOS_WSL_SH = "${bash}/bin/sh";
     NIXOS_WSL_ENV = "${coreutils}/bin/env";
