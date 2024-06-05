@@ -2,7 +2,7 @@
 
 ## General Tips
 
-- Try fully restarting WSL by running `wsl --shutdown`
+- Try fully restarting WSL by running `wsl --shutdown`. This will close all your terminal windows. Then just restart wsl in your terminal.
 - Make sure that you are using the [Microsoft Store version](https://www.microsoft.com/store/productId/9P9TQF7MRM4R) of WSL
 - Update WSL2 to the latest version
   - To update, run: `wsl --update`

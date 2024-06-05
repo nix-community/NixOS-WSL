@@ -3,7 +3,9 @@
 The VSCode Remote server can not be run as-is on NixOS, because it downloads a nodejs binary that
 requires `/lib64/ld-linux-x86-64.so.2` to be present, which isn't the case on NixOS.
 
-There are two options to get the server to run. Both options require `wget` to be installed:
+There are two options to get the server to run.
+Option 1 is more robust but might impact other programs. Option 2 is a little bit more brittle and sometimes breaks on updates but doesn't influence other programs.
+Both options require `wget` to be installed:
 
 ```nix
 environment.systemPackages = [
