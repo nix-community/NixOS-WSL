@@ -18,7 +18,7 @@ sudo nix run .#nixosConfigurations.your-hostname.config.system.build.tarballBuil
 Without a flakes-enabled Nix, you can build a tarball using:
 
 ```sh
-nix-build -A nixosConfigurations.mysystem.config.system.build.tarballBuilder && sudo ./result/bin/nixos-wsl-tarball-builder
+nix-build -A nixosConfigurations.default.config.system.build.tarballBuilder && sudo ./result/bin/nixos-wsl-tarball-builder
 
 ```
 

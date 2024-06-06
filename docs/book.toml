@@ -7,4 +7,4 @@ title = "NixOS-WSL"
 [output.html]
 additional-css = ["custom.css"]
 edit-url-template = "https://github.com/nix-community/nixos-wsl/tree/main/docs/{path}"
-git-repository-url = "https://github.com/NixOS/nix"
+git-repository-url = "https://github.com/nix-community/nixos-wsl"
