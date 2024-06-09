@@ -19,7 +19,7 @@ jobs:
       - name: Download tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-modern
+          name: tarball
 
       - name: Download launcher binaries 📥
         uses: actions/download-artifact@v4
@@ -49,7 +49,7 @@ jobs:
       - name: Download tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-modern
+          name: tarball
           path: Launcher/Launcher-Appx
 
       - name: Setup .NET 🧰

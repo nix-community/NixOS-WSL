@@ -31,10 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         test: ${{ fromJSON(needs.prepare.outputs.tests) }}
-        os:
-          - ubuntu-20.04
-          # - windows-latest # doesn't work due to lack of nested virtualization on the runners, hopefully this will work one day
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,9 +41,13 @@ jobs:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
         with:
-          name: tarball-test
+          name: tarball
+
+      - name: Setup WSL 🐧
+        run: |
+          wsl --update
+          wsl --version
 
       - name: Execute Test 🧪
         shell: pwsh
-        run: |
-          Invoke-Pester -Output Detailed ${{ matrix.test }}
+        run: Invoke-Pester -Output Detailed ${{ matrix.test }}

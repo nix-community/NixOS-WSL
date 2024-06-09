@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Download Tarball 📥
         uses: actions/download-artifact@v4
+        with:
+          name: tarball
 
       - name: Download appx 📥
         uses: actions/download-artifact@v4
@@ -38,20 +40,16 @@ jobs:
 
       - name: Generate Checksums 🔑
         run: |
-          mv tarball-modern/nixos-wsl.tar.gz nixos-wsl.tar.gz
-          mv tarball-legacy/nixos-wsl.tar.gz nixos-wsl-legacy.tar.gz
           for x in *.{tar.gz,msixbundle}; do
             sha256sum $x > ${x}.sha256
           done
 
       - name: Attach to Release 📎
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             nixos-wsl.tar.gz
             nixos-wsl.tar.gz.sha256
-            nixos-wsl-legacy.tar.gz
-            nixos-wsl-legacy.tar.gz.sha256
             NixOS-WSL.msixbundle
             NixOS-WSL.msixbundle.sha256
         env:

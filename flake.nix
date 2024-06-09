@@ -2,7 +2,7 @@
   description = "NixOS WSL";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -28,54 +28,47 @@
 
       nixosConfigurations =
         let
-          initialConfig = { config, ... }: {
+          config = { legacy ? false }: { config, lib, pkgs, ... }: {
             wsl.enable = true;
-
+            wsl.nativeSystemd = lib.mkIf legacy false;
             programs.bash.loginShellInit = "nixos-wsl-welcome";
 
+            # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
+            # Per default the resulting systems aren't flake-enabled, so rebuilds would fail.
+            # Note: This does not affect the module being imported into your own flake.
+            nixpkgs.flake.source = lib.mkForce null;
+
+            systemd.tmpfiles.rules =
+              let
+                channels = pkgs.runCommand "default-channels" { } ''
+                  mkdir -p $out
+                  ln -s ${pkgs.path} $out/nixos
+                  ln -s ${./.} $out/nixos-wsl
+                '';
+              in
+              [
+                "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
+                "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
+              ];
             system.stateVersion = config.system.nixos.release;
           };
         in
-        {
-          modern = nixpkgs.lib.nixosSystem {
+        rec {
+          default = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
-              initialConfig
+              (config { })
             ];
           };
+
+          modern = nixpkgs.lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" default;
 
           legacy = nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
-              initialConfig
-              { wsl.nativeSystemd = false; }
-            ];
-          };
-
-          test = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              ({ config, pkgs, ... }: {
-                wsl.enable = true;
-                wsl.nativeSystemd = false;
-
-                system.activationScripts.create-test-entrypoint.text =
-                  let
-                    syschdemdProxy = pkgs.writeShellScript "syschdemd-proxy" ''
-                      shell=$(${pkgs.getent}/bin/getent passwd root | ${pkgs.coreutils}/bin/cut -d: -f7)
-                      exec $shell $@
-                    '';
-                  in
-                  ''
-                    mkdir -p /bin
-                    ln -sfn ${syschdemdProxy} /bin/syschdemd
-                  '';
-
-                system.stateVersion = config.system.nixos.release;
-              })
+              (config { legacy = true; })
             ];
           };
         };

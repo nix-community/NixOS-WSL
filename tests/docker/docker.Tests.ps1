@@ -4,7 +4,7 @@ BeforeAll {
 
 Describe "Docker (native)" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
     try {
       $distro.InstallConfig("$PSScriptRoot/docker-native.nix")
     }
@@ -15,18 +15,18 @@ Describe "Docker (native)" {
   }
 
   It "should be possible to run a docker container" {
-    $distro.Launch("docker run --rm -it hello-world")
+    $distro.Launch("docker run --rm -i hello-world")
     $LASTEXITCODE | Should -Be 0
   }
 
   It "should still be possible to run a docker container after a restart" {
     $distro.Shutdown()
-    $distro.Launch("docker run --rm -it hello-world")
+    $distro.Launch("docker run --rm -i hello-world")
     $LASTEXITCODE | Should -Be 0
   }
 
   It "should be possible to connect to the internet from a container" {
-    $distro.Launch("docker run --rm -it alpine wget -qO- http://www.msftconnecttest.com/connecttest.txt") | Select-Object -Last 1 | Should -BeExactly "Microsoft Connect Test"
+    $distro.Launch("docker run --rm -i alpine wget -qO- http://www.msftconnecttest.com/connecttest.txt") | Select-Object -Last 1 | Should -BeExactly "Microsoft Connect Test"
     $LASTEXITCODE | Should -Be 0
   }
 
@@ -37,7 +37,7 @@ Describe "Docker (native)" {
     $testfilename = "testfile"
     $testfile = "${testdir}/${testfilename}"
     $distro.Launch("echo $teststring > $testfile")
-    $distro.Launch("docker run --rm -it -v ${testdir}:/mnt alpine cat /mnt/${testfilename}") | Select-Object -Last 1 | Should -BeExactly $teststring
+    $distro.Launch("docker run --rm -i -v ${testdir}:/mnt alpine cat /mnt/${testfilename}") | Select-Object -Last 1 | Should -BeExactly $teststring
     $LASTEXITCODE | Should -Be 0
   }
 

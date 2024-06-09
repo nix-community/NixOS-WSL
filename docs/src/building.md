@@ -6,7 +6,7 @@ If you have a flakes-enabled Nix, you can use the following command to
 build your own tarball instead of relying on a prebuilt one:
 
 ```sh
-sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.modern.config.system.build.tarballBuilder
+sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder
 ```
 
 Or, if you want to build with local changes, run inside your checkout:
@@ -18,7 +18,7 @@ sudo nix run .#nixosConfigurations.your-hostname.config.system.build.tarballBuil
 Without a flakes-enabled Nix, you can build a tarball using:
 
 ```sh
-nix-build -A nixosConfigurations.mysystem.config.system.build.tarballBuilder && sudo ./result/bin/nixos-wsl-tarball-builder
+nix-build -A nixosConfigurations.default.config.system.build.tarballBuilder && sudo ./result/bin/nixos-wsl-tarball-builder
 
 ```
 

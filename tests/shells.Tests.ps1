@@ -4,9 +4,9 @@ BeforeAll {
 
 Describe "Shells" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
 
-    function Add-ShellTest([string]$package, [string]$executable) {
+    function Add-ShellTest([string]$package, [string]$executable, [string]$command) {
       $temp = New-TemporaryFile
       @"
         { pkgs, lib, config, options, ... }:
@@ -18,7 +18,6 @@ Describe "Shells" {
           config = mkMerge [
             {
               wsl.enable = true;
-              wsl.nativeSystemd = false;
               users.users.nixos.shell = pkgs.$package;
             }
             (optionalAttrs (hasAttrByPath ["programs" "$package" "enable"] options) {
@@ -29,51 +28,44 @@ Describe "Shells" {
 "@ >  $temp
       $distro.InstallConfig($temp)
       Remove-Item $temp
-      $distro.Launch("echo `$SHELL") | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
+      $distro.Launch($command) | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
       $LASTEXITCODE | Should -Be 0
     }
   }
 
   It "should be possible to use bash" {
-    Add-ShellTest "bashInteractive" "bash"
+    Add-ShellTest "bashInteractive" "bash" "echo `$SHELL"
   }
   It "should be possible to use zsh" {
-    Add-ShellTest "zsh" "zsh"
+    Add-ShellTest "zsh" "zsh" "echo `$SHELL"
   }
   It "should be possible to use dash" {
-    Add-ShellTest "dash" "dash"
+    Add-ShellTest "dash" "dash" "echo `$SHELL"
   }
   It "should be possible to use ksh" {
-    Add-ShellTest "ksh" "ksh"
+    Add-ShellTest "ksh" "ksh" "echo `$SHELL"
   }
   It "should be possible to use mksh" {
-    Add-ShellTest "mksh" "mksh"
+    Add-ShellTest "mksh" "mksh" "echo `$SHELL"
   }
   It "should be possible to use yash" {
-    Add-ShellTest "yash" "yash"
+    Add-ShellTest "yash" "yash" "echo `$SHELL"
   }
   It "should be possible to use fish" {
-    Add-ShellTest "fish" "fish"
+    Add-ShellTest "fish" "fish" "echo `$SHELL"
   }
-  if (!$IsWindows) {
-    # Skip on windows, because it just doesn't work for some reason
-    It "should be possible to use PowerShell" {
-      Add-ShellTest "powershell" "pwsh"
-    }
+  It "should be possible to use PowerShell" {
+    Add-ShellTest "powershell" "pwsh" "Write-Output `$env:SHELL"
   }
   It "should be possible to use nushell" {
-    $distro.Launch("mkdir -p /home/nixos/.config/nushell")
-    $LASTEXITCODE | Should -Be 0
-    $distro.Launch("touch /home/nixos/.config/nushell/env.nu /home/nixos/.config/nushell/config.nu")
-    $LASTEXITCODE | Should -Be 0
-    Add-ShellTest "nushell" "nu"
+    Add-ShellTest "nushell" "nu" "echo `$env.SHELL"
   }
   It "should be possible to use xonsh" {
-    Add-ShellTest "xonsh" "xonsh"
+    Add-ShellTest "xonsh" "xonsh" "echo `$SHELL"
   }
-  # Do bash last so every shell was used to run InstallConfig
+  # Do bash again so every shell was used to run InstallConfig
   It "should be possible to go back to bash" {
-    Add-ShellTest "bashInteractive" "bash"
+    Add-ShellTest "bashInteractive" "bash" "echo `$SHELL"
   }
 
   AfterAll {

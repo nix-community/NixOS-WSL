@@ -7,12 +7,6 @@ jobs:
   tar:
     name: Tarball 🛠️
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config:
-          - modern
-          - legacy
-          - test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,13 +26,13 @@ jobs:
       - name: Build Tarball 🛠️
         uses: ./.github/actions/build-wsl-tarball
         with:
-          config: ${{ matrix.config }}
+          config: default
           filename: nixos-wsl.tar.gz
 
       - name: Upload Tarball 📤
         uses: actions/upload-artifact@v4
         with:
-          name: tarball-${{ matrix.config }}
+          name: tarball
           path: nixos-wsl.tar.gz
 
   launcher:

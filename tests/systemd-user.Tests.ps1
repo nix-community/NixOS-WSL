@@ -4,10 +4,14 @@ BeforeAll {
 
 Describe "Systemd User Daemon" {
   BeforeAll {
-    $distro = Install-Distro
+    $distro = [Distro]::new()
   }
 
   It "should be possible to connect to the user daemon" {
+    # Boot the distro
+    $distro.Launch("true")
+    Start-Sleep 10 # Give the user daemon time to start
+
     $distro.Launch("systemctl --user status --no-pager")
     $LASTEXITCODE | Should -Be 0
   }
