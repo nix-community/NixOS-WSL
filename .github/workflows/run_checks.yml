@@ -1,4 +1,4 @@
-name: Flake Checks
+name: Checks
 
 on:
   workflow_call: {}
@@ -24,7 +24,7 @@ jobs:
           nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
 
   checks:
-    name: Check 📋
+    name: Flake Check ❄️
     needs:
       - prepare
     strategy:
@@ -44,3 +44,38 @@ jobs:
       - name: Run Check 📋
         run: |
           nix build -L --impure --expr "with builtins; (getFlake (toString ./.)).checks.\${currentSystem}.${{ matrix.check }}"
+
+  resharper:
+    name: Check .NET 📋
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 🧰
+        id: setup-dotnet
+        uses: ./.github/actions/setup-dotnet
+
+      - name: Install ReSharper Command Line Tools 🧰
+        shell: pwsh
+        run: dotnet tool install -g JetBrains.ReSharper.GlobalTools
+
+      - name: Create dummy tarball
+        shell: pwsh
+        run: echo $null >> Launcher\Launcher-Appx\nixos-wsl.tar.gz
+
+      - name: Run InspectCode 🔍
+        shell: pwsh
+        run: jb inspectcode --build -f=sarif -o="report.json" .\Launcher\Launcher.sln
+
+      - name: Print Report 📋
+        shell: pwsh
+        run: |
+          $(cat .\report.json | ConvertFrom-Json).runs[0].results | % {
+            $level = "warning"
+            if ($_.level -eq "note") { $level = "notice" }
+            $loc = $_.locations[0].physicalLocation
+            Write-Output "::${level} file=Launcher/$($loc.artifactLocation.uri),line=$($loc.region.startLine),endLine=$($loc.region.endLine),title=$($_.ruleId)::$($_.message.text)"
+          }

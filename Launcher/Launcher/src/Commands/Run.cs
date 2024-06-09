@@ -1,38 +1,35 @@
 using System.CommandLine;
-using Launcher.Helpers;
-using WSL;
+
+using Launcher.i18n;
+using Launcher.WSL;
 
 namespace Launcher.Commands;
 
 public static class Run {
     public static Command GetCommand() {
         var command = new Command("run") {
-            Description =
-                "Run a command in the current directory. If no command is specified, the default shell is launched"
+            Description = Translations.Run_Description
         };
         var argCmd = new Argument<string>("command") {
             Arity = ArgumentArity.ZeroOrOne
         };
         command.AddArgument(argCmd);
 
-        command.SetHandler((string? cmd) => {
-            uint exitCode;
+        command.SetHandler(cmd => {
+            uint exitCode = 1;
 
             if (!WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name)) {
-                Console.Error.WriteLine($"{DistributionInfo.DisplayName} is not installed!");
-                Program.result = 1;
+                Console.Error.WriteLine(Translations.Error_NotInstalled, DistributionInfo.DisplayName);
+                Program.Result = 1;
                 return;
             }
 
-            try {
-                WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode);
-            } catch (WslApiException e) {
-                Console.Error.WriteLine("An error occured when starting the command!");
-                Program.result = e.HResult;
-                return;
-            }
+            ExceptionContext.AddIfThrown(
+                () => WslApiLoader.WslLaunchInteractive(DistributionInfo.Name, cmd, true, out exitCode),
+                "when starting the command"
+            );
 
-            Program.result = (int)exitCode;
+            Program.Result = (int) exitCode;
         }, argCmd);
 
         return command;

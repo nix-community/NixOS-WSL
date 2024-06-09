@@ -1,0 +1,24 @@
+outputs:
+  dotnet-version:
+    value: ${{ steps.setup-dotnet.outputs.dotnet-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MSBuild # Needed for APPX packaging
+      uses: microsoft/setup-msbuild@v1.3
+      with:
+        vs-version: '[17.2,'
+
+    - name: Setup .NET SDK
+      id: setup-dotnet
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8
+        cache: true
+        cache-dependency-path: 'Launcher/Launcher/packages.lock.json'
+
+    - name: Run NuGet restore
+      shell: pwsh
+      working-directory: 'Launcher'
+      run: nuget restore

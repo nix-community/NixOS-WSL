@@ -1,29 +1,35 @@
 using System.CommandLine;
-using WSL;
+
+using Launcher.i18n;
+using Launcher.WSL;
 
 namespace Launcher.Commands;
 
 public static class Registered {
+    private static readonly string[] Aliases = { "--quiet", "-q" };
+
     public static Command GetCommand() {
         var command = new Command("registered") {
-            Description = "Check whether or not the distribution is registered"
+            Description = Translations.Registered_Description
         };
-        var quietOpt = new Option<bool>(new[] { "--quiet", "-q" }) {
-            Description = "Only return the appropriate exit code, dont write to the console"
+        var quietOpt = new Option<bool>(Aliases) {
+            Description = Translations.Registered_OptionQuiet
         };
         command.Add(quietOpt);
 
-        command.SetHandler((bool quiet) => {
+        command.SetHandler(quiet => {
             var registered = WslApiLoader.WslIsDistributionRegistered(DistributionInfo.Name);
 
             if (!quiet) {
-                if (registered)
-                    Console.WriteLine($"{DistributionInfo.Name} is registered");
-                else
-                    Console.WriteLine($"{DistributionInfo.Name} is not registered");
+                Console.WriteLine(
+                    registered
+                        ? Translations.Registered_True
+                        : Translations.Registered_False,
+                    DistributionInfo.Name
+                );
             }
 
-            Program.result = registered ? 0 : 1;
+            Program.Result = registered ? 0 : 1;
         }, quietOpt);
 
         return command;

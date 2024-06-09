@@ -1,12 +1,22 @@
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
-using WSL.Kernel32;
 
-namespace WSL;
+using Microsoft.Win32.SafeHandles;
+
+using Windows.Win32.Foundation;
+using Windows.Win32.Security;
+using Windows.Win32.System.Console;
+
+using static Windows.Win32.PInvoke;
+
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
-
     // Contains code from https://github.com/wslhub/wsl-sdk-dotnet/blob/892e8b5564170eae9944649cf8ab424ce0fbce52/src/Wslhub.Sdk/Wsl.cs#L364
+    [SuppressMessage("Maintainability", "CA1508")] // Compiler thinks (read == bufferLength) is always false, because read is set through a pointer
+    [SuppressMessage("Maintainability", "CA1416")] // Some methods used here are not available on anything older than Windows XP
     public static unsafe string WslLaunchGetOutput(
         string distributionName,
         string command,
@@ -14,71 +24,78 @@ public static partial class WslApiLoader {
         out uint exitCode,
         bool noStderr = false
     ) {
-        var stdin = Kernel32Loader.GetStdHandle(Kernel32Loader.STD_INPUT_HANDLE);
-        var stderr = Kernel32Loader.GetStdHandle(Kernel32Loader.STD_ERROR_HANDLE);
+        using SafeFileHandle realStdin = new(GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE), false);
+        using SafeFileHandle realStderr = new(GetStdHandle(STD_HANDLE.STD_ERROR_HANDLE), false);
+        var stdin = realStdin;
+        var stderr = realStderr;
 
-        var attributes = new Kernel32Loader.SECURITY_ATTRIBUTES {
-            lpSecurityDescriptor = IntPtr.Zero,
-            bInheritHandle = true,
+        var attributes = new SECURITY_ATTRIBUTES {
+            lpSecurityDescriptor = null,
+            bInheritHandle = true
         };
-        attributes.nLength = Marshal.SizeOf(attributes);
+        attributes.nLength = (uint) Marshal.SizeOf(attributes);
 
-        if (!Kernel32Loader.CreatePipe(out IntPtr readPipe, out IntPtr writePipe, ref attributes, 0))
-            throw new Exception("Cannot create stdout pipe");
+        if (!CreatePipe(out var readPipe, out var writePipe, attributes, 0))
+            throw new IOException("Cannot create stdout pipe");
 
-        var stderrRead = IntPtr.Zero;
-        var stderrWrite = IntPtr.Zero;
+        SafeFileHandle? stderrRead = null;
+        SafeFileHandle? stderrWrite = null;
         if (noStderr) {
-            if (!Kernel32Loader.CreatePipe(out stderrRead, out stderrWrite, ref attributes, 0))
-                throw new Exception("Cannot create stderr pipe");
+            if (!CreatePipe(out stderrRead, out stderrWrite, attributes, 0))
+                throw new IOException("Cannot create stderr pipe");
             stderr = stderrWrite;
         }
 
         try {
-            WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, writePipe, stderr,
-                out var hProcess);
-            Kernel32Loader.WaitForSingleObject(hProcess, Kernel32Loader.INFINITE);
+            SafeProcessHandle? hProcess = null;
+            try {
+                WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, writePipe, stderr,
+                    out hProcess);
+                WaitForSingleObject(hProcess, INFINITE);
 
-            if (!Kernel32Loader.GetExitCodeProcess(hProcess, out exitCode)) {
-                Kernel32Loader.CloseHandle(hProcess);
-                throw new Exception("Could not get exit code of WSL process");
+                if (!GetExitCodeProcess(hProcess, out exitCode)) {
+                    hProcess.Close();
+                    throw new Win32Exception("Could not get exit code of WSL process");
+                }
+            } finally {
+                hProcess?.Close();
+                hProcess?.Dispose();
             }
-
-            Kernel32Loader.CloseHandle(hProcess);
-            Kernel32Loader.CloseHandle(writePipe); // Make sure the pipe is closed if the spawned process has not done that
 
             const int bufferLength = 65536;
             var bufferPointer = Marshal.AllocHGlobal(bufferLength);
             var outputContents = new StringBuilder();
             var encoding = new UTF8Encoding(false);
-            var read = 0;
+            var read = 0U;
 
             do {
-                if (!Kernel32Loader.ReadFile(readPipe, bufferPointer, bufferLength, out read, IntPtr.Zero)) {
+                if (!ReadFile(new HANDLE(readPipe.DangerousGetHandle()), (byte*) bufferPointer, bufferLength, &read,
+                        null)) {
                     var lastError = Marshal.GetLastWin32Error();
 
                     if (lastError != 0) {
                         Marshal.FreeHGlobal(bufferPointer);
-                        throw new Exception("Could not read from pipe");
+                        throw new IOException("Could not read from pipe");
                     }
 
                     break;
                 }
 
-                outputContents.Append(encoding.GetString((byte*)bufferPointer.ToPointer(), read));
+                outputContents.Append(encoding.GetString((byte*) bufferPointer.ToPointer(), (int) read));
             } while (read == bufferLength);
 
             Marshal.FreeHGlobal(bufferPointer);
 
             return outputContents.ToString();
         } finally {
-            Kernel32Loader.CloseHandle(readPipe);
-            Kernel32Loader.CloseHandle(writePipe);
-            if (noStderr) {
-                Kernel32Loader.CloseHandle(stderrRead);
-                Kernel32Loader.CloseHandle(stderrWrite);
-            }
+            readPipe.Close();
+            writePipe.Close(); // Make sure the pipe is closed if the spawned process has not done that
+            stderrRead?.Close();
+            stderrWrite?.Close();
+            readPipe.Dispose();
+            writePipe.Dispose();
+            stderrRead?.Dispose();
+            stderrWrite?.Dispose();
         }
     }
-
 }

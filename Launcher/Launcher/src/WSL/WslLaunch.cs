@@ -1,22 +1,24 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using WSL.Kernel32;
 
-namespace WSL;
+using Microsoft.Win32.SafeHandles;
+
+using Windows.Win32.Foundation;
+
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     public static void WslLaunch(
         string distributionName,
         string? command,
         bool useCurrentWorkingDirectory,
-        IntPtr stdIn,
-        IntPtr stdOut,
-        IntPtr stdErr,
-        out IntPtr process
+        SafeFileHandle stdIn,
+        SafeFileHandle stdOut,
+        SafeFileHandle stdErr,
+        out SafeProcessHandle process
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslLaunch(
+        static extern HRESULT WslLaunch(
             string distributionName,
             string? command,
             bool useCurrentWorkingDirectory,
@@ -26,16 +28,22 @@ public static partial class WslApiLoader {
             out IntPtr process
         );
 
-        WslApiException.checkResult(
-            WslLaunch(
-                distributionName,
-                command,
-                useCurrentWorkingDirectory,
-                stdIn,
-                stdOut,
-                stdErr,
-                out process
-            )
+        ArgumentNullException.ThrowIfNull(stdIn);
+        ArgumentNullException.ThrowIfNull(stdOut);
+        ArgumentNullException.ThrowIfNull(stdErr);
+
+        var hresult = WslLaunch(
+            distributionName,
+            command,
+            useCurrentWorkingDirectory,
+            stdIn.DangerousGetHandle(),
+            stdOut.DangerousGetHandle(),
+            stdErr.DangerousGetHandle(),
+            out var internalProcess
         );
+
+        CheckResult(hresult);
+
+        process = new SafeProcessHandle(internalProcess, true);
     }
 }

@@ -20,7 +20,7 @@ jobs:
       CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
 
   checks:
-    name: Flake Checks 📋
+    name: Checks 📋
     uses: ./.github/workflows/run_checks.yml
 
   tests:

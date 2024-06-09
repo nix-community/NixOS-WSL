@@ -1,24 +1,27 @@
 using System.Runtime.InteropServices;
 
-namespace WSL;
+using Windows.Win32.Foundation;
+
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
-    public static unsafe void WslLaunchInteractive(
+    public static void WslLaunchInteractive(
         string distributionName,
         string? command,
         bool useCurrentWorkingDirectory,
         out uint exitCode
     ) {
-        [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, ExactSpelling = true, PreserveSig = true)]
+        [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode,
+            ExactSpelling = true, PreserveSig = true)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslLaunchInteractive(
+        static extern HRESULT WslLaunchInteractive(
             [In] string distributionName,
             [In] string? command,
             [In] bool useCurrentWorkingDirectory,
-            [Out, MarshalAs(UnmanagedType.U4)] out uint exitCode
+            [Out][MarshalAs(UnmanagedType.U4)] out uint exitCode
         );
 
-        WslApiException.checkResult(
+        CheckResult(
             WslLaunchInteractive(
                 distributionName,
                 command,
@@ -26,6 +29,5 @@ public static partial class WslApiLoader {
                 out exitCode
             )
         );
-        Console.WriteLine(exitCode);
     }
 }

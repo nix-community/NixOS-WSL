@@ -1,6 +1,8 @@
 using System.Runtime.InteropServices;
 
-namespace WSL;
+using Windows.Win32.Foundation;
+
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     public static void WslRegisterDistribution(
@@ -9,12 +11,12 @@ public static partial class WslApiLoader {
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslRegisterDistribution(
+        static extern HRESULT WslRegisterDistribution(
             string distributionName,
             string tarGzFilename
         );
 
-        WslApiException.checkResult(
+        CheckResult(
             WslRegisterDistribution(
                 distributionName,
                 tarGzFilename

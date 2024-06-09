@@ -1,24 +1,26 @@
 using System.Data;
 using System.Runtime.InteropServices;
 
-namespace WSL;
+using Windows.Win32.Foundation;
+
+namespace Launcher.WSL;
 
 public static partial class WslApiLoader {
     // Wrap this method, so that we can get a managed string array out of it instead of char***
     public static unsafe void WslGetDistributionConfiguration(
         string distributionName,
         out ulong distributionVersion,
-        out ulong defaultUID,
-        out WslApiLoader.WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+        out ulong defaultUid,
+        out WslDistributionFlags wslDistributionFlags,
         out string[] defaultEnvironmentVariables
     ) {
         [DllImport("wslapi.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         // ReSharper disable once LocalFunctionHidesMethod
-        static extern long WslGetDistributionConfiguration(
+        static extern HRESULT WslGetDistributionConfiguration(
             string distributionName,
             out ulong distributionVersion,
-            out ulong defaultUID,
-            out WslApiLoader.WSL_DISTRIBUTION_FLAGS wslDistributionFlags,
+            out ulong defaultUid,
+            out WslDistributionFlags wslDistributionFlags,
             out byte** defaultEnvironmentVariables,
             out ulong defaultEnvironmentVariableCount
         );
@@ -26,11 +28,11 @@ public static partial class WslApiLoader {
         byte** envv;
         ulong envc;
 
-        WslApiException.checkResult(
+        CheckResult(
             WslGetDistributionConfiguration(
                 distributionName,
                 out distributionVersion,
-                out defaultUID,
+                out defaultUid,
                 out wslDistributionFlags,
                 out envv,
                 out envc)

@@ -1,28 +1,30 @@
 using System.CommandLine;
+using System.Globalization;
+
 using Launcher.Helpers;
+using Launcher.i18n;
 
 namespace Launcher.Commands;
 
 public static class Install {
     public static Command GetCommand() {
         var command = new Command("install") {
-            Description = $"Install {DistributionInfo.DisplayName} if it has not been installed already"
+            Description = string.Format(CultureInfo.CurrentCulture, Translations.Install_Description, DistributionInfo.DisplayName)
         };
         var reinstallOpt = new Option<bool>("--reinstall") {
-            Description = "Delete the existing installation and install a fresh copy"
+            Description = Translations.Install_OptionReinstall
         };
         command.Add(reinstallOpt);
 
-        command.SetHandler((bool reinstall) => {
+        command.SetHandler(reinstall => {
             if (reinstall) {
-                var result = InstallationHelper.Uninstall();
-                if (result != 0) {
-                    Program.result = result;
+                if (!InstallationHelper.Uninstall()) {
+                    Program.Result = 1;
                     return;
                 }
             }
 
-            Program.result = InstallationHelper.Install();
+            Program.Result = InstallationHelper.Install();
         }, reinstallOpt);
 
         return command;
