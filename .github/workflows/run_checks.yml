@@ -24,7 +24,7 @@ jobs:
           nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
 
   checks:
-    name: Check 📋
+    name: Flake Check ❄️
     needs:
       - prepare
     strategy:
