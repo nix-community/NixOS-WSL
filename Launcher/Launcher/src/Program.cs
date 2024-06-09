@@ -95,7 +95,7 @@ internal static class Program {
 
             if (versionResult != null) {
                 var vl = VersionHelper.LauncherVersion?.ToString();
-                var vi = VersionHelper.InstalledVersion?.ToString() ?? "UNKNOWN";
+                var vi = VersionHelper.InstalledVersion ?? "UNKNOWN";
 
                 context.Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, Translations.Version_Launcher, vl));
                 context.Console.Out.WriteLine(string.Format(CultureInfo.CurrentCulture, Translations.Version_Module, vi));
