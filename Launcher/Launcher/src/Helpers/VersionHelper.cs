@@ -51,7 +51,5 @@ public class NixosWslVersion {
             : new Version(0, 0, 0, 0);
     }
 
-    public Version AsVersion() => _version;
-
     public override string ToString() => _versionString;
 }

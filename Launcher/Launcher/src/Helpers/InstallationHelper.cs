@@ -61,7 +61,7 @@ public static class InstallationHelper {
     ///     Find the path of the installer tarball
     /// </summary>
     /// <returns>the full path to the tarball or null</returns>
-    public static string? FindTarball() {
+    private static string? FindTarball() {
         const string tarFileName = "nixos-wsl.tar.gz";
 
         // Accept a tarball in the current directory when running a debug build
