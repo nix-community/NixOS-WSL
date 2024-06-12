@@ -2,7 +2,7 @@
 
 let
   usbipd-win-auto-attach = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/dorssel/usbipd-win/v3.1.0/Usbipd/wsl-scripts/auto-attach.sh";
+    url = "https://raw.githubusercontent.com/dorssel/usbipd-win/v4.2.0/Usbipd/WSL/auto-attach.sh";
     hash = "sha256-KJ0tEuY+hDJbBQtJj8nSNk17FHqdpDWTpy9/DLqUFaM=";
   };
 
