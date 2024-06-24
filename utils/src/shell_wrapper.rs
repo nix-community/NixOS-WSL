@@ -100,18 +100,22 @@ fn real_main() -> anyhow::Result<()> {
 }
 
 fn main() {
-    JournalLog::new()
+    if let Err(err) = JournalLog::new()
         .context("When initializing journal logger")
-        .unwrap()
-        .with_syslog_identifier("shell-wrapper".to_string())
-        .install()
-        .unwrap();
+        .and_then(|logger| {
+            logger
+                .with_syslog_identifier("shell-wrapper".to_string())
+                .install()
+                .context("When installing journal logger")
+        })
+    {
+        warn!("Error while setting up journal logger: {:?}", err);
+    }
 
     log::set_max_level(LevelFilter::Info);
 
     let result = real_main();
 
-    env::set_var("RUST_BACKTRACE", "1");
     let err = result.unwrap_err();
 
     eprintln!("{:?}", &err);
