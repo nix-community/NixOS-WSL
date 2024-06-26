@@ -71,7 +71,7 @@ in
     # WSL does not support virtual consoles
     console.enable = false;
 
-    hardware.opengl = {
+    hardware.graphics = {
       enable = true; # Enable GPU acceleration
 
       extraPackages = mkIf cfg.useWindowsDriver [
