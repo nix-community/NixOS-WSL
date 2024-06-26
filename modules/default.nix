@@ -1,5 +1,9 @@
 { lib, ... }: {
   imports = [
+    # required for options from 24.11 to work on 24.05
+    # TODO: remove when 24.11 becomes stable
+    ./24.05-compat.nix
+
     ./build-tarball.nix
     ./docker-desktop.nix
     ./interop.nix
