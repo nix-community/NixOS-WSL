@@ -27,7 +27,7 @@ with lib; {
       };
 
       system.activationScripts = {
-        createBootedSystemSymlink = ''
+        createBootedSystemSymlink = stringAfter [ "specialfs" "users" "groups" ] ''
           echo "setting up /run/booted-system..."
           [[ -e /run/booted-system ]] || ln -sfn "$(readlink -f "$systemConfig")" /run/booted-system
         '';
