@@ -138,7 +138,20 @@ in
     # Prevent systemd from mounting a tmpfs over the runtime dir (and thus hiding the wayland socket)
     systemd.services."user-runtime-dir@" = {
       overrideStrategy = "asDropin";
-      unitConfig.ConditionPathExists = "!/run/user/%i";
+      serviceConfig.ExecStart =
+        let
+          wrapped = pkgs.writeShellScript "user-runtime-dir-start-wrapped" ''
+            if [ -d "/run/user/$1" ]; then
+              exit 0
+            else
+              ${config.systemd.package}/lib/systemd/systemd-user-runtime-dir start "$1"
+            fi
+          '';
+        in
+        [
+          "" # unset old value
+          "${wrapped} %i"
+        ];
     };
 
     # dhcp is handled by windows
