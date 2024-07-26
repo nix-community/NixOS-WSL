@@ -38,9 +38,14 @@ in
     services.udev.enable = true;
 
     systemd = {
+      targets.usbip = {
+        description = "USBIP";
+      };
+
       services."usbip-auto-attach@" = {
         description = "Auto attach device having busid %i with usbip";
         after = [ "network.target" ];
+        partOf = [ "usbip.target" ];
 
         scriptArgs = "%i";
         path = with pkgs; [
