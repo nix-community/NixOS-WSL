@@ -207,7 +207,7 @@ in
 
     # require people to use lib.mkForce to make it harder to brick their installation
     wsl = {
-      populateBin = !config.services.envfs.enable;
+      populateBin = mkIf config.services.envfs.enable false;
       extraBin = [
         { src = "/init"; name = "wslpath"; }
         { src = "${cfg.binShPkg}/bin/sh"; name = "sh"; }
