@@ -62,6 +62,14 @@
             ];
           };
 
+          aarch64 = nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            modules = [
+              self.nixosModules.default
+              (config { })
+            ];
+          };
+
           modern = nixpkgs.lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" default;
 
           legacy = nixpkgs.lib.nixosSystem {

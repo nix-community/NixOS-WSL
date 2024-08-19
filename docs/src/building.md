@@ -9,6 +9,12 @@ build your own tarball instead of relying on a prebuilt one:
 sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder
 ```
 
+For Arm-based PCs, run:
+
+```sh
+sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.aarch64.config.system.build.tarballBuilder
+```
+
 Or, if you want to build with local changes, run inside your checkout:
 
 ```sh
