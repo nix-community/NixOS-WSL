@@ -115,6 +115,7 @@ fn real_main() -> anyhow::Result<()> {
     Err(
         Command::new("/nix/var/nix/profiles/system/systemd/lib/systemd/systemd")
             .arg0(env::args_os().next().expect("arg0 missing"))
+            .arg("--log-target=kmsg") // log to dmesg
             .args(env::args_os().skip(1))
             .exec()
             .into(),
