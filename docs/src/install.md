@@ -33,16 +33,6 @@ wsl -d NixOS
 
 If you chose a different name for your distro during import, adjust this command accordingly.
 
-## Install certificate for `.msixbundle` launcher
-
-First open launcher __properties__ and view the __details__ of signature `nzbr` from __Digital Signatures__ tab.
-
-Then select __View Certificate__ which let's you __Install Certificate__.
-
-Install the certificate for either `Current User` or `Local Machine` depending on your preferences. Select the certificate store manually and use `Trusted People`.
-
-You should now be able to use the `.msixbundle` launcher.
-
 ## Post-Install
 
 After the initial installation, you need to update your channels once, to be able to use `nixos-rebuild`:
