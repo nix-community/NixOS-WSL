@@ -18,6 +18,9 @@ with builtins; with lib; {
       environment.systemPackages = with pkgs; [
         docker
         docker-compose
+        # Compose links to Docker Desktop by opening 'docker-desktop://' URLs
+        # through xdg-open.
+        xdg-utils
       ];
 
       wsl.extraBin = with pkgs; [
