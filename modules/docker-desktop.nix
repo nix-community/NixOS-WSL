@@ -16,8 +16,6 @@ with builtins; with lib; {
     mkIf (config.wsl.enable && cfg.enable) {
 
       environment.systemPackages = with pkgs; [
-        docker
-        docker-compose
         # Compose links to Docker Desktop by opening 'docker-desktop://' URLs
         # through xdg-open.
         xdg-utils
