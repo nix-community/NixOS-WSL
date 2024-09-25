@@ -109,6 +109,7 @@
               clippy
               mdbook
               nixpkgs-fmt
+              powershell
               rustc
               rustfmt
               shfmt
