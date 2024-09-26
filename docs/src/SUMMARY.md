@@ -11,7 +11,7 @@
   - [Setup VSCode Remote](./how-to/vscode.md)
   - [Change the username](./how-to/change-username.md)
   - [Setup Nix Flakes](./how-to/nix-flakes.md)
-  - [MSIXBundle Certificate](./how-to/install-certificate.md)
+  - [MSIXBundle Certificate](./how-to/install-msixbundle-certificate.md)
 - [Troubleshooting](./troubleshooting/README.md)
   - [Recovery Shell](./troubleshooting/recovery-shell.md)
 
