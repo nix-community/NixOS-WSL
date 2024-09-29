@@ -1,4 +1,4 @@
-# Install Certificate for MSIXBundle
+# Install MSIXBundle Certificate
 
 To use the `.msixbundle` launcher some systems need to install the certificate
 for it. The certificate is included in the launcher and can be accessed from
