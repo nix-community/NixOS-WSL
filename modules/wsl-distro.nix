@@ -15,6 +15,12 @@ in
       internal = true;
       description = "Package to be linked to /bin/sh. Mainly useful to be re-used by other modules like envfs.";
     };
+    binShExe = mkOption {
+      type = str;
+      internal = true;
+      description = "Path to the shell executable to be linked to /bin/sh";
+      default = "${config.wsl.binShPkg}/bin/sh";
+    };
     defaultUser = mkOption {
       type = str;
       default = "nixos";
@@ -212,7 +218,7 @@ in
       populateBin = true;
       extraBin = [
         { src = "/init"; name = "wslpath"; }
-        { src = "${cfg.binShPkg}/bin/sh"; name = "sh"; }
+        { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
       ];
     };
