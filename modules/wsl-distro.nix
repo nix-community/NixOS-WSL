@@ -215,13 +215,24 @@ in
 
     # require people to use lib.mkForce to make it harder to brick their installation
     wsl = {
-      populateBin = true;
+      populateBin = mkIf config.services.envfs.enable false;
       extraBin = [
         { src = "/init"; name = "wslpath"; }
         { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
       ];
     };
+
+    services.envfs.extraFallbackPathCommands =
+      concatStringsSep "\n"
+        (map
+          (entry:
+            if entry.copy
+            then "cp -f ${entry.src} $out/${entry.name}"
+            else "ln -sf ${entry.src} $out/${entry.name}"
+          )
+          cfg.extraBin
+        );
 
     warnings = flatten [
       (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
