@@ -21,7 +21,7 @@ in
 
     snippetIpAddress = lib.mkOption {
       type = lib.types.str;
-      default = "$(ip route list | sed -nE 's/(default)? via (.*) dev eth0 proto kernel/\2/p')";
+      default = "$(ip route list | sed -nE 's/(default)? via (.*) dev eth0 .*/\\2/p' | head -n1)";
       example = "127.0.0.1";
       description = ''
         This snippet is used to obtain the address of the Windows host where Usbipd is running.
@@ -38,9 +38,14 @@ in
     services.udev.enable = true;
 
     systemd = {
+      targets.usbip = {
+        description = "USBIP";
+      };
+
       services."usbip-auto-attach@" = {
         description = "Auto attach device having busid %i with usbip";
         after = [ "network.target" ];
+        partOf = [ "usbip.target" ];
 
         scriptArgs = "%i";
         path = with pkgs; [
