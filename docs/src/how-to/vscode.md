@@ -20,7 +20,7 @@ allowing foreign binaries to run on NixOS.
 
 Running the VSCode server on NixOS-WSL requires using nix-ld 2.0 which is as of writing only on NixOS unstable or [nix-ld-rs](https://github.com/nix-community/nix-ld-rs) on NixOS 24.05.
 
-To set it up, add the following to your configuration:
+To set it up, add the following to your system configuration:
 
 ```nix
 programs.nix-ld = {
@@ -28,6 +28,7 @@ programs.nix-ld = {
     package = pkgs.nix-ld-rs; # only for NixOS 24.05
 };
 ```
+Note: If you are using Home Manager, you still need to set this up in `configuration.nix`. 
 
 ## Option 2: Patch the server
 
