@@ -7,6 +7,7 @@
     ./build-tarball.nix
     ./docker-desktop.nix
     ./interop.nix
+    ./nvidia.nix
     ./recovery.nix
     ./systemd
     ./usbip.nix
