@@ -15,7 +15,7 @@ systemd-journal-logger = "2.1.1"
 # pinned to prevent running over Rust 1.69
 clap = { version = "<4.4", features = ["derive"] }
 clap_lex = "<0.7.3"
-anstyle = "<1.0.9"
+anstyle = "<1.0.10"
 anstyle-parse = "<0.2.6"
 
 [[bin]]
