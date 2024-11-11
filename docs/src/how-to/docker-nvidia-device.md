@@ -15,8 +15,7 @@ hardware.nvidia-container-toolkit = {
 };
 ```
 
-2. As of Docker 25, the Docker daemon doesn't have the CDI feature enabled by
-   default.
+2. The Docker daemon doesn't have the CDI feature enabled by default.
 
 ```nix
 virtualisation.docker = {
