@@ -1,9 +1,16 @@
 { config, lib, pkgs, ... }:
 
 let
-  usbipd-win-auto-attach = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/dorssel/usbipd-win/v4.2.0/Usbipd/WSL/auto-attach.sh";
-    hash = "sha256-AiXbRWwOy48mxQxxpWPtog7AAwL3mU3ZSHxrVuVk8/s=";
+  usbipd-win-auto-attach = pkgs.substitute {
+    src = pkgs.fetchurl {
+      url = "https://raw.githubusercontent.com/dorssel/usbipd-win/v4.2.0/Usbipd/WSL/auto-attach.sh";
+      hash = "sha256-AiXbRWwOy48mxQxxpWPtog7AAwL3mU3ZSHxrVuVk8/s=";
+    };
+    substitutions = [
+      "--replace"
+      "./usbip"
+      "usbip"
+    ];
   };
 
   cfg = config.wsl.usbip;
