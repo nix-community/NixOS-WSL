@@ -3,7 +3,10 @@ use log::{error, info, warn, LevelFilter};
 use nix::libc::{sigaction, PT_NULL, SIGCHLD, SIG_IGN};
 use std::mem::MaybeUninit;
 use std::os::unix::process::CommandExt;
+use std::path::Path;
 use std::process::Command;
+use std::thread;
+use std::time::Duration;
 use std::{env, fs::read_link};
 use systemd_journal_logger::JournalLog;
 
@@ -16,6 +19,13 @@ fn real_main() -> anyhow::Result<()> {
     // Some binaries behave differently depending on the file name they are called with (arg[0]).
     // Therefore we dereference our symlink to get whatever it was originally.
     let shell = read_link(exe_dir.join("shell")).context("when locating the wrapped shell")?;
+
+    if shell.starts_with("/run/current-system/sw/bin/") {
+        while !Path::new("/run/current-system/sw/bin").exists() {
+            warn!("Activation script has not finished! Waiting for /run/current-system/sw/bin to exist");
+            thread::sleep(Duration::from_secs(3));
+        }
+    }
 
     // Set the SHELL environment variable to the wrapped shell instead of the wrapper
     let shell_env = env::var_os("SHELL");
