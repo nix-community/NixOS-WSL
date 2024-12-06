@@ -112,7 +112,15 @@ fn main() {
                 .context("When installing journal logger")
         })
     {
-        warn!("Error while setting up journal logger: {:?}", err);
+        if nix::unistd::geteuid().is_root() {
+            // Journal isn't available during early boot. Try to use kmsg instead
+            if let Err(err) = kernlog::init().context("When initializing kernel logger") {
+                warn!("Error while setting up kernel logger: {:?}", err);
+            }
+        } else {
+            // Users can't access the kernel log
+            warn!("Error while setting up journal logger: {:?}", err);
+        }
     }
 
     log::set_max_level(LevelFilter::Info);
