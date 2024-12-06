@@ -30,14 +30,6 @@ jobs:
         with:
           name: tarball
 
-      - name: Download msix 📥
-        uses: actions/download-artifact@v4
-        with:
-          name: launcher-msix
-
-      - name: Rename msix ✏️
-        run: mv */*.msixbundle NixOS-WSL-Launcher.msixbundle
-
       - name: Download bundle
         uses: actions/download-artifact@v4
         with:
@@ -50,7 +42,7 @@ jobs:
 
       - name: Generate Checksums 🔑
         run: |
-          for x in *.{tar.gz,msixbundle,zip}; do
+          for x in *.{tar.gz,zip}; do
             sha256sum $x > ${x}.sha256
           done
 
@@ -62,7 +54,5 @@ jobs:
             nixos-wsl.tar.gz.sha256
             NixOS-WSL-Launcher.zip
             NixOS-WSL-Launcher.zip.sha256
-            NixOS-WSL-Launcher.msixbundle
-            NixOS-WSL-Launcher.msixbundle.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
