@@ -26,7 +26,7 @@ jobs:
 
       - name: Bundle tarball with launcher 📦
         run: |
-          Copy-Item nixos-wsl.tar.gz Launcher\Launcher\pkg\
+          Copy-Item nixos.wsl Launcher\Launcher\pkg\
 
       - name: Upload Launcher 📤
         uses: actions/upload-artifact@v4
