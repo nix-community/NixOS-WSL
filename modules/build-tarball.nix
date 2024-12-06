@@ -3,6 +3,16 @@ with builtins; with lib;
 let
   cfg = config.wsl.tarball;
 
+  icon = ../Launcher/Launcher/nixos.ico;
+  iconPath = "/etc/nixos.ico";
+
+  wsl-distribution-conf = pkgs.writeText "wsl-distribution.conf" (
+    generators.toINI { } {
+      oobe.defaultName = "NixOS";
+      shortcut.icon = iconPath;
+    }
+  );
+
   defaultConfig = pkgs.writeText "default-configuration.nix" ''
     # Edit this configuration file to define what should be installed on
     # your system. Help is available in the configuration.nix(5) man page, on
@@ -62,7 +72,8 @@ in
           exit 1
         fi
 
-        out=''${1:-nixos-wsl.tar.gz}
+        # Use .wsl extension to support double-click installs on recent versions of Windows
+        out=''${1:-nixos.wsl}
 
         root=$(mktemp -p "''${TMPDIR:-/tmp}" -d nixos-wsl-tarball.XXXXXXXXXX)
         # FIXME: fails in CI for some reason, but we don't really care because it's CI
@@ -79,6 +90,10 @@ in
 
         echo "[NixOS-WSL] Adding channel..."
         nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
+
+        echo "[NixOS-WSL] Adding wsl-distribution.conf"
+        install -Dm644 ${wsl-distribution-conf} "$root/etc/wsl-distribution.conf"
+        install -Dm644 ${icon} "$root${iconPath}"
 
         echo "[NixOS-WSL] Adding default config..."
         ${if cfg.configPath == null then ''
