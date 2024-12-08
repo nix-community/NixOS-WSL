@@ -27,13 +27,13 @@ jobs:
         uses: ./.github/actions/build-wsl-tarball
         with:
           config: default
-          filename: nixos-wsl.tar.gz
+          filename: nixos.wsl
 
       - name: Upload Tarball 📤
         uses: actions/upload-artifact@v4
         with:
           name: tarball
-          path: nixos-wsl.tar.gz
+          path: nixos.wsl
 
   launcher:
     name: Launcher 🛠️
