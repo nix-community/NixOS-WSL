@@ -29,3 +29,36 @@ jobs:
   docs:
     name: Docs 📕
     uses: ./.github/workflows/run_docs.yml
+
+  success:
+    name: Pipeline Passed ✅
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - package
+      - checks
+      - tests
+      - docs
+    steps:
+      - shell: pwsh
+        run: |
+          $status = @(
+            @("Checks" , "${{ needs.checks.result }}"),
+            @("Build" , "${{ needs.build.result }}"),
+            @("Tests" , "${{ needs.tests.result }}"),
+            @("Package" , "${{ needs.package.result }}"),
+            @("Docs" , "${{ needs.docs.result }}")
+          ) | % {
+            @($_[0], (($_[1] -eq 'success') -or ($_[1] -eq 'skipped')))
+          }
+
+          $exit = 0
+          $status | % {
+            Write-Host "[ $($_[1] ? " OK " : "FAIL") ] $_[0]"
+            if (-not $_[1]) {
+              $exit = 1
+            }
+          }
+
+          exit $exit
