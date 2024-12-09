@@ -42,7 +42,7 @@ jobs:
 
       - name: Generate Checksums 🔑
         run: |
-          for x in *.{tar.gz,zip}; do
+          for x in *.{wsl,zip}; do
             sha256sum $x > ${x}.sha256
           done
 
@@ -50,8 +50,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            nixos-wsl.tar.gz
-            nixos-wsl.tar.gz.sha256
+            nixos.wsl
+            nixos.wsl.sha256
             NixOS-WSL-Launcher.zip
             NixOS-WSL-Launcher.zip.sha256
         env:
