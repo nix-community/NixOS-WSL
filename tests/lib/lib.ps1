@@ -70,6 +70,7 @@ class Distro {
   }
 
   [void]Shutdown() {
+    Write-Host "> [shutdown]"
     & wsl.exe -t $this.id
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to stop distro"
