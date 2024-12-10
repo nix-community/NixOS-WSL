@@ -1,12 +1,11 @@
 use anyhow::{anyhow, Context};
 use log::{error, info, warn, LevelFilter};
 use nix::libc::{sigaction, PT_NULL, SIGCHLD, SIG_IGN};
+use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify};
 use std::mem::MaybeUninit;
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::Command;
-use std::thread;
-use std::time::Duration;
 use std::{env, fs::read_link};
 use systemd_journal_logger::JournalLog;
 
@@ -20,10 +19,25 @@ fn real_main() -> anyhow::Result<()> {
     // Therefore we dereference our symlink to get whatever it was originally.
     let shell = read_link(exe_dir.join("shell")).context("when locating the wrapped shell")?;
 
-    if shell.starts_with("/run/current-system/sw/bin/") {
-        while !Path::new("/run/current-system/sw/bin").exists() {
-            warn!("Activation script has not finished! Waiting for /run/current-system/sw/bin to exist");
-            thread::sleep(Duration::from_secs(3));
+    if shell.starts_with("/run/current-system/sw/bin/")
+        && !Path::new("/run/current-system").exists()
+    {
+        let inotify = Inotify::init(InitFlags::empty()).context("When initializing inotify")?;
+
+        // Watch changes in /run to re-check if the activation script has finished
+        let wd = inotify.add_watch("/run", AddWatchFlags::IN_CREATE).unwrap();
+
+        let mut warning = false;
+
+        // Check if the activation script has finished by now
+        while !Path::new("/run/current-system").exists() {
+            if (!warning) {
+                warning = true;
+                warn!("Activation script has not finished! Waiting for /run/current-system/sw/bin to exist");
+            }
+            let events = inotify
+                .read_events()
+                .context("When reading inotify events")?;
         }
     }
 
