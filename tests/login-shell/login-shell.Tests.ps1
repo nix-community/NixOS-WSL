@@ -15,7 +15,7 @@ Describe "Login Shell" {
   }
 
   It "should be possible to access home manager sessionVariables" {
-    $distro.InstallConfig("$PSScriptRoot/session-variables.nix")
+    $distro.InstallConfig("$PSScriptRoot/session-variables.nix", "switch")
 
     # Session variable file should exist
     $distro.Launch("test -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh")

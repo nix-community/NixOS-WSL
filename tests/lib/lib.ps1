@@ -55,7 +55,7 @@ class Distro {
     return $tarball
   }
 
-  [void]InstallConfig([string]$path) {
+  [void]InstallConfig([string]$path, [string]$operation) {
     Write-Host "Installing config: $path"
 
     # Copy the new config
@@ -63,7 +63,7 @@ class Distro {
     $LASTEXITCODE | Should -Be 0
 
     # Rebuild
-    $this.Launch("sh -c 'sudo nixos-rebuild switch < /dev/null'")
+    $this.Launch("sh -c 'sudo nixos-rebuild $operation < /dev/null'")
     $LASTEXITCODE | Should -Be 0
 
     Write-Host "Config installed successfully"

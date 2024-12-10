@@ -6,7 +6,7 @@ Describe "Docker (native)" {
   BeforeAll {
     $distro = [Distro]::new()
     try {
-      $distro.InstallConfig("$PSScriptRoot/docker-native.nix")
+      $distro.InstallConfig("$PSScriptRoot/docker-native.nix", "switch")
     }
     catch {
       $distro.Launch("sudo journalctl --no-pager -u docker.service")

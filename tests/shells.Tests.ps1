@@ -26,7 +26,7 @@ Describe "Shells" {
           ];
         }
 "@ >  $temp
-      $distro.InstallConfig($temp)
+      $distro.InstallConfig($temp, "switch")
       Remove-Item $temp
       $distro.Launch($command) | Select-Object -Last 1 | Should -BeExactly "/run/current-system/sw/bin/$executable"
       $LASTEXITCODE | Should -Be 0

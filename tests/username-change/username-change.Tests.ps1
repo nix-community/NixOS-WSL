@@ -11,13 +11,8 @@ Describe "Login Shell" {
     $distro.Launch("whoami") | Select-Object -Last 1 | Should -BeExactly "nixos"
     $config = "$PSScriptRoot/username-change.nix"
 
-    # Copy the new config
-    $distro.Launch("sudo cp -v $($distro.GetPath($config)) /etc/nixos/configuration.nix")
-    $LASTEXITCODE | Should -Be 0
-
-    # Rebuild (boot not switch!)
-    $distro.Launch("sh -c 'sudo nixos-rebuild boot < /dev/null'")
-    $LASTEXITCODE | Should -Be 0
+    # Install config with new username (boot, not switch!)
+    $distro.InstallConfig($config, "boot")
 
     # Shutdown
     $distro.Shutdown()
