@@ -81,6 +81,8 @@ class Distro {
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to unregister distro"
     }
-    Remove-Item $this.tempdir -Recurse -Force
+    if (Test-Path $this.tempdir) {
+      Remove-Item $this.tempdir -Recurse -Force
+    }
   }
 }
