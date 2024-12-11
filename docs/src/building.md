@@ -22,4 +22,4 @@ nix-build -A nixosConfigurations.default.config.system.build.tarballBuilder && s
 
 ```
 
-The resulting tarball can then be found under `nixos-wsl.tar.gz`.
+The resulting tarball can then be found under `nixos.wsl`.
