@@ -22,7 +22,7 @@ Modules for running NixOS on the Windows Subsystem for Linux
 3. Import the tarball into WSL:
 
 - ```powershell
-  wsl --import NixOS $env:USERPROFILE\NixOS\ nixos-wsl.tar.gz --version 2
+  wsl --import NixOS $env:USERPROFILE\NixOS nixos-wsl.tar.gz --version 2
   ```
 
 4. You can now run NixOS:
