@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
-    flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -11,16 +10,25 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
-    with nixpkgs.lib;
-    {
+  outputs =
+    inputs@{ self, nixpkgs, ... }:
+    let
+      inherit (nixpkgs) lib;
 
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+
+      forAllSystems = function: lib.genAttrs systems (system: function nixpkgs.legacyPackages.${system});
+    in
+    {
       nixosModules.wsl = {
         imports = [
           ./modules
 
           (_: {
-            wsl.version.rev = mkIf (self ? rev) self.rev;
+            wsl.version.rev = lib.mkIf (self ? rev) self.rev;
           })
         ];
       };
@@ -53,8 +61,8 @@
             system.stateVersion = config.system.nixos.release;
           };
         in
-        rec {
-          default = nixpkgs.lib.nixosSystem {
+        {
+          default = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
@@ -62,9 +70,9 @@
             ];
           };
 
-          modern = nixpkgs.lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" default;
+          modern = lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" self.nixosConfigurations.default;
 
-          legacy = nixpkgs.lib.nixosSystem {
+          legacy = lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               self.nixosModules.default
@@ -73,48 +81,43 @@
           };
         };
 
-    } //
-    flake-utils.lib.eachSystem
-      [ "x86_64-linux" "aarch64-linux" ]
-      (system:
+      checks = forAllSystems (
+        pkgs:
         let
-          pkgs = import nixpkgs { inherit system; };
+          args = { inherit inputs; };
         in
         {
-          checks =
-            let
-              args = { inherit inputs; };
-            in
-            {
-              dotnet-format = pkgs.callPackage ./checks/dotnet-format.nix args;
-              nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
-              shfmt = pkgs.callPackage ./checks/shfmt.nix args;
-              rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
-              side-effects = pkgs.callPackage ./checks/side-effects.nix args;
-              username = pkgs.callPackage ./checks/username.nix args;
-              test-native-utils = self.packages.${system}.utils;
-            };
-
-          packages = {
-            utils = pkgs.callPackage ./utils { };
-            staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
-            docs = pkgs.callPackage ./docs { };
-          };
-
-          devShells.default = pkgs.mkShell {
-            RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
-
-            nativeBuildInputs = with pkgs; [
-              cargo
-              clippy
-              mdbook
-              nixpkgs-fmt
-              powershell
-              rustc
-              rustfmt
-              shfmt
-            ];
-          };
+          dotnet-format = pkgs.callPackage ./checks/dotnet-format.nix args;
+          nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
+          shfmt = pkgs.callPackage ./checks/shfmt.nix args;
+          rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
+          side-effects = pkgs.callPackage ./checks/side-effects.nix args;
+          username = pkgs.callPackage ./checks/username.nix args;
+          test-native-utils = self.packages.${pkgs.stdenv.hostPlatform.system}.utils;
         }
       );
+
+      packages = forAllSystems (pkgs: {
+        utils = pkgs.callPackage ./utils { };
+        staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
+        docs = pkgs.callPackage ./docs { };
+      });
+
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
+
+          nativeBuildInputs = with pkgs; [
+            cargo
+            clippy
+            mdbook
+            nixpkgs-fmt
+            powershell
+            rustc
+            rustfmt
+            shfmt
+          ];
+        };
+      });
+    };
 }
