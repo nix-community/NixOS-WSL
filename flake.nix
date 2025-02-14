@@ -34,52 +34,41 @@
       };
       nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations =
-        let
-          config = { legacy ? false }: { config, lib, pkgs, ... }: {
-            wsl.enable = true;
-            wsl.nativeSystemd = lib.mkIf legacy false;
-            programs.bash.loginShellInit = "nixos-wsl-welcome";
+      nixosConfigurations = {
+        default = lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            self.nixosModules.default
+            ({ config, lib, pkgs, ... }: {
+              wsl.enable = true;
+              programs.bash.loginShellInit = "nixos-wsl-welcome";
 
-            # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
-            # Per default the resulting systems aren't flake-enabled, so rebuilds would fail.
-            # Note: This does not affect the module being imported into your own flake.
-            nixpkgs.flake.source = lib.mkForce null;
+              # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
+              # Per default the resulting systems aren't flake-enabled, so rebuilds would fail.
+              # Note: This does not affect the module being imported into your own flake.
+              nixpkgs.flake.source = lib.mkForce null;
 
-            systemd.tmpfiles.rules =
-              let
-                channels = pkgs.runCommand "default-channels" { } ''
-                  mkdir -p $out
-                  ln -s ${pkgs.path} $out/nixos
-                  ln -s ${./.} $out/nixos-wsl
-                '';
-              in
-              [
-                "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
-                "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
-              ];
-            system.stateVersion = config.system.nixos.release;
-          };
-        in
-        {
-          default = lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              (config { })
-            ];
-          };
-
-          modern = lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" self.nixosConfigurations.default;
-
-          legacy = lib.nixosSystem {
-            system = "x86_64-linux";
-            modules = [
-              self.nixosModules.default
-              (config { legacy = true; })
-            ];
-          };
+              systemd.tmpfiles.rules =
+                let
+                  channels = pkgs.runCommand "default-channels" { } ''
+                    mkdir -p $out
+                    ln -s ${pkgs.path} $out/nixos
+                    ln -s ${./.} $out/nixos-wsl
+                  '';
+                in
+                [
+                  "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
+                  "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
+                ];
+              system.stateVersion = config.system.nixos.release;
+            })
+          ];
         };
+
+        modern = lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" self.nixosConfigurations.default;
+
+        legacy = throw "nixosConfigurations.legacy has been removed as syschdemd has been removed";
+      };
 
       checks = forAllSystems (
         pkgs:

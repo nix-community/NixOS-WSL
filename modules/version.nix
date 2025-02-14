@@ -22,9 +22,9 @@ with lib;
         };
         systemd = mkOption {
           internal = true;
-          type = enum [ "native" "syschdemd" ];
+          type = enum [ "native" ];
           description = "the systemd implementation used by NixOS-WSL";
-          default = if config.wsl.nativeSystemd then "native" else "syschdemd";
+          default = "native";
         };
       };
   };
