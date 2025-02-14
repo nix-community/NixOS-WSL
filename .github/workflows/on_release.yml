@@ -12,7 +12,6 @@ jobs:
   release:
     needs:
       - build
-      - package
     name: Create Release 📢
     runs-on: ubuntu-latest
     steps:
