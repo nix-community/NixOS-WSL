@@ -78,7 +78,6 @@
         {
           dotnet-format = pkgs.callPackage ./checks/dotnet-format.nix args;
           nixpkgs-fmt = pkgs.callPackage ./checks/nixpkgs-fmt.nix args;
-          shfmt = pkgs.callPackage ./checks/shfmt.nix args;
           rustfmt = pkgs.callPackage ./checks/rustfmt.nix args;
           side-effects = pkgs.callPackage ./checks/side-effects.nix args;
           username = pkgs.callPackage ./checks/username.nix args;
