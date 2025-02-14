@@ -9,15 +9,6 @@ jobs:
     name: Build 🛠️
     uses: ./.github/workflows/run_build.yml
 
-  package:
-    name: Package 📦
-    uses: ./.github/workflows/run_package.yml
-    needs:
-      - build
-    secrets:
-      APPX_SIGNING_CERT: ${{ secrets.APPX_SIGNING_CERT }}
-      CERT_ALGORITHM: ${{ secrets.CERT_ALGORITHM }}
-
   release:
     needs:
       - build
@@ -30,21 +21,9 @@ jobs:
         with:
           name: tarball
 
-      - name: Download bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: launcher-bundle
-          path: launcher-bundle
-
-      - name: Zip launcher bundle 📦
-        working-directory: launcher-bundle
-        run: zip -r ../NixOS-WSL-Launcher.zip .
-
       - name: Generate Checksums 🔑
         run: |
-          for x in *.{wsl,zip}; do
-            sha256sum $x > ${x}.sha256
-          done
+          sha256sum nixos.wsl > nixos.wsl.sha256
 
       - name: Attach to Release 📎
         uses: softprops/action-gh-release@v2
@@ -52,7 +31,5 @@ jobs:
           files: |
             nixos.wsl
             nixos.wsl.sha256
-            NixOS-WSL-Launcher.zip
-            NixOS-WSL-Launcher.zip.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

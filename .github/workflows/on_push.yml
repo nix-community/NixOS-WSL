@@ -10,12 +10,6 @@ jobs:
     name: Build 🛠️
     uses: ./.github/workflows/run_build.yml
 
-  package:
-    name: Package 📦
-    uses: ./.github/workflows/run_package.yml
-    needs:
-      - build
-
   checks:
     name: Checks 📋
     uses: ./.github/workflows/run_checks.yml
@@ -36,7 +30,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build
-      - package
       - checks
       - tests
       - docs
@@ -47,7 +40,6 @@ jobs:
             "Checks" = "${{ needs.checks.result }}"
             "Build" = "${{ needs.build.result }}"
             "Tests" = "${{ needs.tests.result }}"
-            "Package" = "${{ needs.package.result }}"
             "Docs" = "${{ needs.docs.result }}"
           }
 
