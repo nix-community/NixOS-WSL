@@ -35,7 +35,7 @@ in
     '';
   };
 
-  config = mkIf (cfg.enable && cfg.nativeSystemd) {
+  config = mkIf (cfg.enable) {
     system.activationScripts.users = users-groups-module.config.system.activationScripts.users;
 
     wsl.binShExe = mkIf config.wsl.wrapBinSh ((wrapShell "${config.wsl.binShPkg}/bin/sh").outPath + "/wrapper");

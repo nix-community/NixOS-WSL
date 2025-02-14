@@ -3,16 +3,9 @@
 {
   imports = [
     ./native
-    ./syschdemd
-  ];
 
-  options.wsl = {
-    nativeSystemd = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Use native WSL systemd support";
-    };
-  };
+    (lib.mkRemovedOptionModule [ "wsl" "nativeSystemd" ] "Native systemd is now always enabled as support for syschdemd has been removed")
+  ];
 
   config = lib.mkIf config.wsl.enable {
     # useful for usbip but adds a dependency on various firmwares which are combined over 300 MB big

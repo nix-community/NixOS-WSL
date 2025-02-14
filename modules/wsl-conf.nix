@@ -60,8 +60,8 @@ with lib; {
             };
             systemd = mkOption {
               type = types.bool;
-              default = false;
-              description = "Use systemd as init. There's no need to enable this manually, use the wsl.nativeSystemd option instead";
+              default = true;
+              description = "Use systemd as init. Disabling this may break your NixOS installation";
             };
           };
           interop = {
@@ -109,8 +109,8 @@ with lib; {
 
     environment.etc."wsl.conf".text = generators.toINI { } config.wsl.wslConf;
 
-    warnings = optional (config.wsl.wslConf.boot.systemd && !config.wsl.nativeSystemd)
-      "systemd is enabled in wsl.conf, but wsl.nativeSystemd is not enabled. Unless you did this on purpose, this WILL make your system UNBOOTABLE!"
+    warnings = optional (!config.wsl.wslConf.boot.systemd)
+      "systemd is disabled in wsl.conf. This is strongly discouraged and WILL break things"
     ++ optional (config.wsl.wslConf.network.generateHosts && config.networking.extraHosts != "")
       "networking.extraHosts has no effect if wsl.wslConf.network.generateHosts is true.";
 

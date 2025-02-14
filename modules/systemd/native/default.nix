@@ -14,7 +14,7 @@ with lib; {
         exec ${pkgs.bashInteractive}/bin/sh "$@"
       '';
     in
-    mkIf (cfg.enable && cfg.nativeSystemd) {
+    mkIf (cfg.enable) {
 
       system.build.nativeUtils = pkgs.callPackage ../../../utils { };
 
