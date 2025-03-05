@@ -42,7 +42,7 @@ with lib; {
               description = "Mount entries from /etc/fstab through WSL. You should probably leave this on false, because systemd will mount those for you.";
             };
             root = mkOption {
-              type = types.strMatching "^/.*[^/]$";
+              type = types.strMatching "^/(.*[^/]|)$";
               default = "/mnt";
               description = "The directory under which to mount windows drives.";
             };
