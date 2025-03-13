@@ -147,18 +147,9 @@ in
     systemd.services."user-runtime-dir@" = {
       overrideStrategy = "asDropin";
       serviceConfig.ExecStart =
-        let
-          wrapped = pkgs.writeShellScript "user-runtime-dir-start-wrapped" ''
-            if [ -d "/run/user/$1" ]; then
-              exit 0
-            else
-              ${config.systemd.package}/lib/systemd/systemd-user-runtime-dir start "$1"
-            fi
-          '';
-        in
         [
           "" # unset old value
-          "${wrapped} %i"
+          "${pkgs.coreutils}/bin/true"
         ];
     };
 
