@@ -107,7 +107,9 @@ with lib; {
 
   config = mkIf config.wsl.enable {
 
-    environment.etc."wsl.conf".text = generators.toINI { } config.wsl.wslConf;
+    environment.etc."wsl.conf".text = generators.toINI { } (
+      lib.filterAttrsRecursive (_: v: v != "") config.wsl.wslConf
+    );
 
     warnings = optional (!config.wsl.wslConf.boot.systemd)
       "systemd is disabled in wsl.conf. This is strongly discouraged and WILL break things"
