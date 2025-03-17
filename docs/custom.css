@@ -11,3 +11,8 @@
 html {
   font-family: "Segoe UI", "Open Sans", sans-serif;
 }
+
+img.menu-title {
+  height: 3ex;
+  align-self: center;
+}
