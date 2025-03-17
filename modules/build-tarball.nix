@@ -3,7 +3,7 @@ with builtins; with lib;
 let
   cfg = config.wsl.tarball;
 
-  icon = ../Launcher/Launcher/nixos.ico;
+  icon = ../assets/NixOS-WSL.ico;
   iconPath = "/etc/nixos.ico";
 
   wsl-distribution-conf = pkgs.writeText "wsl-distribution.conf" (
