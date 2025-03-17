@@ -1,5 +1,5 @@
 <h1 align=center>
-  <img src="assets/NixOS-WSL.svg" alt="NixOS-WSL" width="500rem" /><br />
+  <img src="https://raw.githubusercontent.com/nix-community/NixOS-WSL/refs/heads/main/assets/NixOS-WSL.svg" alt="NixOS-WSL" width="500rem" /><br />
   <a href="https://matrix.to/#/#wsl:nixos.org"><img src="https://img.shields.io/matrix/wsl:nixos.org?server_fqdn=matrix.org&logo=matrix" alt="Matrix Chat" /></a>
   <a href="https://github.com/NixOS/nixpkgs/tree/nixos-24.11"><img src="https://img.shields.io/badge/nixpkgs-24.11-brightgreen" alt="nixpkgs 24.11" /></a>
   <a href="https://github.com/nix-community/NixOS-WSL/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nix-community/NixOS-WSL/total"></a>
