@@ -12,3 +12,11 @@
   - To check which version you currently have installed, run `wsl --version`
     - The latest version can be found on the [Microsoft/WSL](https://github.com/microsoft/WSL/releases/latest) repo
     - If this command does not work, you are probably not using the Microsoft Store version of WSL!
+- If after booting into WSL and attempting to use the Nix daemon results in the output  
+  `error: cannot connect to socket at '/nix/var/nix/daemon-socket/socket': Connection refused`,
+  then you most likely need to add the following snippet to your
+  [`%USERPROFILE%/.wslconfig`](https://learn.microsoft.com/en-us/windows/wsl/wsl-config) file.
+  ```ini
+  [wsl2]
+  kernelCommandLine = cgroup_no_v1=all
+  ```
