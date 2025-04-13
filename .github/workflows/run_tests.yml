@@ -46,7 +46,7 @@ jobs:
       - name: Setup WSL 🐧
         run: |
           wsl --update
-          wsl --version
+          Get-Command wsl
 
       - name: Execute Test 🧪
         shell: pwsh
