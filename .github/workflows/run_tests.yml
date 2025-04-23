@@ -47,6 +47,7 @@ jobs:
         run: |
           wsl --update
           Get-Command wsl
+          wsl --version
 
       - name: Execute Test 🧪
         shell: pwsh
