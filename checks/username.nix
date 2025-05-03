@@ -8,7 +8,7 @@ let
   baseModule = { ... }: {
     imports = [ ../modules ];
     wsl.enable = true;
-    wsl.defaultUser = "nixos";
+    wsl.defaultUser = "nixos-wsl";
   };
   changedUsername = { lib, ... }: {
     wsl.defaultUser = lib.mkForce "different";
