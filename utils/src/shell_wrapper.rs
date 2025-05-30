@@ -25,17 +25,17 @@ fn real_main() -> anyhow::Result<()> {
         let inotify = Inotify::init(InitFlags::empty()).context("When initializing inotify")?;
 
         // Watch changes in /run to re-check if the activation script has finished
-        let wd = inotify.add_watch("/run", AddWatchFlags::IN_CREATE).unwrap();
+        let _wd = inotify.add_watch("/run", AddWatchFlags::IN_CREATE).unwrap();
 
         let mut warning = false;
 
         // Check if the activation script has finished by now
         while !Path::new("/run/current-system").exists() {
-            if (!warning) {
+            if !warning {
                 warning = true;
                 warn!("Activation script has not finished! Waiting for /run/current-system/sw/bin to exist");
             }
-            let events = inotify
+            let _events = inotify
                 .read_events()
                 .context("When reading inotify events")?;
         }
