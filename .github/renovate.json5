@@ -1,21 +1,21 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended',
-    ':semanticCommitTypeAll(chore)',
-  ],
-  lockFileMaintenance: {
-    enabled: true,
-    extends: [
-      'schedule:weekly',
-    ],
-    automerge: true,
-  },
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":semanticCommitTypeAll(chore)"],
+  labels: ["release-exclude", "renovate"],
+  baseBranches: ["main", "/^[0-9]+.[0-9]+$/"],
   nix: {
     enabled: true,
   },
-  labels: [
-    'release-exclude',
-    'renovate',
+  packageRules: [
+    {
+      matchBaseBranches: ["/^[0-9]+.[0-9]+$/"],
+      enabled: false,
+    },
+    {
+      matchBaseBranches: ["/^[0-9]+.[0-9]+$/"],
+      matchManagers: "nix",
+      matchUpdateTypes: ["minor", "patch"],
+      enabled: true,
+    },
   ],
 }
