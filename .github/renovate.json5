@@ -1,21 +1,33 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [
-    'config:recommended',
-    ':semanticCommitTypeAll(chore)',
-  ],
-  lockFileMaintenance: {
-    enabled: true,
-    extends: [
-      'schedule:weekly',
-    ],
-    automerge: true,
-  },
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["config:recommended", ":semanticCommitTypeAll(chore)"],
+  labels: ["release-exclude", "renovate"],
+  baseBranches: ["main", "/^release-.+$/"],
   nix: {
     enabled: true,
   },
-  labels: [
-    'release-exclude',
-    'renovate',
+  lockFileMaintenance: {
+    enabled: true,
+    extends: ["schedule:weekly"],
+    automerge: true,
+  },
+  packageRules: [
+    {
+      // De-Prioritize release branches
+      matchBaseBranches: ["/^release-.+$/"],
+      prPriority: -1,
+    },
+    {
+      // Enable only lock file maintenance for nix on release branches
+      matchBaseBranches: ["/^release-.+$/"],
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["major", "minor", "patch"],
+      enabled: false,
+    },
+    {
+      // Split lock file maintenance PRs by manager
+      matchUpdateTypes: ["lockFileMaintenance"],
+      groupName: "{{manager}} lock file maintenance",
+    },
   ],
 }
