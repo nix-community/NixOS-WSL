@@ -18,7 +18,7 @@ Below is a minimal `flake.nix` for you to get started:
         modules = [
           nixos-wsl.nixosModules.default
           {
-            system.stateVersion = "24.05";
+            system.stateVersion = "25.05";
             wsl.enable = true;
           }
         ];
