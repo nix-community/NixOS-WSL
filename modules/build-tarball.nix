@@ -13,6 +13,17 @@ let
     }
   );
 
+  nixosWslBranch =
+    let
+      # Use the nix parser conveniently built into nix
+      flake = import ../flake.nix;
+      url = flake.inputs.nixpkgs.url;
+      version = lib.removePrefix "github:NixOS/nixpkgs/nixos-" url;
+    in
+    if version == "unstable"
+    then "main"
+    else "release-" + version;
+
   defaultConfig = pkgs.writeText "default-configuration.nix" ''
     # Edit this configuration file to define what should be installed on
     # your system. Help is available in the configuration.nix(5) man page, on
@@ -88,7 +99,7 @@ in
           --substituters ""
 
         echo "[NixOS-WSL] Adding channel..."
-        nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/main.tar.gz nixos-wsl'
+        nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/${nixosWslBranch}.tar.gz nixos-wsl'
 
         echo "[NixOS-WSL] Adding wsl-distribution.conf"
         install -Dm644 ${wsl-distribution-conf} "$root/etc/wsl-distribution.conf"

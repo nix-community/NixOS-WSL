@@ -40,7 +40,10 @@
           modules = [
             self.nixosModules.default
             ({ config, lib, pkgs, ... }: {
+              # This config is only used until the first nixos-rebuild. For the config installed to /etc/nixos/configuration.nix, see modules/build-tarball.nix
+
               wsl.enable = true;
+
               programs.bash.loginShellInit = "nixos-wsl-welcome";
 
               # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
