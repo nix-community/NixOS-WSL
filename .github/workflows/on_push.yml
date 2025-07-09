@@ -2,7 +2,9 @@ name: "Push"
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "release-*"
   pull_request: {}
 
 jobs:
