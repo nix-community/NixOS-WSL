@@ -18,15 +18,10 @@ environment.systemPackages = [
 [nix-ld](https://github.com/Mic92/nix-ld) is a program that provides `/lib64/ld-linux-x86-64.so.2`,
 allowing foreign binaries to run on NixOS.
 
-Running the VSCode server on NixOS-WSL requires using nix-ld 2.0 which is as of writing only on NixOS unstable or [nix-ld-rs](https://github.com/nix-community/nix-ld-rs) on NixOS 24.05.
-
 To set it up, add the following to your configuration:
 
 ```nix
-programs.nix-ld = {
-    enable = true;
-    package = pkgs.nix-ld-rs; # only for NixOS 24.05
-};
+programs.nix-ld.enable = true;
 ```
 
 ## Option 2: Patch the server
