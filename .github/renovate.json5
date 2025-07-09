@@ -29,6 +29,12 @@
       enabled: false,
     },
     {
+      // Disable cargo update PRs on release branches
+      matchBaseBranches: ["/^release-.+$/"],
+      matchManagers: ["cargo"],
+      enabled: false,
+    },
+    {
       // Automerge minor and patch updates for _official_ Actions
       matchManagers: ["github-actions"],
       matchPackagePatterns: ["^actions/"],
