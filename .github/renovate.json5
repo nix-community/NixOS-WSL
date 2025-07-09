@@ -1,6 +1,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["config:recommended", ":semanticCommitTypeAll(chore)", "helpers:pinGitHubActionDigests"],
+  extends: [
+    "config:recommended",
+    ":semanticCommitTypeAll(chore)",
+    "helpers:pinGitHubActionDigests",
+  ],
   labels: ["release-exclude", "renovate"],
   baseBranches: ["main", "/^release-.+$/"],
   nix: {
@@ -23,6 +27,20 @@
       matchManagers: ["nix"],
       matchUpdateTypes: ["major", "minor", "patch"],
       enabled: false,
+    },
+    {
+      // Automerge minor and patch updates for _official_ Actions
+      matchManagers: ["github-actions"],
+      matchPackagePatterns: ["^actions/"],
+      matchUpdateTypes: ["minor", "patch"],
+      automerge: true,
+    },
+    {
+      // Automerge dependency pinning PRs (on main)
+      matchBaseBranches: ["main"],
+      matchUpdateTypes: ["pin", "pinDigest"],
+      groupName: "{{manager}} pin versions",
+      automerge: true,
     },
     {
       // Split lock file maintenance PRs by manager
