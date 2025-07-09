@@ -9,6 +9,8 @@ on:
       - opened
       - reopened
       - synchronize
+      - labeled
+      - unlabeled
   workflow_dispatch: {}
 
 permissions:

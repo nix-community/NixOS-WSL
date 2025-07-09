@@ -1,4 +1,4 @@
-name: "Push"
+name: "On Push"
 
 on:
   push:
@@ -6,8 +6,35 @@ on:
       - main
       - "release-*"
   pull_request: {}
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull Request Number"
+        required: false
+        default: ""
+        type: string
+      post_result:
+        description: "Post the result of the pipeline to the PR"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
+  start-comment:
+    name: Post Start Comment 💬
+    if: ${{ inputs.post_result }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
+          comment-tag: ci-status
+          mode: recreate
+          create-if-not-exists: true
+          message: |
+            CI is currently running
+            [See the logs here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
   build:
     name: Build 🛠️
     uses: ./.github/workflows/run_build.yml
@@ -55,3 +82,28 @@ jobs:
           }
 
           exit $exit
+
+  finish-comment:
+    name: Post Finish Comment 💬
+    if: ${{ inputs.post_result }}
+    needs:
+      - start-comment
+      - build
+      - checks
+      - tests
+      - docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
+          comment-tag: ci-status
+          mode: upsert
+          message: |
+            CI has finished:
+            - 📋 Checks: ${{ needs.checks.result && '✅' || '❌' }}
+            - 🛠️ Build: ${{ needs.build.result && '✅' || '❌' }}
+            - 🧪 Tests: ${{ needs.tests.result && '✅' || '❌' }}
+            - 📕 Docs: ${{ needs.docs.result && '✅' || '❌' }}
+
+            [See the logs here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

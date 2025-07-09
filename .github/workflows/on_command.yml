@@ -1,0 +1,79 @@
+name: On Command
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  actions: write
+  pull-requests: write
+
+jobs:
+  parse:
+    name: Check Permissions and Parse Command ⌨️
+    runs-on: ubuntu-latest
+    outputs:
+      command: ${{ steps.command.outputs.command }}
+    steps:
+      - name: Get actor permissions
+        id: check-permissions
+        continue-on-error: true
+        uses: prince-chrismc/check-actor-permissions-action@v3.0.2
+        with:
+          permission: write
+
+      - name: Log actor permissions
+        run: |
+          echo Actor has permission: ${{ steps.check-permissions.outputs.permitted && ' true' || 'false' }}
+          echo Actor is bot user:    ${{ github.actor == 'nixos-wsl-bot' && ' true' || 'false' }}
+
+      - name: Post error message if not permitted
+        if: ${{ !steps.check-permissions.outputs.permitted && github.actor != 'nixos-wsl-bot' }}
+        uses: thollander/actions-comment-pull-request@v3.0.1
+        with:
+          pr-number: ${{ inputs.pr_number || github.event.issue.number }}
+          message: |
+            You do not have permission to run this command @${{ github.actor }}.
+
+      - name: Stop if not permitted
+        if: ${{ !steps.check-permissions.outputs.permitted && github.actor != 'nixos-wsl-bot' }}
+        run: |
+          exit 1
+
+      - name: Parse command
+        id: command
+        if: steps.check-permissions.outputs.permitted || github.actor == 'nixos-wsl-bot'
+        run: |
+          echo ${{ github.event.comment.body }} | sed -nE 's|^/([a-z0-9\-]+)|command=\1|p' >> $GITHUB_OUTPUT
+
+  trigger-on-push:
+    name: Trigger Push Workflow 🚀
+    needs: parse
+    if: needs.parse.outputs.command == 'run-ci' && github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Get PR branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "branch=$(gh pr view ${{ github.event.issue.number }} --json headRefName -q .headRefName)" >> $GITHUB_OUTPUT
+
+      - name: Dispatch workflow
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'on_push.yml',
+              ref: '${{ steps.branch.outputs.branch }}',
+              inputs: {
+                pr_number: '${{ github.event.issue.number }}',
+                post_result: 'true'
+              }
+            })

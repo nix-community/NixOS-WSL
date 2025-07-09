@@ -1,0 +1,73 @@
+# Heavily inspired by https://github.com/NixOS/nixpkgs/blob/a698ac1214cd924d4394ca9cd2691618765aa03c/.github/workflows/backport.yml
+
+name: "On Backport Label"
+
+on:
+  pull_request:
+    types:
+      - closed
+      - labeled
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  backport:
+    if: github.event.pull_request.labels && contains(join(github.event.pull_request.labels.*.name, ', '), 'backport ')
+    name: Backport PR 🔙
+    runs-on: ubuntu-latest
+    outputs:
+      created_pull_numbers: ${{ steps.backport.outputs.created_pull_numbers }}
+    steps:
+      - name: Check actor permissions
+        id: check-permissions
+        uses: prince-chrismc/check-actor-permissions-action@v3.0.2
+        with:
+          permission: write
+
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Create backport PR
+        id: backport
+        uses: korthout/backport-action@v3.2.1
+        with:
+          merge_commits: "skip"
+          add_author_as_assignee: true
+          copy_requested_reviewers: true
+
+  trigger-ci:
+    name: Trigger CI on created branches 🚀
+    needs: backport
+    if: needs.backport.outputs.created_pull_numbers
+    strategy:
+      matrix:
+        pr: ${{ fromJSON(format('[{0}]', needs.backport.outputs.created_pull_numbers)) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Get PR branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "branch=$(gh pr view ${{ matrix.pr }} --json headRefName -q .headRefName)" >> $GITHUB_OUTPUT
+
+      - name: Dispatch workflow
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'on_push.yml',
+              ref: '${{ steps.branch.outputs.branch }}',
+              inputs: {
+                pr_number: '${{ matrix.pr }}',
+                post_result: 'true'
+              }
+            })
