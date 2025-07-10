@@ -20,10 +20,10 @@ on:
         type: boolean
 
 jobs:
-  start-comment:
-    name: Post Start Comment 💬
-    if: ${{ inputs.post_result }}
+  start:
+    name: Pipeline Start
     runs-on: ubuntu-latest
+    if: ${{ inputs.post_result }}
     steps:
       - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
@@ -53,17 +53,34 @@ jobs:
     name: Docs 📕
     uses: ./.github/workflows/run_docs.yml
 
-  success:
+  complete:
     name: Pipeline Passed ✅
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     needs:
+      - start
       - build
       - checks
       - tests
       - docs
     steps:
+      - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        if: ${{ inputs.post_result }}
+        with:
+          pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
+          comment-tag: ci-status
+          mode: upsert
+          message: |
+            CI has finished:
+            - 📋 Checks: ${{ needs.checks.result && '✅' || '❌' }}
+            - 🛠️ Build: ${{ needs.build.result && '✅' || '❌' }}
+            - 🧪 Tests: ${{ needs.tests.result && '✅' || '❌' }}
+            - 📕 Docs: ${{ needs.docs.result && '✅' || '❌' }}
+
+            [See the logs here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
       - shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $checks = @{
             "Checks" = "${{ needs.checks.result }}"
@@ -82,46 +99,3 @@ jobs:
           }
 
           exit $exit
-
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Get PR branch
-        id: branch
-        if: inputs.pr_number || github.event.pull_request.number
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "branch=$(gh pr view ${{ inputs.pr_number || github.event.pull_request.number }} --json headRefName -q .headRefName)" | tee -a $GITHUB_OUTPUT
-
-      - name: Approve backport PRs
-        if: startsWith((steps.branch.outputs.branch), 'release-')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr review ${{ inputs.pr_number || github.event.pull_request.number }} --approve -b "All checks passed"
-
-  finish-comment:
-    name: Post Finish Comment 💬
-    if: ${{ inputs.post_result }}
-    needs:
-      - start-comment
-      - build
-      - checks
-      - tests
-      - docs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
-        with:
-          pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
-          comment-tag: ci-status
-          mode: upsert
-          message: |
-            CI has finished:
-            - 📋 Checks: ${{ needs.checks.result && '✅' || '❌' }}
-            - 🛠️ Build: ${{ needs.build.result && '✅' || '❌' }}
-            - 🧪 Tests: ${{ needs.tests.result && '✅' || '❌' }}
-            - 📕 Docs: ${{ needs.docs.result && '✅' || '❌' }}
-
-            [See the logs here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
