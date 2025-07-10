@@ -37,7 +37,7 @@
     {
       // Automerge minor and patch updates for _official_ Actions
       matchManagers: ["github-actions"],
-      matchPackagePatterns: ["^actions/"],
+      matchPackageNames: ["/^actions//"],
       matchUpdateTypes: ["minor", "patch"],
       automerge: true,
     },
