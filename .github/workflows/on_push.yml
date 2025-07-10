@@ -83,6 +83,24 @@ jobs:
 
           exit $exit
 
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Get PR branch
+        id: branch
+        if: inputs.pr_number || github.event.pull_request.number
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "branch=$(gh pr view ${{ inputs.pr_number || github.event.pull_request.number }} --json headRefName -q .headRefName)" | tee -a $GITHUB_OUTPUT
+
+      - name: Approve backport PRs
+        if: startsWith((steps.branch.outputs.branch), 'release-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr review ${{ inputs.pr_number || github.event.pull_request.number }} --approve -b "All checks passed"
+
   finish-comment:
     name: Post Finish Comment 💬
     if: ${{ inputs.post_result }}
