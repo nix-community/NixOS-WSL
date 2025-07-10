@@ -25,7 +25,7 @@ jobs:
     if: ${{ inputs.post_result }}
     runs-on: ubuntu-latest
     steps:
-      - uses: thollander/actions-comment-pull-request@v3.0.1
+      - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
           comment-tag: ci-status
@@ -94,7 +94,7 @@ jobs:
       - docs
     runs-on: ubuntu-latest
     steps:
-      - uses: thollander/actions-comment-pull-request@v3.0.1
+      - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
           comment-tag: ci-status
