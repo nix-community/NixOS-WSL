@@ -82,6 +82,11 @@ jobs:
           }
 
           exit $exit
+      - name: Approve backport PRs
+        if: startsWith(github.ref_name, 'release-') && (inputs.pr_number || github.event_name == 'pull_request')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr review ${{ inputs.pr_number || github.event.pull_request.number }} --approve -b "All checks passed"
 
   finish-comment:
     name: Post Finish Comment 💬
