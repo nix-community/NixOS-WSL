@@ -41,7 +41,7 @@ jobs:
   trigger-ci:
     name: Trigger CI on created branches 🚀
     needs: backport
-    if: needs.backport.outputs.created_pull_numbers
+    if: github.event.pull_request.labels && contains(join(github.event.pull_request.labels.*.name, ', '), 'backport ') && needs.backport.outputs.created_pull_numbers != ''
     strategy:
       matrix:
         pr: ${{ fromJSON(format('[{0}]', needs.backport.outputs.created_pull_numbers)) }}
