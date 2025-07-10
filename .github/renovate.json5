@@ -1,57 +1,87 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    "config:recommended",
-    ":semanticCommitTypeAll(chore)",
-    "helpers:pinGitHubActionDigests",
+    'config:recommended',
+    ':semanticCommitTypeAll(chore)',
+    'helpers:pinGitHubActionDigests',
   ],
-  labels: ["release-exclude", "renovate"],
-  baseBranches: ["main", "/^release-.+$/"],
+  labels: [
+    'release-exclude',
+    'renovate',
+  ],
+  baseBranches: [
+    'main',
+    '/^release-.+$/',
+  ],
   nix: {
     enabled: true,
   },
   lockFileMaintenance: {
     enabled: true,
-    extends: ["schedule:weekly"],
+    extends: [
+      'schedule:weekly',
+    ],
     automerge: true,
   },
   packageRules: [
     {
-      // De-Prioritize release branches
-      matchBaseBranches: ["/^release-.+$/"],
+      matchBaseBranches: [
+        '/^release-.+$/',
+      ],
       prPriority: -1,
     },
     {
-      // Enable only lock file maintenance for nix on release branches
-      matchBaseBranches: ["/^release-.+$/"],
-      matchManagers: ["nix"],
-      matchUpdateTypes: ["major", "minor", "patch"],
+      matchBaseBranches: [
+        '/^release-.+$/',
+      ],
+      matchManagers: [
+        'nix',
+      ],
+      matchUpdateTypes: [
+        'major',
+        'minor',
+        'patch',
+      ],
       enabled: false,
     },
     {
-      // Disable cargo update PRs on release branches
-      matchBaseBranches: ["/^release-.+$/"],
-      matchManagers: ["cargo"],
+      matchBaseBranches: [
+        '/^release-.+$/',
+      ],
+      matchManagers: [
+        'cargo',
+      ],
       enabled: false,
     },
     {
-      // Automerge minor and patch updates for _official_ Actions
-      matchManagers: ["github-actions"],
-      matchPackagePatterns: ["^actions/"],
-      matchUpdateTypes: ["minor", "patch"],
+      matchManagers: [
+        'github-actions',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      automerge: true,
+      matchPackageNames: [
+        '/^actions//',
+      ],
+    },
+    {
+      matchBaseBranches: [
+        'main',
+      ],
+      matchUpdateTypes: [
+        'pin',
+        'pinDigest',
+      ],
+      groupName: '{{manager}} pin versions',
       automerge: true,
     },
     {
-      // Automerge dependency pinning PRs (on main)
-      matchBaseBranches: ["main"],
-      matchUpdateTypes: ["pin", "pinDigest"],
-      groupName: "{{manager}} pin versions",
-      automerge: true,
-    },
-    {
-      // Split lock file maintenance PRs by manager
-      matchUpdateTypes: ["lockFileMaintenance"],
-      groupName: "{{manager}} lock file maintenance",
+      matchUpdateTypes: [
+        'lockFileMaintenance',
+      ],
+      groupName: '{{manager}} lock file maintenance',
     },
   ],
 }
