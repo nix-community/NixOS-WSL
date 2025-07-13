@@ -45,9 +45,9 @@ in
     services.udev.enable = true;
 
     wsl.extraBin = [
-      { src = "${pkgs.coreutils}/bin/cat"; }
-      { src = "${pkgs.coreutils}/bin/ls"; }
-      { src = "${pkgs.kmod}/bin/modprobe"; }
+      { src = lib.getExe pkgs.coreutils; }
+      { src = lib.getExe pkgs.coreutils; }
+      { src = lib.getExe pkgs.kmod; }
     ];
 
     systemd = {
