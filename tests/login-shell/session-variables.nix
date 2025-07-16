@@ -1,11 +1,21 @@
 { pkgs, lib, ... }:
 let
   ver = with lib; substring 0 5 version;
+  hmBranch =
+    let
+      # Use the nix parser conveniently built into nix
+      flake = import <nixos-wsl/flake.nix>;
+      url = flake.inputs.nixpkgs.url;
+      version = lib.removePrefix "github:NixOS/nixpkgs/nixos-" url;
+    in
+    if version == "unstable"
+    then "master"
+    else "release-" + version;
 in
 {
   imports = [
     <nixos-wsl/modules>
-    "${builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-${ver}.tar.gz"}/nixos"
+    "${builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/${hmBranch}.tar.gz"}/nixos"
   ];
 
   wsl.enable = true;
