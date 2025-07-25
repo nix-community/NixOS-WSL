@@ -65,6 +65,7 @@ in
           ip="${cfg.snippetIpAddress}"
 
           echo "Starting auto attach for busid $busid on $ip."
+          # shellcheck disable=SC1091
           source ${usbipd-win-auto-attach} "$ip" "$busid"
         '';
       };
