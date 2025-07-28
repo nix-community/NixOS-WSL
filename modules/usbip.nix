@@ -72,5 +72,7 @@ in
 
       targets.multi-user.wants = map (busid: "usbip-auto-attach@${busid}.service") cfg.autoAttach;
     };
+
+    wsl.kernelModules = [ "vhci-hcd" ];
   };
 }
