@@ -44,6 +44,12 @@ in
 
     services.udev.enable = true;
 
+    wsl.extraBin = [
+      { src = lib.getExe pkgs.coreutils; }
+      { src = lib.getExe pkgs.coreutils; }
+      { src = lib.getExe pkgs.kmod; }
+    ];
+
     systemd = {
       targets.usbip = {
         description = "USBIP";
