@@ -44,6 +44,12 @@ in
 
     services.udev.enable = true;
 
+    wsl.extraBin = [
+      { src = "${pkgs.coreutils}/bin/cat"; }
+      { src = "${pkgs.coreutils}/bin/ls"; }
+      { src = "${pkgs.kmod}/bin/modprobe"; }
+    ];
+
     systemd = {
       targets.usbip = {
         description = "USBIP";
