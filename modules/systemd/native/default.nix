@@ -24,6 +24,9 @@ with lib; {
           user.default = config.users.users.${cfg.defaultUser}.name;
           boot.systemd = true;
         };
+        extraBin = [
+          { src = "${pkgs.shadow}/bin/login"; }
+        ];
       };
 
       system.activationScripts = {
@@ -31,16 +34,27 @@ with lib; {
           echo "setting up /run/booted-system..."
           [[ -e /run/booted-system ]] || ln -sfn "$(readlink -f "$systemConfig")" /run/booted-system
         '';
-        shimSystemd = stringAfter [ ] ''
+        createSbin = stringAfter (optional cfg.populateBin "populateBin") (
+          if cfg.populateBin
+          then ''
+            echo "setting up /sbin..."
+            if [ ! -L /sbin ]; then
+              rm -rf /sbin
+              ln -s /bin /sbin
+            fi
+          ''
+          else ''
+            echo "setting up /sbin..."
+            if [ ! -d /sbin ]; then
+              rm -rf /sbin
+              mkdir -p /sbin
+            fi
+          ''
+        );
+        shimSystemd = stringAfter [ "createSbin" ] ''
           echo "setting up /sbin/init shim..."
-          mkdir -p /sbin
           ln -sf ${config.system.build.nativeUtils}/bin/systemd-shim /sbin/init
         '';
-        setupLogin = lib.mkIf cfg.populateBin (stringAfter [ ] ''
-          echo "setting up /bin/login..."
-          mkdir -p /bin
-          ln -sf ${pkgs.shadow}/bin/login /bin/login
-        '');
       };
 
       environment = {
