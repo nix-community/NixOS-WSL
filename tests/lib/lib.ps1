@@ -15,7 +15,6 @@ function Remove-Escapes {
   }
 }
 
-# Implementation-independent base class
 class Distro {
   [string]$id
   [string]$tempdir

@@ -14,13 +14,16 @@ Describe "Login Shell" {
     $output | Select-Object -Index ($output.Length - 2) | Should -Match "login_shell\s*on"
   }
 
-  It "should be possible to access home manager sessionVariables" {
+  It "should be possible to install a configuration that uses home-manager session variables" {
     $distro.InstallConfig("$PSScriptRoot/session-variables.nix", "switch")
+  }
 
-    # Session variable file should exist
+  It "should have created the hm-session-vars.sh file" {
     $distro.Launch("test -f ~/.nix-profile/etc/profile.d/hm-session-vars.sh")
     $LASTEXITCODE | Should -Be 0
+  }
 
+  It "should be possible to access home manager sessionVariables in bash" {
     Write-Host "> echo `$TEST_VARIABLE"
     Write-Output "echo `$TEST_VARIABLE" | wsl -d $distro.id | Tee-Object -Variable output | Write-Host
     $output | Select-Object -Last 1 | Should -BeExactly "THISISATESTSTRING"
