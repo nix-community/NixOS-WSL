@@ -6,13 +6,13 @@ runs:
   using: 'composite'
   steps:
     - name: Setup MSBuild # Needed for APPX packaging
-      uses: microsoft/setup-msbuild@ede762b26a2de8d110bb5a3db4d7e0e080c0e917 # v1.3
+      uses: microsoft/setup-msbuild@ede762b26a2de8d110bb5a3db4d7e0e080c0e917 # v1.3.3
       with:
         vs-version: '[17.2,'
 
     - name: Setup .NET SDK
       id: setup-dotnet
-      uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+      uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
       with:
         dotnet-version: 8
         cache: true
