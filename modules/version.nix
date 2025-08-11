@@ -20,12 +20,6 @@ with lib;
           type = str;
           default = elemAt versionFile 1;
         };
-        systemd = mkOption {
-          internal = true;
-          type = enum [ "native" ];
-          description = "the systemd implementation used by NixOS-WSL";
-          default = "native";
-        };
       };
   };
 
@@ -72,7 +66,7 @@ with lib;
                 ;;
             esac
           done
-          echo NixOS-WSL ${config.wsl.version.release} ${config.wsl.version.rev} ${config.wsl.version.systemd}
+          echo NixOS-WSL ${config.wsl.version.release} ${config.wsl.version.rev}
         ''
       )
     ];
