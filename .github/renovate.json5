@@ -6,7 +6,7 @@
     "helpers:pinGitHubActionDigests",
   ],
   labels: ["release-exclude", "renovate"],
-  baseBranches: ["main", "/^release-.+$/", "renovate-test"],
+  baseBranchPatterns: ["main", "/^release-.+$/", "renovate-test"],
   nix: {
     enabled: true,
   },
