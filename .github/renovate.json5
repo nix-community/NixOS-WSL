@@ -6,7 +6,7 @@
     "helpers:pinGitHubActionDigests",
   ],
   labels: ["release-exclude", "renovate"],
-  baseBranches: ["main", "/^release-.+$/"],
+  baseBranches: ["main", "/^release-.+$/", "renovate-test"],
   nix: {
     enabled: true,
   },
@@ -15,6 +15,17 @@
     extends: ["schedule:weekly"],
     automerge: true,
   },
+  customManagers: [
+    {
+      // WSL repo checkout job
+      customType: "regex",
+      fileMatch: [".github\\/.+\\.ya?ml$"],
+      matchStrings: [
+        "repository:\\s*(?<depName>[^/\\s]+/[^/\\s]+)\\s*ref:\\s*(?<currentValue>[^\\s]+)",
+      ],
+      datasourceTemplate: "github-tags",
+    },
+  ],
   packageRules: [
     {
       // De-Prioritize release branches
