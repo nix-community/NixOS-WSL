@@ -122,6 +122,7 @@ in
           --owner=0 \
           --group=0 \
           --numeric-owner \
+          --hard-dereference \
           . \
         | pigz > "$out"
       '';
