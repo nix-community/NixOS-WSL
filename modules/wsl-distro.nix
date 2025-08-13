@@ -201,6 +201,7 @@ in
         { src = "/init"; name = "wslpath"; }
         { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
+        { src = "${pkgs.bashInteractive}/bin/bash"; }
       ];
     };
 
