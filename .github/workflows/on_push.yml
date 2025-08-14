@@ -49,6 +49,12 @@ jobs:
     needs:
       - build
 
+  validate:
+    name: Validate 🩺
+    uses: ./.github/workflows/run_validate.yml
+    needs:
+      - build
+
   docs:
     name: Docs 📕
     uses: ./.github/workflows/run_docs.yml
@@ -62,6 +68,7 @@ jobs:
       - build
       - checks
       - tests
+      - validate
       - docs
     steps:
       - uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
@@ -75,6 +82,7 @@ jobs:
             - 📋 Checks: ${{ needs.checks.result && '✅' || '❌' }}
             - 🛠️ Build: ${{ needs.build.result && '✅' || '❌' }}
             - 🧪 Tests: ${{ needs.tests.result && '✅' || '❌' }}
+            - 🩺 Validate: ${{ needs.validate.result && '✅' || '❌' }}
             - 📕 Docs: ${{ needs.docs.result && '✅' || '❌' }}
 
             [See the logs here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
@@ -86,6 +94,7 @@ jobs:
             "Checks" = "${{ needs.checks.result }}"
             "Build" = "${{ needs.build.result }}"
             "Tests" = "${{ needs.tests.result }}"
+            "Validate" = "${{ needs.validate.result }}"
             "Docs" = "${{ needs.docs.result }}"
           }
 
