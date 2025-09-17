@@ -19,7 +19,7 @@
     {
       // WSL repo checkout job
       customType: "regex",
-      fileMatch: [".github\\/.+\\.ya?ml$"],
+      managerFilePatterns: [".github\\/.+\\.ya?ml$"],
       matchStrings: [
         "repository:\\s*(?<depName>[^/\\s]+/[^/\\s]+)\\s*ref:\\s*(?<currentValue>[^\\s]+)",
       ],
