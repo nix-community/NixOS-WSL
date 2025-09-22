@@ -1,0 +1,62 @@
+name: Documentation Issue
+description: Report an issue with the documentation
+title: "[Docs]: "
+labels: ["documentation"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve our documentation! Please describe the issue you found.
+
+  - type: input
+    id: docs-url
+    attributes:
+      label: Documentation URL
+      description: What page or section of the documentation has an issue?
+      placeholder: "https://nix-community.github.io/NixOS-WSL/..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type of Documentation Issue
+      description: What kind of issue is this?
+      options:
+        - Information is incorrect or outdated
+        - Information is missing or incomplete
+        - Instructions don't work or are unclear
+        - Typo or formatting issue
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Description of the Issue
+      description: Describe what's wrong with the documentation.
+      placeholder: |
+        - What did you expect to find?
+        - What did you actually find?
+        - What was confusing or incorrect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How do you think this could be improved?
+      placeholder: |
+        - What should be changed?
+        - What additional information should be added?
+        - How could the instructions be clearer?
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the documentation issue.
+      placeholder: Screenshots, examples, or other relevant information.

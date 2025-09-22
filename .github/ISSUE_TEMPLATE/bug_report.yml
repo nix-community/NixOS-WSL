@@ -1,0 +1,136 @@
+name: Bug Report
+description: File a bug report to help us improve NixOS-WSL
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Reproduce
+      description: Tell us how to reproduce this behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: nixos-wsl-version
+    attributes:
+      label: NixOS-WSL Version Information
+      description: Please run the nixos-wsl-version command and paste the complete output. If the command doesn't exist, see fallback instructions below.
+      placeholder: |
+        Run this command in your NixOS-WSL terminal:
+        nixos-wsl-version
+
+        Expected output format:
+        NixOS-WSL 24.05.123456 abcdef123456
+
+        If the command doesn't exist or fails, please provide:
+        - Contents of /etc/os-release
+        - Output of: cat /etc/nixos-wsl-release (if file exists)
+        - Your installation method and source
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: system-info
+    attributes:
+      label: System Information
+      description: Please provide information about your system.
+      placeholder: |
+        - WSL Version: (output of `wsl --version`)
+        - Windows Version: (e.g., Windows 11 22H2)
+        - Architecture: (x86_64, aarch64, etc.)
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Relevant Configuration
+      description: Please share relevant parts of your NixOS configuration.
+      placeholder: |
+        Share relevant configuration that might be related to your issue:
+
+        Common WSL-specific options to include:
+        ```nix
+        wsl = {
+          enable = true;
+          defaultUser = "your-username";
+          useWindowsDriver = true; # or false
+          interop.enabled = true;  # or false
+          # ... other wsl.* options you've configured
+        };
+        ```
+
+        Also include from configuration.nix/flake.nix:
+        - Any wsl.* settings you've customized
+        - Systemd/networking configuration (if networking issues)
+        - Docker/virtualization settings (if container issues)
+        - Custom kernel or boot settings (if boot issues)
+        - User/group configurations (if permission issues)
+
+        Please only include sections relevant to your issue.
+      render: nix
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Error Messages
+      description: If applicable, add relevant logs or error messages.
+      placeholder: |
+        Include any relevant logs, error messages, or command output.
+        
+        You can often find logs in:
+        - `journalctl` output
+        - `dmesg` output
+        - WSL logs
+      render: shell
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+      placeholder: Screenshots, workarounds you've tried, or any other information that might be helpful.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched existing issues to make sure this is not a duplicate.
+          required: true
+        - label: I have included the output of `nixos-wsl-version`.
+          required: true
+        - label: I have provided clear steps to reproduce the issue.
+          required: true
