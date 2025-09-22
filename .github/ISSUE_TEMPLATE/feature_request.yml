@@ -1,0 +1,81 @@
+name: Feature Request
+description: Suggest an idea for NixOS-WSL
+title: "[Feature]: "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please fill out the sections below to help us understand your request.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+      placeholder: Describe your ideal solution...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+      placeholder: What other approaches have you thought about?
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe your specific use case and how this feature would help.
+      placeholder: |
+        - What would you use this feature for?
+        - How would it improve your workflow?
+        - Are there existing workarounds you're using?
+
+  - type: textarea
+    id: nixos-wsl-version
+    attributes:
+      label: NixOS-WSL Version Information
+      description: Please run the nixos-wsl-version command and paste the output here (helps us understand your current setup). If the command doesn't exist, see fallback instructions below.
+      placeholder: |
+        Run this command in your NixOS-WSL terminal:
+        nixos-wsl-version
+
+        Expected output format:
+        NixOS-WSL 24.05.123456 abcdef123456
+
+        If the command doesn't exist or fails, please provide:
+        - Contents of /etc/os-release
+        - Output of: cat /etc/nixos-wsl-release (if file exists)
+        - Your installation method and source
+      render: shell
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context or screenshots about the feature request here.
+      placeholder: Any additional information, mockups, or examples that might be helpful.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following before submitting.
+      options:
+        - label: I have searched existing issues and discussions to make sure this hasn't been requested before.
+          required: true
+        - label: This feature request is specific to NixOS-WSL (not a general NixOS or WSL feature).
+          required: true
