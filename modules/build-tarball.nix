@@ -77,19 +77,76 @@ in
       ];
 
       text = ''
+        usage() {
+          echo "Usage: $0 [--extra-files PATH] [--chown PATH UID:GID] [output.tar.gz]"
+          exit 1
+        }
+
         if ! [ $EUID -eq 0 ]; then
           echo "This script must be run as root!"
           exit 1
         fi
 
         # Use .wsl extension to support double-click installs on recent versions of Windows
-        out=''${1:-nixos.wsl}
+        out="nixos.wsl"
+        extra_files=""
+
+        declare -A chowns=()
+        positionals=()
+
+        while [ $# -gt 0 ]; do
+          case "$1" in
+            --extra-files)
+              shift
+              extra_files="$1"
+              ;;
+            --chown)
+              shift
+              path="$1"
+              shift
+              perms="$1"
+              chowns["$path"]="$perms"
+              ;;
+            -*)
+              echo "Unknown option: $1"
+              usage
+              ;;
+            *)
+              positionals+=("$1")
+              ;;
+          esac
+          shift
+        done
+
+        if [ ''${#positionals[@]} -gt 1 ]; then
+          echo "Too many positional arguments: ''${positionals[*]}"
+          usage
+        fi
+
+        if [ ''${#positionals[@]} -gt 0 ]; then
+          out="''${positionals[0]}"
+        fi
 
         root=$(mktemp -p "''${TMPDIR:-/tmp}" -d nixos-wsl-tarball.XXXXXXXXXX)
         # FIXME: fails in CI for some reason, but we don't really care because it's CI
         trap 'chattr -Rf -i "$root" || true && rm -rf "$root" || true' INT TERM EXIT
 
+        if [ -n "$extra_files" ]; then
+          if ! [ -d "$extra_files" ]; then
+            echo "The path passed to --extra-files must be a directory"
+            exit 1
+          fi
+
+          echo "[NixOS-WSL] Copying extra files to $root..."
+          cp --verbose --archive --no-preserve=ownership --no-target-directory "$extra_files" "$root"
+        fi
+
         chmod o+rx "$root"
+
+        for path in "''${!chowns[@]}"; do
+          echo "[NixOS-WSL] Setting ownership for $path to ''${chowns[$path]}"
+          chown -R "''${chowns[$path]}" "$root/$path"
+        done
 
         echo "[NixOS-WSL] Installing..."
         nixos-install \
@@ -119,8 +176,6 @@ in
           -c \
           --sort=name \
           --mtime='@1' \
-          --owner=0 \
-          --group=0 \
           --numeric-owner \
           --hard-dereference \
           . \
