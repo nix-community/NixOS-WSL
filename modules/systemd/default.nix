@@ -15,11 +15,7 @@
       # systemd-oomd requires cgroup pressure info which WSL doesn't have
       oomd.enable = false;
       # Disable systemd units that don't make sense on WSL
-      services = {
-        firewall.enable = false;
-        # systemd-timesyncd actually works in WSL and without it the clock can drift
-        systemd-timesyncd.unitConfig.ConditionVirtualization = "";
-      };
+      services.firewall.enable = false;
 
       # Don't allow emergency mode, because we don't have a console.
       enableEmergencyMode = false;
