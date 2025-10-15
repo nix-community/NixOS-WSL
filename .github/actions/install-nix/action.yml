@@ -14,6 +14,6 @@ runs:
 
     - name: Install Nix ❄️
       if: ${{ steps.check-nix.outputs.nix-found != 'true' }}
-      uses: cachix/install-nix-action@9280e7aca88deada44c930f1e2c78e21c3ae3edd # v31.7.0
+      uses: cachix/install-nix-action@fd24c48048070c1be9acd18c9d369a83f0fe94d7 # v31.8.1
       with:
         github_access_token: ${{ github.token }}
