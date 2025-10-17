@@ -60,6 +60,12 @@ sudo nix-channel --update
 
 Don't forget to set a password for your user (default is `nixos` and is in the `wheel` group) in case you set ` security.sudo.wheelNeedsPassword = true;`.
 
+You can set your password by running:
+
+```bash
+passwd
+# or, to set the 'nixos' user's password explicitly:
+sudo passwd nixos
 If you want to make NixOS your default distribution, you can do so with
 
 ```powershell
