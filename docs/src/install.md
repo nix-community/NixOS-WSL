@@ -58,7 +58,7 @@ After the initial installation, you need to update your channels once, to be abl
 sudo nix-channel --update
 ```
 
-Don't forget to set a password for your user (default is `nixos` and is in the `wheel` group) in case you'll set ` security.sudo.wheelNeedsPassword = true;`.
+Don't forget to set a password for your user (default is `nixos` and is in the `wheel` group) in case you set ` security.sudo.wheelNeedsPassword = true;`.
 
 If you want to make NixOS your default distribution, you can do so with
 
