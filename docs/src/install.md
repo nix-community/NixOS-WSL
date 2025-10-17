@@ -66,6 +66,12 @@ You can set your password by running:
 passwd
 # or, to set the 'nixos' user's password explicitly:
 sudo passwd nixos
+You can set your password by running:
+
+```bash
+passwd
+# or, to set the 'nixos' user's password explicitly:
+sudo passwd nixos
 If you want to make NixOS your default distribution, you can do so with
 
 ```powershell
