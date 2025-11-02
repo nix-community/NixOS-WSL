@@ -186,8 +186,8 @@ in
         ${concatStringsSep "\n" (map
           (entry:
             if entry.copy
-            then "cp -f ${entry.src} /bin/${entry.name}"
-            else "ln -sf ${entry.src} /bin/${entry.name}"
+            then "cp -f ${escapeShellArg entry.src} ${escapeShellArg "/bin/${entry.name}"}"
+            else "ln -sf ${escapeShellArg entry.src} ${escapeShellArg "/bin/${entry.name}"}"
           )
           config.wsl.extraBin
         )}
@@ -210,8 +210,8 @@ in
         (map
           (entry:
             if entry.copy
-            then "cp -f ${entry.src} $out/${entry.name}"
-            else "ln -sf ${entry.src} $out/${entry.name}"
+            then "cp -f ${escapeShellArg entry.src} $out/${escapeShellArg entry.name}"
+            else "ln -sf ${escapeShellArg entry.src} $out/${escapeShellArg entry.name}"
           )
           cfg.extraBin
         );
