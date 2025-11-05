@@ -221,12 +221,16 @@ in
     # https://github.com/microsoft/WSL/blob/2eac1dafeca0d88320ff2260c5d5fe5dbb09cd33/src/linux/init/main.cpp#L3796
     services.chrony = {
       enable = true;
+      servers = mkDefault [];
       extraConfig = ''
         makestep 1.0 3
         leapsectz right/UTC
         refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
       '';
     };
+    
+    #Fix for #854
+    # By default we shouldn't use the NixOS NTP servers since the clock is set by WSL
 
     warnings = flatten [
       (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
