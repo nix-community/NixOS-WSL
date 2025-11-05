@@ -227,9 +227,9 @@ in
         leapsectz right/UTC
         refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
       '';
-      servers = mkDefault [];
+      servers = mkDefault [ ];
     };
-    
+
     warnings = flatten [
       (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
         "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
