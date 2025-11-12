@@ -43,7 +43,7 @@ sudo cp /etc/ssh/ssh_host_ed25519_key $root/etc/ssh
 Then run:
 
 ```sh
-sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder --extra-files $root
+sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder -- --extra-files $root
 ```
 
 By default, everything ends up owned by root.
@@ -55,7 +55,7 @@ The `--chown` option allows adjusting ownership of directories or files inside t
 For example:
 
 ```sh
-sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder \
+sudo nix run github:nix-community/NixOS-WSL#nixosConfigurations.default.config.system.build.tarballBuilder -- \
   --extra-files ./extra \
   --chown /home/myuser 1000:100
 ```
