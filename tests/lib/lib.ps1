@@ -21,11 +21,19 @@ class Distro {
 
   Distro() {
     $tarball = $this.FindTarball()
+    $this.Setup($tarball)
+  }
 
+  Distro([string]$tarball) {
+    $this.Setup($tarball)
+  }
+
+  hidden [void]Setup([string]$tarball) {
     $this.id = $(New-Guid).ToString()
     $this.tempdir = Join-Path $([System.IO.Path]::GetTempPath()) $this.id
     New-Item -ItemType Directory $this.tempdir
 
+    Write-Host ">" wsl.exe --import $this.id $this.tempdir $tarball --version 2
     & wsl.exe --import $this.id $this.tempdir $tarball --version 2 | Write-Host
     if ($LASTEXITCODE -ne 0) {
       throw "Failed to import distro"
