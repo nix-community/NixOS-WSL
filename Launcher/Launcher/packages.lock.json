@@ -4,9 +4,9 @@
     "net6.0": {
       "Microsoft.Windows.CsWin32": {
         "type": "Direct",
-        "requested": "[0.3.248, )",
-        "resolved": "0.3.248",
-        "contentHash": "aB6vLNJBq5RdMqYhCK6VOaycoJ/3Vhrno1BpvziV5J8HTBGWSiaePZsDkIVpb7koDFkQrlzLwgaqf1Io1mZTkA==",
+        "requested": "[0.3.250, )",
+        "resolved": "0.3.250",
+        "contentHash": "AySh9gmu4uiR9gieocxBsGOTxTXE6U3mEn6P/+Cbxo/lbxXGcFmrW875+4IqSSQvxUuyA3WUYjt1PvdFhFutGQ==",
         "dependencies": {
           "Microsoft.Windows.SDK.Win32Docs": "0.1.42-alpha",
           "Microsoft.Windows.SDK.Win32Metadata": "65.0.8-preview",
