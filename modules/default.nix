@@ -4,6 +4,7 @@
     ./docker-desktop.nix
     ./interop.nix
     ./recovery.nix
+    ./ssh-agent.nix
     ./systemd
     ./usbip.nix
     ./version.nix
