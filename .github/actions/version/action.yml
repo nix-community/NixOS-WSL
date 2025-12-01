@@ -30,10 +30,3 @@ runs:
       run: |
         Write-Output '${{ steps.version.outputs.version }}' | Tee-Object -FilePath ./VERSION
         Write-Output "$(git rev-parse HEAD)" | Tee-Object -FilePath ./VERSION -Append
-
-    - name: Set Launcher Version 🏷️
-      shell: pwsh
-      if: ${{ steps.version.outputs.is_numeric }}
-      run: |
-        ((Get-Content -path ./Launcher/Launcher/Launcher.csproj -Raw) -replace '1.3.3.7','${{ steps.version.outputs.version }}') | Set-Content -Path ./Launcher/Launcher/Launcher.csproj
-        ((Get-Content -path ./Launcher/Launcher-Appx/Package.appxmanifest -Raw) -replace '1.3.3.7','${{ steps.version.outputs.version }}') | Set-Content -Path ./Launcher/Launcher-Appx/Package.appxmanifest
