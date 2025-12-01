@@ -67,10 +67,6 @@
             })
           ];
         };
-
-        modern = lib.warn "nixosConfigurations.modern has been renamed to nixosConfigurations.default" self.nixosConfigurations.default;
-
-        legacy = throw "nixosConfigurations.legacy has been removed as syschdemd has been removed";
       };
 
       checks = forAllSystems (
