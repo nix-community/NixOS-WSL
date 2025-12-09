@@ -15,9 +15,9 @@
       },
       "System.CommandLine": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "Bjklzc5NoxqAGFi7BcGlY2TWAdB06Bq3a5sfRr3ubMRU80Mf98eyq3Y2UgR6xRV0TLznZmfe5T7mUjOunRNcdA==",
+        "requested": "[2.0.1, )",
+        "resolved": "2.0.1",
+        "contentHash": "GLc43eDFq8KbpxIb7UhTwV0vC5CzB0NspJvfFbfhoW4O057xCJXuO18KLpVn9x3JykQn2mRske6+I6JXHwqmDg==",
         "dependencies": {
           "System.Memory": "4.5.5"
         }
