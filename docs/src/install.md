@@ -52,6 +52,16 @@ If you chose a different name for your distro during import, adjust this command
 
 ## Post-Install
 
+Don't forget to set a password for your user (default is `nixos` and is in the `wheel` group) in case you set `security.sudo.wheelNeedsPassword = true;` which is the default.
+
+You can set your password by running:
+
+```bash
+passwd
+# or, to set the 'nixos' user's password explicitly:
+sudo passwd nixos
+```
+
 After the initial installation, you need to update your channels once, to be able to use `nixos-rebuild`:
 
 ```sh
