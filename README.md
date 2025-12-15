@@ -11,7 +11,7 @@ A minimal root filesystem for running NixOS on the Windows Subsystem for Linux
 
 NixOS-WSL is tested with the Windows Store version of WSL 2, which is now available on all supported Windows releases (both 10 and 11). Support for older "inbox" versions is best-effort.
 
-The main branch is intended to be used with nixos-unstable. For stable please look at the corresponding tags.
+The main branch is intended to be used with nixos-unstable. For stable please look at the corresponding branch.
 
 ## Quick start
 
