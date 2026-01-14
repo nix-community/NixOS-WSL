@@ -216,20 +216,6 @@ in
           cfg.extraBin
         );
 
-    # WSL expects Chrony to be at /sbin/chrony and read /etc/chrony, ours does neither, so recreate the setup (mostly)
-    # The really important bit is the refclock - otherwise the clock runs ahead randomly.
-    # https://github.com/microsoft/WSL/blob/2eac1dafeca0d88320ff2260c5d5fe5dbb09cd33/src/linux/init/main.cpp#L3796
-    # By default we shouldn't use the NixOS NTP servers since the clock is set by WSL.
-    services.chrony = {
-      enable = true;
-      extraConfig = ''
-        makestep 1.0 3
-        leapsectz right/UTC
-        refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
-      '';
-      servers = mkDefault [ ];
-    };
-
     warnings = flatten [
       (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
         "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
