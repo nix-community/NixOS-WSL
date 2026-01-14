@@ -216,6 +216,9 @@ in
           cfg.extraBin
         );
 
+    # Disable `systemd-timesyncd` to prevent conflict with the `chronyd` in the WSL root namespace
+    services.timesyncd.enable = false;
+
     warnings = flatten [
       (optional (config.services.resolved.enable && config.wsl.wslConf.network.generateResolvConf)
         "systemd-resolved is enabled, but resolv.conf is managed by WSL (wsl.wslConf.network.generateResolvConf)"
