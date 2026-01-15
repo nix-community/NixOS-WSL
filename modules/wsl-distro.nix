@@ -172,6 +172,10 @@ in
               targets+=("/etc/profiles/per-user/${config.users.users.${cfg.defaultUser}.name}/share/$x/.")
             fi
 
+            if [[ -d "/home/${config.users.users.${cfg.defaultUser}.name}/.nix-profile/share/$x" ]]; then
+               targets+=("/home/${config.users.users.${cfg.defaultUser}.name}/.nix-profile/share/$x/.")
+            fi
+
             if (( ''${#targets[@]} != 0 )); then
               mkdir -p "/usr/share/$x"
               ${pkgs.rsync}/bin/rsync --archive --copy-dirlinks --delete-after --recursive "''${targets[@]}" "/usr/share/$x"
