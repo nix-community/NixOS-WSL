@@ -7,7 +7,7 @@ rust-version = "1.69.0"
 
 [dependencies]
 anyhow = { version = "1.0.82", features = ["backtrace"] }
-nix = { version = "0.30.0", features = ["mount", "process", "user", "inotify"] }
+nix = { version = "0.31.0", features = ["mount", "process", "user", "inotify"] }
 log = "0.4.21"
 kernlog = "0.3.1"
 systemd-journal-logger = "2.1.1"
