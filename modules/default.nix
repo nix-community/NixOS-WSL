@@ -1,6 +1,7 @@
 { lib, ... }: {
   imports = [
     ./build-tarball.nix
+    ./clipboard.nix
     ./docker-desktop.nix
     ./interop.nix
     ./recovery.nix
