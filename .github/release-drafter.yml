@@ -24,9 +24,10 @@ autolabeler:
       - '/^[Ff]ix(\(.*\))?(:|(?= ))(?!.* [tT]est.*).*$/'
   - label: 'enhancement'
     title:
-      - '/^feat:/'
+      - '/^feat(ure)?(\(.+\))?[: ]/'
   - label: 'tests'
     files:
+      - 'checks/**/*.nix'
       - 'tests/**/*.ps1'
 
 template: |
