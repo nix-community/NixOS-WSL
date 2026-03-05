@@ -35,7 +35,7 @@ jobs:
 
       - name: Create backport PR
         id: backport
-        uses: korthout/backport-action@01619ebc9a6e3f6820274221b9956b3e7365000a # v4
+        uses: korthout/backport-action@4aaf0e03a94ff0a619c9a511b61aeb42adea5b02 # v4
         with:
           merge_commits: "skip"
           add_author_as_assignee: true
