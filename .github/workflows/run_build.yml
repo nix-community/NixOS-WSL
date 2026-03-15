@@ -5,8 +5,19 @@ on:
 
 jobs:
   tar:
-    name: Tarball 🛠️
-    runs-on: ubuntu-latest
+    name: Tarball (${{ matrix.system }}) 🛠️
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            system: x86_64
+            config: default
+            filename: nixos.wsl
+          - runner: ubuntu-24.04-arm
+            system: aarch64
+            config: aarch64
+            filename: nixos.aarch64.wsl
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -26,11 +37,11 @@ jobs:
       - name: Build Tarball 🛠️
         uses: ./.github/actions/build-wsl-tarball
         with:
-          config: default
-          filename: nixos.wsl
+          config: ${{ matrix.config }}
+          filename: ${{ matrix.filename }}
 
       - name: Upload Tarball 📤
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
-          name: tarball
-          path: nixos.wsl
+          name: tarball-${{ matrix.system }}
+          path: ${{ matrix.filename }}

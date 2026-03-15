@@ -6,7 +6,7 @@ on:
 jobs:
   prepare:
     name: Find Checks 🔍
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       checks: ${{ steps.checks.outputs.checks }}
     steps:
@@ -24,14 +24,22 @@ jobs:
           nix-instantiate --json --eval --strict -E 'with builtins; attrNames (getFlake (toString ./.)).checks.${currentSystem}' | perl -pe 's|(.*)|checks=\1|' >>$GITHUB_OUTPUT
 
   checks:
-    name: Flake Check ❄️
+    name: Flake Check (${{ matrix.system }}) ❄️
     needs:
       - prepare
     strategy:
       fail-fast: false
       matrix:
         check: ${{ fromJSON(needs.prepare.outputs.checks) }}
-    runs-on: ubuntu-latest
+        system:
+          - x86_64-linux
+          - aarch64-linux
+        include:
+          - system: x86_64-linux
+            runner: ubuntu-24.04
+          - system: aarch64-linux
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -43,4 +51,4 @@ jobs:
 
       - name: Run Check 📋
         run: |
-          nix build -L --impure --expr "with builtins; (getFlake (toString ./.)).checks.\${currentSystem}.${{ matrix.check }}"
+          nix build -L --impure --expr "with builtins; (getFlake (toString ./.)).checks.${{ matrix.system }}.${{ matrix.check }}"

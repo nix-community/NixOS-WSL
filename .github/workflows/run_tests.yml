@@ -6,7 +6,7 @@ on:
 jobs:
   prepare:
     name: Find Tests 🔍
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tests: ${{ steps.tests.outputs.tests }}
     steps:
@@ -23,6 +23,7 @@ jobs:
         run: |
           find tests -name '*.Tests.ps1' -print0 | perl -pe 's|(.*?)\x0|"\1",|g;s|,$||;s|(.*)|tests=[\1]|' >> $GITHUB_OUTPUT
 
+  # Note: Tests only run on x86_64. The windows-11-arm runner does not support nested virtualization.
   tests:
     name: Test 🧪
     needs:
@@ -41,7 +42,7 @@ jobs:
       - name: Download Tarball 📥
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          name: tarball
+          name: tarball-x86_64
 
       - name: Setup WSL 🐧
         run: |

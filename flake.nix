@@ -34,40 +34,45 @@
       };
       nixosModules.default = self.nixosModules.wsl;
 
-      nixosConfigurations = {
-        default = lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            self.nixosModules.default
-            ({ config, lib, pkgs, ... }: {
-              # This config is only used until the first nixos-rebuild. For the config installed to /etc/nixos/configuration.nix, see modules/build-tarball.nix
+      nixosConfigurations =
+        let
+          mkSystem = system: lib.nixosSystem {
+            inherit system;
+            modules = [
+              self.nixosModules.default
+              ({ config, lib, pkgs, ... }: {
+                # This config is only used until the first nixos-rebuild. For the config installed to /etc/nixos/configuration.nix, see modules/build-tarball.nix
 
-              wsl.enable = true;
+                wsl.enable = true;
 
-              programs.bash.loginShellInit = "nixos-wsl-welcome";
+                programs.bash.loginShellInit = "nixos-wsl-welcome";
 
-              # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
-              # Per default the resulting systems aren't flake-enabled, so rebuilds would fail.
-              # Note: This does not affect the module being imported into your own flake.
-              nixpkgs.flake.source = lib.mkForce null;
+                # When the config is built from a flake, the NIX_PATH entry of nixpkgs is set to its flake version.
+                # Per default the resulting systems aren't flake-enabled, so rebuilds would fail.
+                # Note: This does not affect the module being imported into your own flake.
+                nixpkgs.flake.source = lib.mkForce null;
 
-              systemd.tmpfiles.rules =
-                let
-                  channels = pkgs.runCommand "default-channels" { } ''
-                    mkdir -p $out
-                    ln -s ${pkgs.path} $out/nixos
-                    ln -s ${./.} $out/nixos-wsl
-                  '';
-                in
-                [
-                  "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
-                  "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
-                ];
-              system.stateVersion = config.system.nixos.release;
-            })
-          ];
+                systemd.tmpfiles.rules =
+                  let
+                    channels = pkgs.runCommand "default-channels" { } ''
+                      mkdir -p $out
+                      ln -s ${pkgs.path} $out/nixos
+                      ln -s ${./.} $out/nixos-wsl
+                    '';
+                  in
+                  [
+                    "L /nix/var/nix/profiles/per-user/root/channels-1-link - - - - ${channels}"
+                    "L /nix/var/nix/profiles/per-user/root/channels - - - - channels-1-link"
+                  ];
+                system.stateVersion = config.system.nixos.release;
+              })
+            ];
+          };
+        in
+        {
+          default = mkSystem "x86_64-linux";
+          aarch64 = mkSystem "aarch64-linux";
         };
-      };
 
       checks = forAllSystems (
         pkgs:
