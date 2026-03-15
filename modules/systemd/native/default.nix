@@ -45,7 +45,7 @@ with lib; {
           ''
           else ''
             echo "setting up /sbin..."
-            if [ ! -d /sbin ]; then
+            if [ ! -d /sbin ] || [ -L /sbin ]; then
               rm -rf /sbin
               mkdir -p /sbin
             fi
