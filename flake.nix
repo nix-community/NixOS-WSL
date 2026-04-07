@@ -89,6 +89,7 @@
         utils = pkgs.callPackage ./utils { };
         staticUtils = pkgs.pkgsStatic.callPackage ./utils { };
         docs = pkgs.callPackage ./docs { };
+        wl-clipboard-wsl = pkgs.callPackage ./packages/wl-clipboard-wsl { };
       });
 
       devShells = forAllSystems (pkgs: {
