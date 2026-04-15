@@ -12,8 +12,9 @@
     services.udev.enable = lib.mkDefault false;
 
     systemd = {
-      # systemd-oomd requires cgroup pressure info which WSL doesn't have
-      oomd.enable = false;
+      # systemd-oomd requires cgroup pressure info (PSI). Older WSL2 kernels
+      # lacked CONFIG_PSI, but modern kernels (6.1+) support it.
+      oomd.enable = lib.mkDefault false;
       # Disable systemd units that don't make sense on WSL
       services.firewall.enable = false;
 
