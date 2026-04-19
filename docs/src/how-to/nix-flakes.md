@@ -1,6 +1,6 @@
 # How to configure NixOS-WSL with flakes
 
-First add a `nixos-wsl` input, then add `nixos-wsl.nixosModules.default` to your nixos configuration.
+First add a `nixos-wsl` input, then add `nixos-wsl.nixosModules.default` to your nixos configuration in `/etc/nixos/configuration.nix`.
 
 Below is a minimal `flake.nix` for you to get started:
 
