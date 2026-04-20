@@ -57,13 +57,6 @@ with lib; {
         '';
       };
 
-      environment = {
-        # preserve $PATH from parent
-        variables.PATH = [ "$PATH" ];
-        extraInit = ''
-          eval $(${config.system.build.nativeUtils}/bin/split-path --automount-root="${cfg.wslConf.automount.root}" ${lib.optionalString cfg.interop.includePath "--include-interop"})
-        '';
-      };
     };
 
 }

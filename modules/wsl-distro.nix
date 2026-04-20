@@ -198,11 +198,22 @@ in
       '');
     };
 
+    # WSL tools are symlinks to /init provided by WSL itself at /bin, but /bin
+    # is not in the NixOS PATH. Expose them via systemPackages so they land in
+    # /run/current-system/sw/bin instead.
+    environment.systemPackages = [
+      (pkgs.runCommand "wsl-binaries" { } ''
+        mkdir -p $out/bin
+        ln -s /init $out/bin/wslpath
+        ln -s /init $out/bin/wslinfo
+        ln -s /init $out/bin/mount.drvfs
+      '')
+    ];
+
     # require people to use lib.mkForce to make it harder to brick their installation
     wsl = {
       populateBin = mkIf config.services.envfs.enable false;
       extraBin = [
-        { src = "/init"; name = "wslpath"; }
         { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
         { src = "${pkgs.bashInteractive}/bin/bash"; }
