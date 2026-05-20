@@ -155,8 +155,10 @@ in
           --system ${config.system.build.toplevel} \
           --substituters ""
 
-        echo "[NixOS-WSL] Adding channel..."
-        nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/${nixosWslBranch}.tar.gz nixos-wsl'
+        ${lib.optionalString config.nix.channel.enable ''
+          echo "[NixOS-WSL] Adding channel..."
+          nixos-enter --root "$root" --command 'HOME=/root nix-channel --add https://github.com/nix-community/NixOS-WSL/archive/refs/heads/${nixosWslBranch}.tar.gz nixos-wsl'
+        ''}
 
         echo "[NixOS-WSL] Adding wsl-distribution.conf"
         install -Dm644 ${wsl-distribution-conf} "$root/etc/wsl-distribution.conf"
