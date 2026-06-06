@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Download x86_64 Tarball 📥
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: tarball-x86_64
 
       - name: Download aarch64 Tarball 📥
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: tarball-aarch64
 
@@ -32,7 +32,7 @@ jobs:
           sha256sum nixos.aarch64.wsl > nixos.aarch64.wsl.sha256
 
       - name: Attach to Release 📎
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: |
             nixos.wsl
