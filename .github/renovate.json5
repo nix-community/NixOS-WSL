@@ -5,7 +5,7 @@
     ":semanticCommitTypeAll(chore)",
     "helpers:pinGitHubActionDigests",
   ],
-  baseBranchPatterns: ["main", "/^release-.+$/", "renovate-test"],
+  baseBranchPatterns: ["main", "release-25.11", "release-26.05"],
   labels: ["release-exclude", "renovate"],
   reviewers: ["nzbr"],
   nix: {
