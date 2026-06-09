@@ -125,7 +125,7 @@ in
     hardware.graphics = {
       enable = true; # Enable GPU acceleration
 
-      extraPackages = mkIf cfg.useWindowsDriver [ (mkWslLib cfg.wslLibExtraLinks) ];
+      extraPackages = mkIf cfg.useWindowsDriver [ cfg.wslLib ];
     };
 
     environment = {
