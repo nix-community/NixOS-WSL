@@ -26,9 +26,9 @@ let
     "/usr/lib/wsl/lib/libnvoptix.so.1"
     "/usr/lib/wsl/lib/libnvwgf2umx.so"
     "/usr/lib/wsl/lib/nvidia-ngx-updater"
-    "/usr/lib/wsl/lib/nvidia-smi"    
+    "/usr/lib/wsl/lib/nvidia-smi"
   ];
-  
+
   mkWslLib = extraLinks:
     assert cfg.useWindowsDriver;
     pkgs.runCommand "wsl-lib" { } ''
