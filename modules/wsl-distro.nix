@@ -4,12 +4,59 @@ with builtins; with lib;
 
 let
   cfg = config.wsl;
+
+  defaultLinks = [
+    "/usr/lib/wsl/lib/libcudadebugger.so.1"
+    "/usr/lib/wsl/lib/libcuda.so"
+    "/usr/lib/wsl/lib/libcuda.so.1"
+    "/usr/lib/wsl/lib/libcuda.so.1.1"
+    "/usr/lib/wsl/lib/libd3d12core.so"
+    "/usr/lib/wsl/lib/libd3d12.so"
+    "/usr/lib/wsl/lib/libdxcore.so"
+    "/usr/lib/wsl/lib/libnvcuvid.so"
+    "/usr/lib/wsl/lib/libnvcuvid.so.1"
+    "/usr/lib/wsl/lib/libnvdxdlkernels.so"
+    "/usr/lib/wsl/lib/libnvidia-encode.so"
+    "/usr/lib/wsl/lib/libnvidia-encode.so.1"
+    "/usr/lib/wsl/lib/libnvidia-gpucomp.so"
+    "/usr/lib/wsl/lib/libnvidia-ml.so.1"
+    "/usr/lib/wsl/lib/libnvidia-ngx.so.1"
+    "/usr/lib/wsl/lib/libnvidia-opticalflow.so"
+    "/usr/lib/wsl/lib/libnvidia-opticalflow.so.1"
+    "/usr/lib/wsl/lib/libnvoptix.so.1"
+    "/usr/lib/wsl/lib/libnvwgf2umx.so"
+    "/usr/lib/wsl/lib/nvidia-ngx-updater"
+    "/usr/lib/wsl/lib/nvidia-smi"
+  ];
+
+  mkWslLib = extraLinks:
+    assert cfg.useWindowsDriver;
+    pkgs.runCommand "wsl-lib" { } ''
+      mkdir -p "$out/lib"
+      
+      ${concatMapStrings (path: ''
+        ln -s ${escapeShellArg path} "$out/lib"
+      '') (defaultLinks ++ extraLinks)}
+    '';
 in
 {
-
   options.wsl = with types; {
     enable = mkEnableOption "support for running NixOS as a WSL distribution";
     useWindowsDriver = mkEnableOption "OpenGL driver from the Windows host";
+
+    wslLibExtraLinks = mkOption {
+      type = listOf str;
+      default = [ ];
+      description = "Additional /usr/lib/wsl/lib/ paths to symlink into wsl-lib";
+    };
+
+    wslLib = mkOption {
+      type = package;
+      default = mkWslLib cfg.wslLibExtraLinks;
+      defaultText = literalExpression "mkWslLib config.wsl.wslLibExtraLinks";
+      description = "WSL GPU driver library package with symlinks to Windows host drivers";
+    };
+
     binShPkg = mkOption {
       type = package;
       internal = true;
@@ -80,30 +127,7 @@ in
     hardware.graphics = {
       enable = true; # Enable GPU acceleration
 
-      extraPackages = mkIf cfg.useWindowsDriver [
-        (pkgs.runCommand "wsl-lib" { } ''
-          mkdir -p "$out/lib"
-          # # we cannot just symlink the lib directory because it breaks merging with other drivers that provide the same directory
-          ln -s /usr/lib/wsl/lib/libcudadebugger.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libcuda.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libcuda.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libcuda.so.1.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libd3d12core.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libd3d12.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libdxcore.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvcuvid.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvcuvid.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvdxdlkernels.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvidia-encode.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvidia-encode.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvidia-ml.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvidia-opticalflow.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvidia-opticalflow.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvoptix.so.1 "$out/lib"
-          ln -s /usr/lib/wsl/lib/libnvwgf2umx.so "$out/lib"
-          ln -s /usr/lib/wsl/lib/nvidia-smi "$out/lib"
-        '')
-      ];
+      extraPackages = mkIf cfg.useWindowsDriver [ cfg.wslLib ];
     };
 
     environment = {
