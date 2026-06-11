@@ -113,7 +113,6 @@ in
   config = mkIf cfg.enable {
     # WSL uses its own kernel and boot loader
     boot = {
-      bootspec.enable = false;
       initrd.enable = false;
       kernel.enable = false;
       loader.grub.enable = false;
