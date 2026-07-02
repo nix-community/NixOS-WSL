@@ -30,6 +30,9 @@ with builtins; with lib; {
         # create those symlinks anyway for robustness.
         { src = "${shadow}/bin/groupadd"; }
         { src = "${shadow}/bin/usermod"; }
+        # Docker Desktop v4.80.0+
+        { src = "${coreutils}/bin/install"; }
+        { src = "${coreutils}/bin/mv"; }
       ];
 
       users.groups.docker.members = [
