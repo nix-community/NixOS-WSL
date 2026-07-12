@@ -63,6 +63,16 @@ with lib; {
               default = true;
               description = "Use systemd as init. Disabling this may break your NixOS installation";
             };
+            initTimeout = mkOption {
+              type = types.nullOr types.ints.unsigned;
+              default = null;
+              description = ''
+                Time in milliseconds that WSL waits for the init process to become
+                ready when starting the distribution, and for `systemctl poweroff` to
+                finish when the distribution is terminated. When `null`, WSL's built-in
+                default of 10000 is used.
+              '';
+            };
           };
           interop = {
             enabled = mkOption {
@@ -108,7 +118,7 @@ with lib; {
   config = mkIf config.wsl.enable {
 
     environment.etc."wsl.conf".text = generators.toINI { } (
-      lib.filterAttrsRecursive (_: v: v != "") config.wsl.wslConf
+      lib.filterAttrsRecursive (_: v: v != null && v != "") config.wsl.wslConf
     );
 
     warnings = optional (!config.wsl.wslConf.boot.systemd)
