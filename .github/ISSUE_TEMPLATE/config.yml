@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/nix-community/NixOS-WSL/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🗨️ Matrix Chat
+    url: https://matrix.to/#/#wsl:nixos.org
+    about: Join our Matrix chat room for real-time discussions
+  - name: 📖 Documentation
+    url: https://nix-community.github.io/NixOS-WSL/
+    about: Check the documentation for guides and troubleshooting
