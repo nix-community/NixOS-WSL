@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, pkgs, config, ... }:
 
 with builtins; with lib;
 {
@@ -30,6 +30,23 @@ with builtins; with lib;
           interpreter = "/init";
           preserveArgvZero = true;
         };
+      };
+
+      environment = mkIf cfg.includePath {
+        # Capture Windows interop paths from the PATH set by WSL. Skip paths
+        # which don't start with /mnt/c; they are generic defaults (eg.
+        # /usr/local/sbin) that don't exist on NixOS.
+        variables.INTEROP_PATH = ''
+          $(echo -n "$PATH" \
+          | ${pkgs.coreutils}/bin/tr ':' '\n' \
+          | ${pkgs.gnugrep}/bin/grep '^${config.wsl.wslConf.automount.root}/' \
+          | ${pkgs.coreutils}/bin/paste -sd: -)
+        '';
+
+        extraInit = ''
+          export PATH="$PATH:$INTEROP_PATH"
+          unset INTEROP_PATH
+        '';
       };
 
       warnings =
