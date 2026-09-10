@@ -209,6 +209,7 @@ in
         { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
         { src = "${pkgs.bashInteractive}/bin/bash"; }
+        { src = "${pkgs.coreutils}/bin/true"; }
       ];
     };
 
