@@ -33,7 +33,7 @@ let
     assert cfg.useWindowsDriver;
     pkgs.runCommand "wsl-lib" { } ''
       mkdir -p "$out/lib"
-      
+
       ${concatMapStrings (path: ''
         ln -s ${escapeShellArg path} "$out/lib"
       '') (defaultLinks ++ extraLinks)}
@@ -232,6 +232,7 @@ in
         { src = "${cfg.binShExe}"; name = "sh"; }
         { src = "${pkgs.util-linux}/bin/mount"; }
         { src = "${pkgs.bashInteractive}/bin/bash"; }
+        { src = "${pkgs.coreutils}/bin/true"; }
       ];
     };
 
