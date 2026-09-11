@@ -15,8 +15,6 @@ body:
       label: Documentation URL
       description: What page or section of the documentation has an issue?
       placeholder: "https://nix-community.github.io/NixOS-WSL/..."
-    validations:
-      required: true
 
   - type: dropdown
     id: issue-type

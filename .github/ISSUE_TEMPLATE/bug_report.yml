@@ -9,6 +9,11 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report! Please provide as much detail as possible.
 
+  - type: markdown
+    attributes:
+      value: |
+        # Information About the Bug
+
   - type: textarea
     id: bug-description
     attributes:
@@ -24,51 +29,9 @@ body:
       label: Steps to Reproduce
       description: Tell us how to reproduce this behavior.
       placeholder: |
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-    validations:
-      required: true
-
-  - type: textarea
-    id: expected-behavior
-    attributes:
-      label: Expected Behavior
-      description: A clear and concise description of what you expected to happen.
-    validations:
-      required: true
-
-  - type: textarea
-    id: nixos-wsl-version
-    attributes:
-      label: NixOS-WSL Version Information
-      description: Please run the nixos-wsl-version command and paste the complete output. If the command doesn't exist, see fallback instructions below.
-      placeholder: |
-        Run this command in your NixOS-WSL terminal:
-        nixos-wsl-version
-
-        Expected output format:
-        NixOS-WSL 24.05.123456 abcdef123456
-
-        If the command doesn't exist or fails, please provide:
-        - Contents of /etc/os-release
-        - Output of: cat /etc/nixos-wsl-release (if file exists)
-        - Your installation method and source
-      render: shell
-    validations:
-      required: true
-
-  - type: textarea
-    id: system-info
-    attributes:
-      label: System Information
-      description: Please provide information about your system.
-      placeholder: |
-        - WSL Version: (output of `wsl --version`)
-        - Windows Version: (e.g., Windows 11 22H2)
-        - Architecture: (x86_64, aarch64, etc.)
-      render: shell
+        1. Enable option '...'
+        2. Run on '...'
+        3. See error
     validations:
       required: true
 
@@ -78,10 +41,6 @@ body:
       label: Relevant Configuration
       description: Please share relevant parts of your NixOS configuration.
       placeholder: |
-        Share relevant configuration that might be related to your issue:
-
-        Common WSL-specific options to include:
-        ```nix
         wsl = {
           enable = true;
           defaultUser = "your-username";
@@ -89,16 +48,8 @@ body:
           interop.enabled = true;  # or false
           # ... other wsl.* options you've configured
         };
-        ```
 
-        Also include from configuration.nix/flake.nix:
-        - Any wsl.* settings you've customized
-        - Systemd/networking configuration (if networking issues)
-        - Docker/virtualization settings (if container issues)
-        - Custom kernel or boot settings (if boot issues)
-        - User/group configurations (if permission issues)
-
-        Please only include sections relevant to your issue.
+        ...
       render: nix
 
   - type: textarea
@@ -108,12 +59,79 @@ body:
       description: If applicable, add relevant logs or error messages.
       placeholder: |
         Include any relevant logs, error messages, or command output.
-        
+
         You can often find logs in:
         - `journalctl` output
         - `dmesg` output
-        - WSL logs
-      render: shell
+        - WSL logs (see https://github.com/microsoft/WSL/blob/master/diagnostics/collect-wsl-logs.ps1)
+
+  - type: markdown
+    attributes:
+      value: |
+        # Information About Your System
+
+  - type: dropdown
+    id: architecture
+    attributes:
+      label: Architecture
+      description: Select the CPU architecture of your system.
+      options:
+        - x86_64 (Intel/AMD)
+        - aarch64 (ARM)
+    validations:
+      required: true
+
+  - type: input
+    id: nixos-wsl-version
+    attributes:
+      label: NixOS-WSL Version Information
+      description: |
+          Run this command in your **NixOS-WSL** terminal and paste the output here:
+
+          ```
+          nixos-wsl-version
+          ```
+
+          If the command doesn't exist or fails, please provide:
+          - Contents of /etc/os-release
+          - Output of: cat /etc/nixos-wsl-release (if file exists)
+          - Your installation method and source
+      placeholder: "NixOS-WSL xx.xx.xx.xx abcdef123456"
+    validations:
+      required: true
+
+  - type: input
+    id: wsl-version
+    attributes:
+      label: WSL Version
+      description: |
+          Run this command on your **Windows** terminal and paste the output here:
+
+          ```
+          wsl --version
+          ```
+      placeholder: "2.x.x.x"
+    validations:
+      required: true
+
+  - type: input
+    id: windows-version
+    attributes:
+      label: Windows Version
+      description: |
+          Reun this command on your **Windows** terminal and paste the line containing _Version_ and _Build_ here:
+
+          ```
+          winver
+          ```
+      placeholder: "Version xxHx (Build xxxxx.xxxx)"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        # Additional Information
 
   - type: textarea
     id: additional-context
@@ -130,7 +148,7 @@ body:
       options:
         - label: I have searched existing issues to make sure this is not a duplicate.
           required: true
-        - label: I have included the output of `nixos-wsl-version`.
+        - label: I have included all relevant information in the fields above
           required: true
         - label: I have provided clear steps to reproduce the issue.
           required: true

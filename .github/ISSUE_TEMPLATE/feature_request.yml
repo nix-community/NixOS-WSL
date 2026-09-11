@@ -15,15 +15,13 @@ body:
       label: Is your feature request related to a problem?
       description: A clear and concise description of what the problem is.
       placeholder: "I'm always frustrated when..."
-    validations:
-      required: true
 
   - type: textarea
     id: solution
     attributes:
       label: Describe the solution you'd like
       description: A clear and concise description of what you want to happen.
-      placeholder: Describe your ideal solution...
+      placeholder: There should be...
     validations:
       required: true
 
@@ -44,23 +42,24 @@ body:
         - How would it improve your workflow?
         - Are there existing workarounds you're using?
 
-  - type: textarea
+  - type: input
     id: nixos-wsl-version
     attributes:
       label: NixOS-WSL Version Information
-      description: Please run the nixos-wsl-version command and paste the output here (helps us understand your current setup). If the command doesn't exist, see fallback instructions below.
-      placeholder: |
-        Run this command in your NixOS-WSL terminal:
-        nixos-wsl-version
+      description: |
+          Run this command in your **NixOS-WSL** terminal and paste the output here:
 
-        Expected output format:
-        NixOS-WSL 24.05.123456 abcdef123456
+          ```
+          nixos-wsl-version
+          ```
 
-        If the command doesn't exist or fails, please provide:
-        - Contents of /etc/os-release
-        - Output of: cat /etc/nixos-wsl-release (if file exists)
-        - Your installation method and source
-      render: shell
+          If the command doesn't exist or fails, please provide:
+          - Contents of /etc/os-release
+          - Output of: cat /etc/nixos-wsl-release (if file exists)
+          - Your installation method and source
+      placeholder: "NixOS-WSL xx.xx.xx.xx abcdef123456"
+    validations:
+      required: true
 
   - type: textarea
     id: additional-context
