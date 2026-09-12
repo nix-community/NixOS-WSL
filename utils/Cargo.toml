@@ -12,19 +12,9 @@ log = "0.4.21"
 kernlog = "0.3.1"
 systemd-journal-logger = "2.1.1"
 
-# pinned to prevent running over Rust 1.69
-clap = { version = "<4.7", features = ["derive"] }
-clap_lex = "<1.1.1"
-anstyle = "<1.0.15"
-anstyle-parse = "<1.0.1"
-
 [[bin]]
 name = "systemd-shim"
 path = "src/shim.rs"
-
-[[bin]]
-name = "split-path"
-path = "src/split_path.rs"
 
 [[bin]]
 name = "shell-wrapper"
