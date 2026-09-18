@@ -14,7 +14,7 @@ jobs:
     needs:
       - build
     name: Create Release 📢
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Download x86_64 Tarball 📥
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
