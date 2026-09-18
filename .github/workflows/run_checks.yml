@@ -6,7 +6,7 @@ on:
 jobs:
   prepare:
     name: Find Checks 🔍
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       checks: ${{ steps.checks.outputs.checks }}
     steps:
