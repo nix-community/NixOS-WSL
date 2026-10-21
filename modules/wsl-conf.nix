@@ -121,6 +121,10 @@ with lib; {
       lib.filterAttrsRecursive (_: v: v != null && v != "") config.wsl.wslConf
     );
 
+    environment.extraInit = mkIf config.wsl.wslConf.interop.appendWindowsPath ''
+      export PATH="$PATH''${WSLPATH:+:$WSLPATH}"
+    '';
+
     warnings = optional (!config.wsl.wslConf.boot.systemd)
       "systemd is disabled in wsl.conf. This is strongly discouraged and WILL break things"
     ++ optional (config.wsl.wslConf.network.generateHosts && config.networking.extraHosts != "")

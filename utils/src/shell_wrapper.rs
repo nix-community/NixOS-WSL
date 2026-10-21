@@ -68,6 +68,26 @@ fn real_main() -> anyhow::Result<()> {
                 }
             }
 
+            let path = match env::var("PATH") {
+                Ok(path) => path,
+                Err(env::VarError::NotPresent) => String::new(),
+                Err(error) => return Err(error).context("when reading PATH"),
+            };
+
+            // wsl.exe sets this as the default PATH and, if appendWindowsPath
+            // is enabled in wsl.conf, appends its own %PATH%
+            const WSL_PATH_PREFIX: &str =
+                "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games";
+
+            // if the prefix is present, save the Windows in WSLPATH so that we
+            // can append it after the NixOS PATH is configured
+            if let Some(path) = path
+                .strip_prefix(WSL_PATH_PREFIX)
+                .and_then(|suffix| suffix.strip_prefix(':'))
+            {
+                env::set_var("WSLPATH", path);
+            }
+
             // Load the environment from /etc/set-environment
             let output = Command::new(env!("NIXOS_WSL_SH"))
                 .args(&[

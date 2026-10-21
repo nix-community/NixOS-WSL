@@ -2,17 +2,15 @@
 
 with builtins; with lib;
 {
+  imports = [
+    (mkRenamedOptionModule [ "wsl" "interop" "includePath" ] [ "wsl" "wslConf" "interop" "appendWindowsPath" ])
+  ];
+
   options.wsl.interop = with types; {
     register = mkOption {
       type = bool;
       default = false; # Use the existing registration by default
       description = "Explicitly register the binfmt_misc handler for Windows executables";
-    };
-
-    includePath = mkOption {
-      type = bool;
-      default = true;
-      description = "Include Windows PATH in WSL PATH";
     };
   };
 
