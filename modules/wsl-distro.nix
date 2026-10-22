@@ -178,6 +178,13 @@ in
       extraGroups = [ "wheel" ]; # Allow the default user to use sudo
     };
 
+    # The default user has passwordless sudo, so trusting them with the Nix
+    # daemon does not grant any additional privileges. This makes client
+    # settings such as `--option` work instead of being ignored with a
+    # "not a trusted user" warning. mkAfter preserves the default root entry
+    # and any entries a user adds.
+    nix.settings.trusted-users = mkAfter [ cfg.defaultUser ];
+
     # Otherwise WSL fails to login as root with "initgroups failed 5"
     users.users.root.extraGroups = [ "root" ];
 
