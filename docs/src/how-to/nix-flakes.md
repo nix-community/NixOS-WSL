@@ -7,11 +7,25 @@ work fine here too. If you're new to NixOS, it's fine to skip this page and
 stick with the plain `configuration.nix` setup from the rest of the docs.
 
 To switch to a flake-based configuration, create a new `/etc/nixos/flake.nix`
-(don't add this to `/etc/nixos/configuration.nix` — that will error, since
-`configuration.nix` is plain NixOS module syntax, not a flake). Your existing
-`configuration.nix` doesn't need to be rewritten: the flake below imports it
-as a module alongside `nixos-wsl.nixosModules.default`, so it keeps working
-as-is.
+(don't add this to `/etc/nixos/configuration.nix`: that will error, since
+`configuration.nix` is plain NixOS module syntax, not a flake). The flake below
+imports your existing `configuration.nix` as a module, so you can keep editing
+it as before.
+
+One change to `configuration.nix` is needed first. The one NixOS-WSL generates
+imports the NixOS-WSL modules from a channel:
+
+```nix
+  imports = [
+    # include NixOS-WSL modules
+    <nixos-wsl/modules>
+  ];
+```
+
+Remove that import. The flake provides the same modules through
+`nixos-wsl.nixosModules.default`, and keeping both fails: flakes evaluate in
+pure mode, where `<nixos-wsl/modules>` can't be looked up, and if it could, the
+modules would be declared twice.
 
 Below is a minimal `flake.nix` for you to get started:
 
@@ -29,9 +43,6 @@ Below is a minimal `flake.nix` for you to get started:
         modules = [
           nixos-wsl.nixosModules.default
           ./configuration.nix
-          {
-            wsl.enable = true;
-          }
         ];
       };
     };
@@ -39,8 +50,6 @@ Below is a minimal `flake.nix` for you to get started:
 }
 ```
 
-`./configuration.nix` is your existing configuration — keep editing it as
-before, it's still plain NixOS module syntax. `flake.nix` just wraps it and
-adds `nixos-wsl.nixosModules.default` and `wsl.enable = true`, which is what
-actually enables NixOS-WSL. If `configuration.nix` already sets
-`system.stateVersion`, you don't need to set it again here.
+The generated `configuration.nix` already sets `wsl.enable = true` and
+`system.stateVersion`, so the flake doesn't need to set them again. If you wrote
+your own `configuration.nix` instead, make sure it sets both.
