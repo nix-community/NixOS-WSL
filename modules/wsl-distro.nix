@@ -178,6 +178,11 @@ in
       extraGroups = [ "wheel" ]; # Allow the default user to use sudo
     };
 
+    # Make the default user trusted by the nix-daemon (effectively root access) if passwordless sudo is enabled anyway
+    nix.settings.trusted-users = mkIf
+      (config.security.sudo.enable && !config.security.sudo.wheelNeedsPassword)
+      (mkAfter [ cfg.defaultUser ]);
+
     # Otherwise WSL fails to login as root with "initgroups failed 5"
     users.users.root.extraGroups = [ "root" ];
 
