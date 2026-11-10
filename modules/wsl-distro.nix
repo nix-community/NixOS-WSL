@@ -5,12 +5,6 @@ with builtins; with lib;
 let
   cfg = config.wsl;
 
-  # The default user may only be trusted with the Nix daemon while they can
-  # become root without a password; otherwise that trust would grant them
-  # root-equivalent access they do not already have.
-  passwordlessSudoEnabled =
-    config.security.sudo.enable && !config.security.sudo.wheelNeedsPassword;
-
   defaultLinks = [
     "/usr/lib/wsl/lib/libcudadebugger.so.1"
     "/usr/lib/wsl/lib/libcuda.so"
@@ -184,12 +178,10 @@ in
       extraGroups = [ "wheel" ]; # Allow the default user to use sudo
     };
 
-    # Trusting a user with the Nix daemon grants them root-equivalent access, so
-    # only trust the default user while they can already become root without a
-    # password. This makes client settings such as `--option` work instead of
-    # being ignored with a "not a trusted user" warning. mkAfter preserves the
-    # default root entry and any entries a user adds.
-    nix.settings.trusted-users = mkIf passwordlessSudoEnabled (mkAfter [ cfg.defaultUser ]);
+    # Make the default user trusted by the nix-daemon (effectively root access) if passwordless sudo is enabled anyway
+    nix.settings.trusted-users = mkIf 
+      (config.security.sudo.enable && !config.security.sudo.wheelNeedsPassword)
+      (mkAfter [ cfg.defaultUser ]);
 
     # Otherwise WSL fails to login as root with "initgroups failed 5"
     users.users.root.extraGroups = [ "root" ];
