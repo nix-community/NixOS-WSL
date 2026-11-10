@@ -179,7 +179,7 @@ in
     };
 
     # Make the default user trusted by the nix-daemon (effectively root access) if passwordless sudo is enabled anyway
-    nix.settings.trusted-users = mkIf 
+    nix.settings.trusted-users = mkIf
       (config.security.sudo.enable && !config.security.sudo.wheelNeedsPassword)
       (mkAfter [ cfg.defaultUser ]);
 
