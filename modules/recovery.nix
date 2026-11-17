@@ -1,20 +1,26 @@
 { config, pkgs, ... }:
 let
   nixos-enter = pkgs.nixos-enter or config.system.build.nixos-enter;
-  nixos-enter' = nixos-enter.overrideAttrs (_: {
-    runtimeShell = "/bin/bash";
-  });
 
   recovery = pkgs.writeScriptBin "nixos-wsl-recovery" ''
     #! /bin/sh
     if [ -f /etc/NIXOS ]; then
       echo "nixos-wsl-recovery should only be run from the WSL system distribution."
       echo "Example:"
-      echo "    wsl --system --distribution NixOS --user root -- /nix/var/nix/profiles/system/bin/nixos-wsl-recovery"
+      echo "    wsl --system --distribution NixOS --user root -- /mnt/wslg/distro/bin/nixos-wsl-recovery"
       exit 1
     fi
+    if [ ! -d /mnt/wslg/distro/nix/store ]; then
+      echo "nixos-wsl-recovery: /mnt/wslg/distro does not look like a NixOS installation." >&2
+      exit 1
+    fi
+    # Make the Nix store of the NixOS system being repaired available at /nix.
+    # The shebang of nixos-enter points at a /nix/store interpreter of that
+    # store, which does not exist in the WSL system distribution otherwise.
+    mkdir -p /nix
+    mount --bind /mnt/wslg/distro/nix /nix
     mount -o remount,rw /mnt/wslg/distro
-    exec /mnt/wslg/distro/${nixos-enter'}/bin/nixos-enter --root /mnt/wslg/distro "$@"
+    exec /mnt/wslg/distro/${nixos-enter}/bin/nixos-enter --root /mnt/wslg/distro "$@"
   '';
 
 in
