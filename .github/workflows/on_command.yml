@@ -19,7 +19,7 @@ jobs:
       - name: Get actor permissions
         id: check-permissions
         continue-on-error: true
-        uses: prince-chrismc/check-actor-permissions-action@00b85696974a3461836b27f5e17128c65d677a1b # v4.0.0
+        uses: prince-chrismc/check-actor-permissions-action@e4fd872e758900c117e752815d82e0b5b3712edb # v4.0.1
         with:
           permission: write
 
