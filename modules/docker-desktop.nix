@@ -33,6 +33,8 @@ with builtins; with lib; {
         # Docker Desktop v4.80.0+
         { src = "${coreutils}/bin/install"; }
         { src = "${coreutils}/bin/mv"; }
+        # Docker Desktop v4.100.0+
+        { src = "${coreutils}/bin/test"; }
       ];
 
       users.groups.docker.members = [
